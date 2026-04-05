@@ -1,0 +1,38 @@
+{
+  "name": "markdown-to-video",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Convert Markdown slides into videos with Remotion.",
+  "scripts": {
+    "prepare:preview": "node scripts/prepare-preview.mjs",
+    "prepare:preview:qwen": "PREVIEW_MARKDOWN=examples/qwen-local.md node scripts/prepare-preview.mjs",
+    "dev": "npm run prepare:preview && remotion studio",
+    "dev:qwen": "PREVIEW_MARKDOWN=examples/qwen-local.md npm run prepare:preview && remotion studio",
+    "download:qwen:modelscope": "mkdir -p .models && if [ -d .models/Qwen3-TTS-12Hz-0.6B-CustomVoice/.git ]; then git -C .models/Qwen3-TTS-12Hz-0.6B-CustomVoice pull && git -C .models/Qwen3-TTS-12Hz-0.6B-CustomVoice lfs pull; else git clone https://www.modelscope.cn/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice.git .models/Qwen3-TTS-12Hz-0.6B-CustomVoice; fi",
+    "render": "remotion render",
+    "render:md": "node scripts/render-markdown.mjs",
+    "qwen:doctor": "node scripts/check-qwen.mjs",
+    "check": "tsc --noEmit"
+  },
+  "keywords": [
+    "markdown",
+    "video",
+    "remotion"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@remotion/cli": "4.0.445",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-markdown": "10.1.0",
+    "remark-gfm": "4.0.1",
+    "remotion": "4.0.445"
+  },
+  "devDependencies": {
+    "@types/node": "24.5.2",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}

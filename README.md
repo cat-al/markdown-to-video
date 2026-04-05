@@ -1,0 +1,219 @@
+## Markdown to Video
+
+把按页编写的 Markdown 文稿直接生成带 **配音、字幕、预览与导出视频** 的原型项目，核心技术栈是 `Remotion + React + Node.js`，默认语音链路已经切到 **`Qwen3-TTS` 本地模型**。
+
+### 项目能做什么
+
+- **Markdown 分页生成视频**：使用 `---` 作为分页符
+- **Qwen3-TTS 默认配音**：默认走 `qwen-local`，不再依赖系统 `say`
+- **自动字幕**：根据旁白文本拆分字幕，并额外输出 `.srt`
+- **Studio 预览**：先生成预览素材，再启动 `Remotion Studio`
+- **命令行渲染**：从 `.md` 直接输出 `.mp4`
+- **本地模型优先**：若 `.models/` 下存在同名模型目录，会优先走本地镜像
+
+### 目录说明
+
+- `src/`：Remotion 入口、页面组件、预览模块
+- `scripts/`：Markdown 解析、TTS 生成、预览准备、渲染脚本
+- `examples/`：示例 Markdown，包括默认 demo 与 Qwen 示例
+- `public/generated/`：按文稿生成的音频素材
+- `dist/`：视频与字幕产物
+- `log/`：运行日志与 PID 文件
+- `.models/`：本地模型镜像目录（如 `Qwen3-TTS`）
+
+### 环境要求
+
+- **Node.js**：建议 `18+`
+- **Python**：使用 `qwen-local` 需要 Python 3 环境
+- **ffprobe**：建议安装，用于音频时长探测；没有时会回退到 `afinfo`
+
+### 快速开始
+
+#### 1. 安装依赖
+
+```bash
+npm install
+```
+
+#### 2. 准备 Python 环境
+
+```bash
+python3 -m venv .venv-qwen
+source .venv-qwen/bin/activate
+pip install -r requirements-qwen.txt
+```
+
+#### 3. 检查 Qwen 环境
+
+```bash
+QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run qwen:doctor
+```
+
+#### 4. 生成默认预览素材
+
+```bash
+npm run prepare:preview
+```
+
+#### 5. 启动默认预览
+
+```bash
+npm run dev
+```
+
+#### 6. 渲染 Markdown 为视频
+
+```bash
+npm run render:md -- examples/demo.md
+```
+
+如果希望指定输出文件：
+
+```bash
+npm run render:md -- examples/demo.md dist/demo.mp4
+```
+
+### 常用命令
+
+- **`npm run prepare:preview`**：使用默认示例生成预览素材
+- **`npm run prepare:preview:qwen`**：使用 `examples/qwen-local.md` 生成 Qwen 预览素材
+- **`npm run dev`**：准备默认预览素材并打开 `Remotion Studio`
+- **`npm run dev:qwen`**：准备 `Qwen3-TTS` 预览素材并打开 `Remotion Studio`
+- **`npm run render:md -- <input.md> [output.mp4]`**：渲染指定 Markdown
+- **`npm run qwen:doctor`**：检查本地 `Qwen3-TTS` 运行环境
+- **`npm run download:qwen:modelscope`**：通过 `ModelScope` 拉取 `0.6B-CustomVoice` 模型镜像
+- **`npm run check`**：TypeScript 类型检查
+
+### Markdown 写法约定
+
+支持简单 frontmatter 与分页语法：
+
+```md
+---
+title: 你的标题
+subtitle: 你的副标题
+themeColor: #8b5cf6
+ttsProvider: qwen-local
+ttsModel: Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice
+ttsVoice: Vivian
+ttsLanguage: Chinese
+---
+# 第一页
+内容...
+
+<!-- voiceover
+这是这一页真正用于配音和字幕的文本。
+-->
+
+---
+
+## 第二页
+内容...
+<!-- duration: 6 -->
+```
+
+### 支持的控制字段
+
+- **`title` / `subtitle`**：演示文稿标题与副标题
+- **`themeColor`**：主题色
+- **`ttsProvider`**：默认推荐 `qwen-local`，也保留 `system` 兼容分支
+- **`ttsModel`**：Qwen 模型名或本地模型路径
+- **`ttsVoice`**：Qwen `CustomVoice` 音色名，例如 `Vivian`
+- **`ttsRate`**：系统 TTS 兼容字段，Qwen 默认不会用到
+- **`ttsLanguage`**：如 `Chinese` / `English`
+- **`ttsInstruction`**：Qwen `VoiceDesign` 模式下的音色描述
+- **`<!-- voiceover -->`**：显式指定旁白文本
+- **`<!-- duration: 6 -->`**：显式指定当前页最低时长（秒）
+
+### 输出产物
+
+执行渲染后，通常会生成以下内容：
+
+- `dist/*.mp4`：最终视频
+- `dist/*.srt`：字幕文件
+- `dist/*.preview.srt`：Studio 预览字幕
+- `public/generated/<name>/slide-*.wav`：每一页的配音音频
+- `src/generated/preview-presentation.ts`：Studio 预览使用的数据模块
+
+### 默认 Qwen3-TTS 配置
+
+项目默认使用以下策略：
+
+- **默认 provider**：`qwen-local`
+- **默认模型**：`Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice`
+- **默认音色**：`Vivian`
+- **macOS 默认推理策略**：`CPU + float32`
+- **自动 Python 探测**：若存在 `.venv-qwen/bin/python`，脚本会优先使用它
+- **自动本地模型探测**：若 `.models/<repoName>` 存在，会优先走本地路径
+
+### 使用 Qwen3-TTS 本地模型
+
+如果你想显式写在 Markdown 中，可以这样配置：
+
+```md
+---
+title: Qwen Demo
+ttsProvider: qwen-local
+ttsModel: Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice
+ttsVoice: Vivian
+ttsLanguage: Chinese
+ttsInstruction: 自然、清晰、专业的中文视频讲解音色，节奏稳定，适合技术教程和产品介绍。
+---
+```
+
+#### 下载本地模型镜像
+
+```bash
+npm run download:qwen:modelscope
+```
+
+#### 直接查看 Qwen 预览效果
+
+```bash
+npm run dev:qwen
+```
+
+#### 使用 Qwen 渲染视频
+
+```bash
+QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run render:md -- examples/qwen-local.md dist/qwen-local.mp4
+```
+
+### 系统 TTS 说明
+
+代码里仍保留了 `system` provider 兼容分支，但它已经**不再是默认方案**。常规预览和渲染流程现在都默认使用 `Qwen3-TTS`。
+
+### 日志与运行文件
+
+当前项目会把运行时产生的日志与 PID 文件统一放到 `log/`：
+
+- `log/*.log`：下载、预览、模型测试等日志
+- `log/*.pid`：对应后台任务 PID
+
+如果你只是想查看最近一次运行状态，可以优先看：
+
+- `log/dev-server.log`
+- `log/qwen-preview-gen.log`
+- `log/qwen-modelscope.log`
+- `log/hf-download-test.log`
+
+### 示例文件
+
+- `examples/demo.md`：默认 demo，已切到 Qwen 默认配置
+- `examples/qwen-local.md`：显式 Qwen 本地语音示例
+- `examples/ai-brain-fry-demo.md`：根据视频转录整理的简体中文演示稿
+
+### 当前适合的使用场景
+
+- 技术教程视频
+- 产品介绍视频
+- Markdown 讲稿快速成片
+- 本地验证 TTS / 字幕 / 视频生成闭环
+
+### 后续可继续扩展
+
+- **模板系统**：封面、章节页、结尾页、转场
+- **字幕增强**：逐词高亮、双语字幕、样式模板
+- **批量渲染**：扫描目录后批量生成视频
+- **音色能力**：VoiceClone、本地缓存复用、更多模型支持
+- **工程化能力**：任务队列、Web 界面、远程渲染

@@ -6,11 +6,14 @@
   "scripts": {
     "prepare:preview": "node scripts/prepare-preview.mjs",
     "prepare:preview:qwen": "PREVIEW_MARKDOWN=examples/qwen-local.md node scripts/prepare-preview.mjs",
-    "dev": "npm run prepare:preview && remotion studio",
-    "dev:qwen": "PREVIEW_MARKDOWN=examples/qwen-local.md npm run prepare:preview && remotion studio",
+    "studio": "remotion studio",
+    "dev": "npm run prepare:preview && npm run studio",
+    "dev:qwen": "PREVIEW_MARKDOWN=examples/qwen-local.md npm run prepare:preview && npm run studio",
     "download:qwen:modelscope": "mkdir -p .models && if [ -d .models/Qwen3-TTS-12Hz-0.6B-CustomVoice/.git ]; then git -C .models/Qwen3-TTS-12Hz-0.6B-CustomVoice pull && git -C .models/Qwen3-TTS-12Hz-0.6B-CustomVoice lfs pull; else git clone https://www.modelscope.cn/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice.git .models/Qwen3-TTS-12Hz-0.6B-CustomVoice; fi",
     "render": "remotion render",
     "render:md": "node scripts/render-markdown.mjs",
+    "video:render": "bash scripts/render-video.sh",
+    "render:preview": "remotion render src/index.ts MarkdownVideo",
     "qwen:doctor": "node scripts/check-qwen.mjs",
     "check": "tsc --noEmit"
   },

@@ -1,4 +1,5 @@
 import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {existsSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync} from 'node:fs';
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -7,6 +8,21 @@ export const DEFAULT_FPS = 30;
 export const AUDIO_TAIL_SECONDS = 0.45;
 export const MIN_SLIDE_SECONDS = 3;
 export const MAX_SLIDE_SECONDS = 9;
+export const SLIDE_LAYOUT_NAMES = [
+  'hero',
+  'split-list',
+  'timeline',
+  'grid',
+  'mosaic',
+  'argument',
+  'triptych',
+  'manifesto',
+  'spotlight',
+  'quote',
+  'code',
+  'panel',
+];
+const SLIDE_LAYOUT_NAME_SET = new Set(SLIDE_LAYOUT_NAMES);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const QWEN_WORKER_PATH = join(__dirname, '..', 'qwen_tts_worker.py');
@@ -29,6 +45,54 @@ export const readMarkdownFile = (filePath) => readFileSync(filePath, 'utf8');
 export const parseNumericValue = (value) => {
   const parsed = Number(value.trim());
   return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const AUDIO_MANIFEST_VERSION = 1;
+
+const readAudioManifest = (manifestPath) => {
+  if (!existsSync(manifestPath)) {
+    return {version: AUDIO_MANIFEST_VERSION, entries: {}};
+  }
+
+  try {
+    const parsed = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    return {
+      version: parsed?.version ?? AUDIO_MANIFEST_VERSION,
+      entries: parsed?.entries && typeof parsed.entries === 'object' ? parsed.entries : {},
+    };
+  } catch {
+    return {version: AUDIO_MANIFEST_VERSION, entries: {}};
+  }
+};
+
+const createAudioCacheKey = ({narration, ttsConfig}) => {
+  return createHash('sha1')
+    .update(JSON.stringify({
+      provider: ttsConfig.provider,
+      voice: ttsConfig.voice,
+      rate: ttsConfig.rate,
+      language: ttsConfig.language,
+      instruction: ttsConfig.instruction,
+      model: ttsConfig.model,
+      mode: ttsConfig.mode,
+      device: ttsConfig.device,
+      dtype: ttsConfig.dtype,
+      attnImplementation: ttsConfig.attnImplementation,
+      narration,
+    }))
+    .digest('hex');
+};
+
+const shouldReuseAudio = ({slide, manifestEntries}) => {
+  if (!slide.narration) {
+    return false;
+  }
+
+  if (!existsSync(slide.audioOutputPath)) {
+    return false;
+  }
+
+  return manifestEntries[slide.fileName]?.cacheKey === slide.audioCacheKey;
 };
 
 export const parseFrontmatter = (markdownText) => {
@@ -83,6 +147,18 @@ export const extractDurationInFrames = (markdownText, fps) => {
   return Math.max(Math.round(Number(match[1]) * fps), fps);
 };
 
+export const extractSlideDirectives = (markdownText) => {
+  const layoutMatch = markdownText.match(/<!--\s*(?:layout|variant):\s*([a-z-]+)\s*-->/i);
+  const accentMatch = markdownText.match(/<!--\s*(?:accent|accent-color|theme-color):\s*([\s\S]*?)\s*-->/i);
+  const rawLayout = layoutMatch?.[1]?.trim().toLowerCase();
+  const rawAccentColor = accentMatch?.[1]?.trim();
+
+  return {
+    layout: rawLayout && SLIDE_LAYOUT_NAME_SET.has(rawLayout) ? rawLayout : undefined,
+    accentColor: rawAccentColor || undefined,
+  };
+};
+
 export const extractVoiceover = (markdownText) => {
   const parts = [];
 
@@ -115,6 +191,8 @@ export const stripControlComments = (markdownText) => {
 
   return markdownWithoutVoiceover
     .replace(/<!--\s*duration:\s*\d+(?:\.\d+)?\s*-->/gi, '')
+    .replace(/<!--\s*(?:layout|variant):\s*[a-z-]+\s*-->/gi, '')
+    .replace(/<!--\s*(?:accent|accent-color|theme-color):\s*[\s\S]*?\s*-->/gi, '')
     .trim();
 };
 
@@ -520,9 +598,13 @@ export const createPresentationAssets = ({markdownText, fps, assetDir, assetPref
 
   mkdirSync(assetDir, {recursive: true});
 
+  const manifestPath = join(assetDir, 'tts-manifest.json');
+  const audioManifest = readAudioManifest(manifestPath);
+
   const slideDrafts = slidesSource.map((slideSource, index) => {
     const cleanedMarkdown = stripControlComments(slideSource);
     const {voiceoverText} = extractVoiceover(slideSource);
+    const directives = extractSlideDirectives(slideSource);
     const narration = voiceoverText || markdownToPlainText(cleanedMarkdown);
     const wordCount = getWordCount(cleanedMarkdown);
     const explicitDurationInFrames = extractDurationInFrames(slideSource, fps);
@@ -540,15 +622,26 @@ export const createPresentationAssets = ({markdownText, fps, assetDir, assetPref
       wordCount,
       explicitDurationInFrames,
       estimatedDurationInFrames,
+      fileName,
       audioOutputPath,
       relativeAudioPath,
+      layout: directives.layout,
+      accentColor: directives.accentColor,
+      audioCacheKey: createAudioCacheKey({narration, ttsConfig}),
     };
   });
 
+  const slidesNeedingAudio = slideDrafts.filter((slide) => !shouldReuseAudio({slide, manifestEntries: audioManifest.entries}));
+  const reusedAudioCount = slideDrafts.filter((slide) => slide.narration).length - slidesNeedingAudio.filter((slide) => slide.narration).length;
+
+  if (reusedAudioCount > 0) {
+    console.log(`[tts-cache] 复用已有音频 ${reusedAudioCount} 条`);
+  }
+
   if (ttsConfig.provider === 'qwen-local') {
-    generateSpeechWithQwen({slides: slideDrafts, ttsConfig});
+    generateSpeechWithQwen({slides: slidesNeedingAudio, ttsConfig});
   } else {
-    slideDrafts.forEach((slide) => {
+    slidesNeedingAudio.forEach((slide) => {
       if (!slide.narration) {
         return;
       }
@@ -561,6 +654,17 @@ export const createPresentationAssets = ({markdownText, fps, assetDir, assetPref
       });
     });
   }
+
+  const nextManifest = {
+    version: AUDIO_MANIFEST_VERSION,
+    entries: Object.fromEntries(
+      slideDrafts
+        .filter((slide) => slide.narration)
+        .map((slide) => [slide.fileName, {cacheKey: slide.audioCacheKey}]),
+    ),
+  };
+
+  writeFileSync(manifestPath, JSON.stringify(nextManifest, null, 2), 'utf8');
 
   const slides = slideDrafts.map((slide) => {
     const audioDurationInFrames = slide.narration
@@ -581,6 +685,8 @@ export const createPresentationAssets = ({markdownText, fps, assetDir, assetPref
       wordCount: slide.wordCount,
       durationInFrames,
       captionCues: buildCaptionCues(slide.narration, cueDurationInFrames, fps),
+      layout: slide.layout,
+      accentColor: slide.accentColor,
       audioSrc: slide.narration ? slide.relativeAudioPath : undefined,
       audioDurationInFrames,
     };

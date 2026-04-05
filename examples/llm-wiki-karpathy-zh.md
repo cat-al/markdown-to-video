@@ -1,6 +1,6 @@
 ---
-title: LLM Wiki
-subtitle: 把知识库从一次次检索，变成持续累积的结构化资产
+title: LLM Wiki：让知识从临时检索走向持续积累
+subtitle: 基于 Andrej Karpathy《LLM Wiki》的一次精读
 themeColor: #14b8a6
 ttsProvider: qwen-local
 ttsModel: Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice
@@ -8,16 +8,19 @@ ttsVoice: Serena
 ttsLanguage: Chinese
 ttsInstruction: 自然、清晰、专业的中文视频讲解音色，节奏稳定，适合技术教程和产品介绍。
 ---
-# LLM Wiki 想解决什么问题？
+# LLM Wiki：它想把知识管理变成什么样？
 
-Karpathy 这篇文章讨论的，不是“怎么再做一个 RAG”，而是换一种知识管理思路。
+今天我们精读下 Andrej Karpathy 发布在 GitHub Gist 上的文章《LLM Wiki》，看看它为什么主张让大模型持续维护一套会演化的 wiki，而不是每次都从原始资料里临时检索答案。
 
-- 传统做法：提问时再从原始资料里找答案
-- 新做法：先把知识整理进持续维护的 wiki
-- 目标：让知识会累积、会更新、会彼此关联
+Karpathy 是 OpenAI 创始成员之一，也曾担任 Tesla AI 总监，在深度学习和 AI 教育领域影响很大。
+
+- 分享位置：GitHub Gist
+- 文章标题：`LLM Wiki`
+- 核心提案：让 LLM 持续维护一套会增长、会修订、会互相链接的 wiki
+- 目标：把知识从一次次检索，变成长期积累的结构化资产
 
 <!-- voiceover
-这篇文章真正想解决的问题，不是怎么再做一个更复杂的 RAG，而是怎么让知识随着时间真正沉淀下来。传统做法是在每次提问时，再去原始资料里临时检索和拼装答案。Karpathy 提出的新思路，是让大模型持续维护一套结构化 wiki，把已经读过的内容提前整理、交叉引用，并随着新资料不断更新。
+今天我们精读下 Andrej Karpathy 发布在 GitHub Gist 上的一篇文章，标题叫 LLM Wiki。它最核心的想法，是把知识库从一次次临时检索，变成一套由大模型持续维护、持续更新、持续关联的 wiki。也就是说，重点不只是这是谁写的，而是 LLM Wiki 这套思路到底想解决什么问题：让知识能够真正沉淀、复用，并随着新资料不断生长。
 -->
 
 ---
@@ -69,21 +72,28 @@ Karpathy 认为，传统 RAG 最大的问题是没有积累。每来一个问题
 
 ## 为什么 `index.md` 和 `log.md` 很重要
 
-这两个文件分别解决“怎么找内容”和“最近发生了什么”。
+这两个文件分别解决“wiki 里现在有什么”和“最近又改了什么”。
 
-- `index.md`：面向内容，列出页面、摘要、分类和元信息
-- `log.md`：面向时间，记录 ingest、query、lint 的时间线
-- 二者配合后，模型能更快理解 wiki 当前状态
+- `index.md`：像目录地图，告诉模型有哪些页面、各自讲什么、彼此怎么分类
+- `log.md`：像变更记录，告诉模型最近一次 ingest、query、lint 到底改了哪里
+- 二者配合后，模型不用每次全盘重读，就能先掌握结构，再追踪最新变化
 
 ```md
-## [2026-04-02] ingest | Article Title
-- 新增 source summary
-- 更新 concept page
-- 修订一个旧结论
+# index.md
+- concepts/llm-wiki.md：LLM Wiki 总览，介绍三层结构和工作流
+- concepts/rag.md：传统 RAG 的局限，以及它和 LLM Wiki 的差别
+
+# log.md
+## [2026-04-02] ingest | Karpathy - LLM Wiki
+- 新增 `sources/karpathy-llm-wiki-summary.md`
+- 更新 `concepts/llm-wiki.md`
+- 在 `concepts/rag.md` 补充“与 RAG 的差别”
 ```
 
+模型先读 `index.md` 知道该去哪里找，再读 `log.md` 知道最近发生了什么，然后只打开真正相关的页面。
+
 <!-- voiceover
-Karpathy 专门提出了两个很实用的文件。index 点在于帮助模型按主题定位内容，它像一张目录地图，让模型先看全局再深入细节。log 点在于记录时间线，帮助模型理解最近做过哪些更新。尤其当日志采用统一前缀时，还可以直接被简单命令解析。这个设计很朴素，但对于可维护性非常重要。
+Karpathy 专门提出了两个很实用的文件。index 的作用，是帮助模型先建立全局地图，知道这套 wiki 里有哪些页面、每页大概讲什么。log 的作用，是记录最近的变更，让模型快速理解这次到底新增了什么、改动了什么、修订了什么。所以这段代码并不是在展示某种复杂语法，而是在展示一种非常实用的工作习惯：先用 index 找路，再用 log 看变化，然后只进入真正相关的页面。这个设计很朴素，但对可维护性非常重要。
 -->
 
 ---

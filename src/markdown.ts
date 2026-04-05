@@ -10,6 +10,28 @@ export type PresentationMeta = {
   ttsInstruction?: string;
 };
 
+export const slideLayoutNames = [
+  'hero',
+  'split-list',
+  'timeline',
+  'grid',
+  'mosaic',
+  'argument',
+  'triptych',
+  'manifesto',
+  'spotlight',
+  'quote',
+  'code',
+  'panel',
+] as const;
+
+export type SlideLayoutName = (typeof slideLayoutNames)[number];
+
+type SlideDirectives = {
+  layout?: SlideLayoutName;
+  accentColor?: string;
+};
+
 export type CaptionCue = {
   id: string;
   text: string;
@@ -25,6 +47,8 @@ export type MarkdownSlide = {
   wordCount: number;
   durationInFrames: number;
   captionCues: CaptionCue[];
+  layout?: SlideLayoutName;
+  accentColor?: string;
   audioSrc?: string;
   audioDurationInFrames?: number;
 };
@@ -185,6 +209,8 @@ const parseFrontmatter = (markdown: string) => {
   return {body, meta};
 };
 
+const slideLayoutNameSet = new Set<string>(slideLayoutNames);
+
 const extractDurationInFrames = (markdown: string, fps: number) => {
   const match = markdown.match(/<!--\s*duration:\s*(\d+(?:\.\d+)?)\s*-->/i);
 
@@ -193,6 +219,18 @@ const extractDurationInFrames = (markdown: string, fps: number) => {
   }
 
   return Math.max(Math.round(Number(match[1]) * fps), fps);
+};
+
+const extractSlideDirectives = (markdown: string): SlideDirectives => {
+  const layoutMatch = markdown.match(/<!--\s*(?:layout|variant):\s*([a-z-]+)\s*-->/i);
+  const accentMatch = markdown.match(/<!--\s*(?:accent|accent-color|theme-color):\s*([\s\S]*?)\s*-->/i);
+  const rawLayout = layoutMatch?.[1]?.trim().toLowerCase();
+  const rawAccentColor = accentMatch?.[1]?.trim();
+
+  return {
+    layout: rawLayout && slideLayoutNameSet.has(rawLayout) ? (rawLayout as SlideLayoutName) : undefined,
+    accentColor: rawAccentColor || undefined,
+  };
 };
 
 const extractVoiceover = (markdown: string) => {
@@ -235,6 +273,8 @@ const stripControlComments = (markdown: string) => {
 
   return markdownWithoutVoiceover
     .replace(/<!--\s*duration:\s*\d+(?:\.\d+)?\s*-->/gi, '')
+    .replace(/<!--\s*(?:layout|variant):\s*[a-z-]+\s*-->/gi, '')
+    .replace(/<!--\s*(?:accent|accent-color|theme-color):\s*[\s\S]*?\s*-->/gi, '')
     .trim();
 };
 
@@ -371,6 +411,7 @@ export const analyzeMarkdownPresentation = (
   const slides = slidesSource.map((slideSource, index) => {
     const cleanedMarkdown = stripControlComments(slideSource);
     const {voiceoverText} = extractVoiceover(slideSource);
+    const directives = extractSlideDirectives(slideSource);
     const narration = voiceoverText || markdownToPlainText(cleanedMarkdown);
     const wordCount = getWordCount(cleanedMarkdown);
     const durationInFrames = estimateDurationInFrames(slideSource, narration, fps);
@@ -383,6 +424,8 @@ export const analyzeMarkdownPresentation = (
       wordCount,
       durationInFrames,
       captionCues: buildCaptionCues(narration, durationInFrames, fps),
+      layout: directives.layout,
+      accentColor: directives.accentColor,
     } satisfies MarkdownSlide;
   });
 

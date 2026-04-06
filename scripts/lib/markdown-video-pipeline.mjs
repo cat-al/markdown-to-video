@@ -577,27 +577,47 @@ const generateSpeechWithQwen = ({slides, ttsConfig}) => {
 };
 
 export const getAudioDurationInSeconds = (audioPath) => {
+  // Method 1: ffprobe (cross-platform, preferred)
   const ffprobeResult = spawnSync(
     'ffprobe',
     ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', audioPath],
     {encoding: 'utf8'},
   );
 
-  if (ffprobeResult.status === 0) {
+  if (ffprobeResult.status === 0 && ffprobeResult.stdout) {
     const duration = Number(ffprobeResult.stdout.trim());
     if (Number.isFinite(duration)) {
       return duration;
     }
   }
 
-  const afinfoResult = spawnSync('afinfo', [audioPath], {encoding: 'utf8'});
-  const match = afinfoResult.stdout.match(/estimated duration:\s*([\d.]+)/i);
-
-  if (match) {
-    return Number(match[1]);
+  // Method 2: afinfo (macOS only)
+  if (process.platform === 'darwin') {
+    const afinfoResult = spawnSync('afinfo', [audioPath], {encoding: 'utf8'});
+    const match = afinfoResult.stdout?.match(/estimated duration:\s*([\d.]+)/i);
+    if (match) {
+      return Number(match[1]);
+    }
   }
 
-  throw new Error(`无法识别音频时长: ${audioPath}`);
+  // Method 3: Python soundfile fallback (works on all platforms)
+  const pythonCmd = process.platform === 'win32'
+    ? (process.env.QWEN_PYTHON || 'python')
+    : (process.env.QWEN_PYTHON || 'python3');
+  const pyResult = spawnSync(
+    pythonCmd,
+    ['-c', `import soundfile as sf; d=sf.info(r"${audioPath}"); print(d.duration)`],
+    {encoding: 'utf8'},
+  );
+
+  if (pyResult.status === 0 && pyResult.stdout) {
+    const duration = Number(pyResult.stdout.trim());
+    if (Number.isFinite(duration)) {
+      return duration;
+    }
+  }
+
+  throw new Error(`无法识别音频时长: ${audioPath}\n请安装 ffprobe (https://ffmpeg.org) 或确保 Python soundfile 可用。`);
 };
 
 export const createPresentationAssets = ({markdownText, fps, assetDir, assetPrefix, availableVoices}) => {

@@ -3,7 +3,7 @@ title: Sam Altman 技术访谈精读：AI 下一阶段的关键信号
 subtitle: 基于 Mostly Human《The Power and Responsibility of Sam Altman》的技术向整理
 themeColor: #0f766e
 ttsProvider: qwen-local
-ttsModel: Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice
+ttsModel: Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice
 ttsVoice: Serena
 ttsLanguage: Chinese
 ttsInstruction: 自然、清晰、专业的中文视频讲解音色，节奏稳定，适合技术教程和产品介绍。

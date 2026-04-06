@@ -251,7 +251,7 @@ switch ($modelChoice) {
     }
 }
 
-$MODEL_LOCAL_PATH = Join-Path $ROOT_DIR ".models" $MODEL_DIR_NAME
+$MODEL_LOCAL_PATH = Join-Path (Join-Path $ROOT_DIR ".models") $MODEL_DIR_NAME
 
 # ============================================================
 #  Step 4: Install Node.js dependencies
@@ -273,8 +273,8 @@ Write-Step "Node.js dependencies installed"
 Write-Title "Step 5/9: Python Environment Setup"
 
 $VENV_DIR = Join-Path $ROOT_DIR ".venv-qwen"
-$VENV_PYTHON = Join-Path $VENV_DIR "Scripts" "python.exe"
-$VENV_PIP = Join-Path $VENV_DIR "Scripts" "pip.exe"
+$VENV_PYTHON = Join-Path (Join-Path $VENV_DIR "Scripts") "python.exe"
+$VENV_PIP = Join-Path (Join-Path $VENV_DIR "Scripts") "pip.exe"
 
 if (Test-Path $VENV_PYTHON) {
     Write-Step "Python venv already exists: $VENV_DIR"
@@ -366,7 +366,7 @@ Write-Title "Step 7/9: Verify Qwen3-TTS"
 
 Write-Step "Running Qwen environment check ..."
 $env:QWEN_PYTHON = $VENV_PYTHON
-& $VENV_PYTHON (Join-Path $ROOT_DIR "scripts" "qwen_tts_worker.py") --check
+& $VENV_PYTHON (Join-Path (Join-Path $ROOT_DIR "scripts") "qwen_tts_worker.py") --check
 if ($LASTEXITCODE -eq 0) {
     Write-Step "Qwen3-TTS environment verified!"
 } else {

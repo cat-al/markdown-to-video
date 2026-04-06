@@ -150,6 +150,8 @@ npm run render:preview -- dist/style-preview.mp4
 
 ### Markdown 写法约定
 
+如果你在写 **精读 / 解读 / 拆解类** 中文讲解稿，建议先看 `docs/文案生成规则.md`，再开始写第一页。
+
 支持简单 frontmatter 与分页语法：
 
 ```md

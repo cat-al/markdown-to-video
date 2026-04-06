@@ -59,22 +59,39 @@ const props = JSON.stringify({
 const propsFilePath = resolve(cwd, 'dist', `${assetKey}.props.json`);
 writeFileSync(propsFilePath, props, 'utf8');
 
+console.log(`[render] props file: ${propsFilePath} (${(props.length / 1024).toFixed(1)} KB)`);
+console.log(`[render] output: ${outputPath}`);
+console.log(`[render] starting remotion render ...`);
+
 const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-const result = spawnSync(
-  command,
-  ['remotion', 'render', 'src/index.ts', 'MarkdownVideo', outputPath, '--props', propsFilePath],
-  {
-    cwd,
-    stdio: 'inherit',
-    env: process.env,
-  },
-);
+const remotionArgs = [
+  'remotion', 'render', 'src/index.ts', 'MarkdownVideo', outputPath,
+  '--props', propsFilePath,
+];
+
+console.log(`[render] command: ${command} ${remotionArgs.join(' ')}`);
+
+const result = spawnSync(command, remotionArgs, {
+  cwd,
+  stdio: 'inherit',
+  env: process.env,
+  shell: process.platform === 'win32',
+});
+
+if (result.error) {
+  console.error(`[render] spawn error:`, result.error.message);
+}
+
+if (result.status !== 0) {
+  console.error(`[render] exit code: ${result.status}`);
+}
 
 // Clean up temp props file
 try { unlinkSync(propsFilePath); } catch {}
 
 if (result.status === 0) {
-  console.log(`字幕文件已生成: ${subtitlesPath}`);
+  console.log(`[render] done: ${outputPath}`);
+  console.log(`[render] subtitles: ${subtitlesPath}`);
 }
 
 process.exit(result.status ?? 0);

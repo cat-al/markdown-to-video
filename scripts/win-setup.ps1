@@ -1,21 +1,23 @@
+# -*- coding: utf-8 -*-
 # ============================================================
-#  Markdown-to-Video  Windows 一键安装脚本
-#  功能：检查环境 → 更换镜像加速 → 安装依赖 → 下载模型
+#  Markdown-to-Video  Windows Setup Script
+#  Steps: Check env -> Mirror -> Select model -> Install -> Download
 # ============================================================
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$ErrorActionPreference = "Stop"
-$Host.UI.RawUI.WindowTitle = "Markdown-to-Video 安装向导"
+param()
 
-$ROOT_DIR = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-if (-not (Test-Path (Join-Path $PSScriptRoot "win-setup.ps1"))) {
-    $ROOT_DIR = Split-Path -Parent $PSScriptRoot
-}
-# 如果脚本在 scripts/ 下，ROOT_DIR 就是项目根目录
+# Force UTF-8 output so Chinese characters display correctly
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::InputEncoding  = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+$ErrorActionPreference = "Stop"
+$Host.UI.RawUI.WindowTitle = "Markdown-to-Video Setup"
+
+# Locate project root (this script lives in <root>/scripts/)
 $ROOT_DIR = (Resolve-Path (Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "..")).Path
 Set-Location $ROOT_DIR
 
 # ============================================================
-#  辅助函数
+#  Helper functions
 # ============================================================
 function Write-Title { param([string]$Text)
     Write-Host ""
@@ -45,47 +47,40 @@ function Test-CommandExists { param([string]$Command)
     $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
 }
 
-function Get-VersionString { param([string]$Command, [string]$Args_)
-    try {
-        $output = & $Command $Args_ 2>&1 | Select-Object -First 1
-        return $output.ToString().Trim()
-    } catch { return "未安装" }
-}
-
 # ============================================================
-#  第一步：系统环境检查
+#  Step 1: System environment check
 # ============================================================
-Write-Title "第一步：系统环境检查"
+Write-Title "Step 1/9: System Environment Check"
 
 $allOk = $true
 
 # --- Node.js ---
-Write-Step "检查 Node.js ..."
+Write-Step "Checking Node.js ..."
 if (Test-CommandExists "node") {
     $nodeVer = (node --version 2>&1).ToString().Trim()
     $nodeMajor = [int]($nodeVer -replace "^v","" -split "\.")[0]
-    Write-Info "Node.js 版本: $nodeVer"
+    Write-Info "Node.js: $nodeVer"
     if ($nodeMajor -lt 18) {
-        Write-Warn "建议 Node.js >= 18，当前 $nodeVer 可能会出问题"
+        Write-Warn "Node.js >= 18 recommended. Current: $nodeVer"
         $allOk = $false
     }
 } else {
-    Write-Err "未找到 Node.js！请先安装 Node.js 18+ (https://nodejs.org)"
+    Write-Err "Node.js not found! Install Node.js 18+ from https://nodejs.org"
     $allOk = $false
 }
 
 # --- npm ---
-Write-Step "检查 npm ..."
+Write-Step "Checking npm ..."
 if (Test-CommandExists "npm") {
     $npmVer = (npm --version 2>&1).ToString().Trim()
-    Write-Info "npm 版本: $npmVer"
+    Write-Info "npm: $npmVer"
 } else {
-    Write-Err "未找到 npm！通常随 Node.js 一起安装。"
+    Write-Err "npm not found! It usually comes with Node.js."
     $allOk = $false
 }
 
 # --- Python ---
-Write-Step "检查 Python ..."
+Write-Step "Checking Python ..."
 $pythonCmd = $null
 foreach ($cmd in @("python", "python3", "py")) {
     if (Test-CommandExists $cmd) {
@@ -96,141 +91,149 @@ foreach ($cmd in @("python", "python3", "py")) {
             $pyMinor = [int](($pyVerStr -replace "Python\s*","") -split "\.")[1]
             if ($pyMajor -ge 3 -and $pyMinor -ge 9) {
                 $pythonCmd = $cmd
-                Write-Info "Python: $pyVerStr (命令: $cmd)"
+                Write-Info "Python: $pyVerStr (cmd: $cmd)"
                 break
             }
         } catch {}
     }
 }
 if (-not $pythonCmd) {
-    Write-Err "未找到 Python 3.9+！请先安装 Python (https://www.python.org/downloads/)"
-    Write-Info "安装时务必勾选 'Add Python to PATH'"
+    Write-Err "Python 3.9+ not found! Install from https://www.python.org/downloads/"
+    Write-Info "IMPORTANT: Check 'Add Python to PATH' during installation"
     $allOk = $false
 }
 
 # --- Git ---
-Write-Step "检查 Git ..."
+Write-Step "Checking Git ..."
 if (Test-CommandExists "git") {
     $gitVer = (git --version 2>&1).ToString().Trim()
     Write-Info "Git: $gitVer"
 } else {
-    Write-Warn "未找到 Git，模型下载功能需要 Git LFS 支持"
-    Write-Info "请安装 Git (https://git-scm.com/download/win)"
+    Write-Warn "Git not found. Required for model download."
+    Write-Info "Install from https://git-scm.com/download/win"
 }
 
 # --- Git LFS ---
-Write-Step "检查 Git LFS ..."
+Write-Step "Checking Git LFS ..."
 if (Test-CommandExists "git") {
-    $lfsVer = git lfs version 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Info "Git LFS: $($lfsVer.ToString().Trim())"
-    } else {
-        Write-Warn "Git LFS 未安装。模型下载需要 Git LFS。"
-        Write-Info "安装命令: git lfs install"
+    try {
+        $lfsVer = git lfs version 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Info "Git LFS: $($lfsVer.ToString().Trim())"
+        } else {
+            Write-Warn "Git LFS not installed. Run: git lfs install"
+        }
+    } catch {
+        Write-Warn "Git LFS check failed"
     }
 } else {
-    Write-Warn "Git 未安装，跳过 Git LFS 检查"
+    Write-Warn "Git not installed, skipping Git LFS check"
 }
 
 # --- ffmpeg / ffprobe ---
-Write-Step "检查 ffmpeg / ffprobe ..."
+Write-Step "Checking ffprobe ..."
 if (Test-CommandExists "ffprobe") {
-    Write-Info "ffprobe: 已安装"
+    Write-Info "ffprobe: OK"
 } else {
-    Write-Warn "ffprobe 未找到，音频时长检测可能受限"
-    Write-Info "建议安装 ffmpeg (https://ffmpeg.org/download.html) 并加入 PATH"
+    Write-Warn "ffprobe not found. Audio duration detection may be limited."
+    Write-Info "Install ffmpeg from https://ffmpeg.org/download.html and add to PATH"
 }
 
 # --- NVIDIA GPU ---
-Write-Step "检查 NVIDIA GPU (CUDA) ..."
+Write-Step "Checking NVIDIA GPU (CUDA) ..."
+$hasCuda = $false
 if (Test-CommandExists "nvidia-smi") {
-    $gpuInfo = nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Info "GPU: $($gpuInfo.ToString().Trim())"
-        Write-Info "检测到 NVIDIA GPU，TTS 推理将默认使用 CUDA 加速"
-    } else {
-        Write-Info "nvidia-smi 执行失败，将回退到 CPU"
+    try {
+        $gpuInfo = nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Info "GPU: $($gpuInfo.ToString().Trim())"
+            Write-Info "NVIDIA GPU detected - TTS will use CUDA acceleration"
+            $hasCuda = $true
+        }
+    } catch {
+        Write-Info "nvidia-smi failed, will use CPU"
     }
 } else {
-    Write-Info "未检测到 NVIDIA GPU，TTS 推理将使用 CPU（速度较慢但完全可用）"
+    Write-Info "No NVIDIA GPU detected. TTS will use CPU (slower but works fine)"
 }
 
-# --- 系统内存 ---
-Write-Step "检查系统内存 ..."
+# --- Memory ---
+Write-Step "Checking system memory ..."
 $totalMem = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 1)
-Write-Info "总内存: ${totalMem} GB"
+Write-Info "Total RAM: ${totalMem} GB"
 if ($totalMem -lt 8) {
-    Write-Warn "建议至少 8GB 内存。0.6B 模型约需 3GB，1.7B 模型约需 6GB。"
+    Write-Warn "8GB+ RAM recommended. 0.6B model needs ~3GB, 1.7B needs ~6GB."
 }
 
-# --- 磁盘空间 ---
-Write-Step "检查磁盘空间 ..."
+# --- Disk space ---
+Write-Step "Checking disk space ..."
 $drive = (Get-Item $ROOT_DIR).PSDrive
 $freeGB = [math]::Round($drive.Free / 1GB, 1)
-Write-Info "可用空间: ${freeGB} GB (盘符: $($drive.Name):)"
+Write-Info "Free space: ${freeGB} GB (Drive: $($drive.Name):)"
 if ($freeGB -lt 10) {
-    Write-Warn "可用空间不足 10GB，建议至少预留 15GB（模型 + 依赖 + 视频产物）"
+    Write-Warn "Less than 10GB free. Recommend 15GB+ for models + deps + output."
 }
 
 Write-Host ""
 if (-not $allOk) {
-    Write-Err "存在必要依赖缺失，请先解决上述问题后重新运行。"
-    Read-Host "按回车退出"
+    Write-Err "Required dependencies missing. Please fix the issues above and re-run."
+    Read-Host "Press Enter to exit"
     exit 1
 }
-Write-Step "环境检查通过！"
+Write-Step "Environment check passed!"
 
 # ============================================================
-#  第二步：更换 npm / pip 国内镜像加速
+#  Step 2: Configure mirror acceleration
 # ============================================================
-Write-Title "第二步：更换镜像加速源"
+Write-Title "Step 2/9: Mirror Acceleration (China)"
 
-# npm 淘宝镜像
-Write-Step "设置 npm 国内镜像 (npmmirror.com) ..."
+# npm - Taobao mirror
+Write-Step "Setting npm registry (npmmirror.com) ..."
 npm config set registry https://registry.npmmirror.com
 Write-Info "npm registry => https://registry.npmmirror.com"
 
-# pip 清华镜像
-Write-Step "设置 pip 国内镜像 (tuna.tsinghua.edu.cn) ..."
+# pip - Tsinghua mirror
+Write-Step "Setting pip mirror (tuna.tsinghua.edu.cn) ..."
 $pipConfDir = Join-Path $env:APPDATA "pip"
 if (-not (Test-Path $pipConfDir)) { New-Item -ItemType Directory -Path $pipConfDir -Force | Out-Null }
 $pipConfFile = Join-Path $pipConfDir "pip.ini"
-@"
+$pipContent = @"
 [global]
 index-url = https://pypi.tuna.tsinghua.edu.cn/simple
 trusted-host = pypi.tuna.tsinghua.edu.cn
-"@ | Out-File -FilePath $pipConfFile -Encoding utf8
+"@
+[System.IO.File]::WriteAllText($pipConfFile, $pipContent, [System.Text.Encoding]::UTF8)
 Write-Info "pip index => https://pypi.tuna.tsinghua.edu.cn/simple"
 
-# PyTorch 国内镜像源（用于 CUDA 版本安装加速）
-Write-Step "记录 PyTorch 国内镜像地址（安装时使用）..."
+# PyTorch mirror
+Write-Step "PyTorch CUDA mirror (SJTU) prepared for later use"
 $TORCH_INDEX_URL = "https://download.pytorch.org/whl/cu121"
 $TORCH_INDEX_URL_CN = "https://mirror.sjtu.edu.cn/pytorch-wheels/cu121"
-Write-Info "PyTorch CUDA 镜像: $TORCH_INDEX_URL_CN"
+Write-Info "PyTorch mirror: $TORCH_INDEX_URL_CN"
 
-# ModelScope 加速说明
-Write-Step "模型下载将使用 ModelScope (modelscope.cn) 国内源"
-Write-Info "避免 HuggingFace 海外下载慢的问题"
+# ModelScope
+Write-Step "Model download will use ModelScope (modelscope.cn)"
+Write-Info "Avoids slow downloads from overseas HuggingFace"
 
 # ============================================================
-#  第三步：选择 TTS 模型
+#  Step 3: Select TTS model
 # ============================================================
-Write-Title "第三步：选择 Qwen3-TTS 模型"
+Write-Title "Step 3/9: Select Qwen3-TTS Model"
 
-Write-Host "  可选模型：" -ForegroundColor White
+Write-Host "  Available models:" -ForegroundColor White
 Write-Host ""
-Write-Host "  [1] 0.6B (推荐)" -ForegroundColor Green
-Write-Host "      模型: Qwen3-TTS-12Hz-0.6B-CustomVoice" -ForegroundColor Gray
-Write-Host "      大小: ~1.7 GB  |  显存: ~3 GB  |  速度: 快" -ForegroundColor Gray
-Write-Host "      适合: 内存 8GB+ / 显存 4GB+ / 快速出片" -ForegroundColor Gray
+Write-Host "  [1] 0.6B (Recommended)" -ForegroundColor Green
+Write-Host "      Qwen3-TTS-12Hz-0.6B-CustomVoice" -ForegroundColor Gray
+Write-Host "      Size: ~1.7 GB  |  VRAM: ~3 GB  |  Speed: Fast" -ForegroundColor Gray
+Write-Host "      Best for: 8GB+ RAM / 4GB+ VRAM / quick rendering" -ForegroundColor Gray
 Write-Host ""
-Write-Host "  [2] 1.7B (更高质量)" -ForegroundColor Yellow
-Write-Host "      模型: Qwen3-TTS-12Hz-1.7B-CustomVoice" -ForegroundColor Gray
-Write-Host "      大小: ~4.8 GB  |  显存: ~6 GB  |  速度: 较慢" -ForegroundColor Gray
-Write-Host "      适合: 内存 16GB+ / 显存 8GB+ / 追求音质" -ForegroundColor Gray
+Write-Host "  [2] 1.7B (Higher quality)" -ForegroundColor Yellow
+Write-Host "      Qwen3-TTS-12Hz-1.7B-CustomVoice" -ForegroundColor Gray
+Write-Host "      Size: ~4.8 GB  |  VRAM: ~6 GB  |  Speed: Slower" -ForegroundColor Gray
+Write-Host "      Best for: 16GB+ RAM / 8GB+ VRAM / best audio quality" -ForegroundColor Gray
 Write-Host ""
 
-$modelChoice = Read-Host "请选择模型 (1 或 2，默认 1)"
+$modelChoice = Read-Host "Select model (1 or 2, default 1)"
 if ([string]::IsNullOrWhiteSpace($modelChoice)) { $modelChoice = "1" }
 
 switch ($modelChoice) {
@@ -238,115 +241,109 @@ switch ($modelChoice) {
         $MODEL_REPO = "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
         $MODEL_DIR_NAME = "Qwen3-TTS-12Hz-1.7B-CustomVoice"
         $MODEL_SCOPE_URL = "https://www.modelscope.cn/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice.git"
-        Write-Step "已选择 1.7B 模型"
+        Write-Step "Selected: 1.7B model"
     }
     default {
         $MODEL_REPO = "Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice"
         $MODEL_DIR_NAME = "Qwen3-TTS-12Hz-0.6B-CustomVoice"
         $MODEL_SCOPE_URL = "https://www.modelscope.cn/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice.git"
-        Write-Step "已选择 0.6B 模型（推荐）"
+        Write-Step "Selected: 0.6B model (recommended)"
     }
 }
 
 $MODEL_LOCAL_PATH = Join-Path $ROOT_DIR ".models" $MODEL_DIR_NAME
 
 # ============================================================
-#  第四步：安装 Node.js 依赖
+#  Step 4: Install Node.js dependencies
 # ============================================================
-Write-Title "第四步：安装 Node.js 依赖"
+Write-Title "Step 4/9: Install Node.js Dependencies"
 
-Write-Step "执行 npm install ..."
+Write-Step "Running npm install ..."
 npm install
 if ($LASTEXITCODE -ne 0) {
-    Write-Err "npm install 失败，请检查网络或 Node.js 版本"
-    Read-Host "按回车退出"
+    Write-Err "npm install failed. Check network or Node.js version."
+    Read-Host "Press Enter to exit"
     exit 1
 }
-Write-Step "Node.js 依赖安装完成"
+Write-Step "Node.js dependencies installed"
 
 # ============================================================
-#  第五步：创建 Python 虚拟环境并安装依赖
+#  Step 5: Create Python venv and install packages
 # ============================================================
-Write-Title "第五步：创建 Python 环境"
+Write-Title "Step 5/9: Python Environment Setup"
 
 $VENV_DIR = Join-Path $ROOT_DIR ".venv-qwen"
 $VENV_PYTHON = Join-Path $VENV_DIR "Scripts" "python.exe"
 $VENV_PIP = Join-Path $VENV_DIR "Scripts" "pip.exe"
 
 if (Test-Path $VENV_PYTHON) {
-    Write-Step "Python 虚拟环境已存在: $VENV_DIR"
+    Write-Step "Python venv already exists: $VENV_DIR"
 } else {
-    Write-Step "创建 Python 虚拟环境 ..."
+    Write-Step "Creating Python virtual environment ..."
     & $pythonCmd -m venv $VENV_DIR
     if ($LASTEXITCODE -ne 0) {
-        Write-Err "创建虚拟环境失败"
-        Read-Host "按回车退出"
+        Write-Err "Failed to create virtual environment"
+        Read-Host "Press Enter to exit"
         exit 1
     }
-    Write-Info "虚拟环境: $VENV_DIR"
+    Write-Info "Venv path: $VENV_DIR"
 }
 
-# 升级 pip
-Write-Step "升级 pip ..."
+# Upgrade pip
+Write-Step "Upgrading pip ..."
 & $VENV_PYTHON -m pip install --upgrade pip -q
 
-# 检查是否有 CUDA GPU → 决定是否安装 CUDA 版 PyTorch
-$hasCuda = Test-CommandExists "nvidia-smi"
+# Install PyTorch based on GPU availability
 if ($hasCuda) {
-    $nvidiaOut = nvidia-smi --query-gpu=name --format=csv,noheader 2>&1
-    $hasCuda = ($LASTEXITCODE -eq 0)
-}
-
-if ($hasCuda) {
-    Write-Step "检测到 NVIDIA GPU，安装 CUDA 版 PyTorch ..."
-    Write-Info "使用上海交大镜像加速: $TORCH_INDEX_URL_CN"
+    Write-Step "NVIDIA GPU detected - installing CUDA PyTorch ..."
+    Write-Info "Using SJTU mirror: $TORCH_INDEX_URL_CN"
     & $VENV_PIP install torch torchaudio --index-url $TORCH_INDEX_URL_CN -q
     if ($LASTEXITCODE -ne 0) {
-        Write-Warn "从镜像安装失败，尝试官方源 ..."
+        Write-Warn "Mirror install failed, trying official source ..."
         & $VENV_PIP install torch torchaudio --index-url $TORCH_INDEX_URL -q
     }
 } else {
-    Write-Step "未检测到 NVIDIA GPU，安装 CPU 版 PyTorch ..."
+    Write-Step "No NVIDIA GPU - installing CPU PyTorch ..."
     & $VENV_PIP install torch torchaudio -q
 }
 
-# 安装 qwen-tts 和 soundfile
-Write-Step "安装 qwen-tts 和 soundfile ..."
+# Install qwen-tts + soundfile
+Write-Step "Installing qwen-tts and soundfile ..."
 & $VENV_PIP install -r (Join-Path $ROOT_DIR "requirements-qwen.txt") -q
 if ($LASTEXITCODE -ne 0) {
-    Write-Err "Python 依赖安装失败"
-    Read-Host "按回车退出"
+    Write-Err "Python dependency installation failed"
+    Read-Host "Press Enter to exit"
     exit 1
 }
-Write-Step "Python 环境安装完成"
+Write-Step "Python environment ready"
 
 # ============================================================
-#  第六步：下载 TTS 模型
+#  Step 6: Download TTS model
 # ============================================================
-Write-Title "第六步：下载 TTS 模型"
+Write-Title "Step 6/9: Download TTS Model"
 
 $modelsDir = Join-Path $ROOT_DIR ".models"
 if (-not (Test-Path $modelsDir)) { New-Item -ItemType Directory -Path $modelsDir -Force | Out-Null }
 
 if (Test-Path (Join-Path $MODEL_LOCAL_PATH "model.safetensors")) {
-    Write-Step "模型已存在，跳过下载: $MODEL_LOCAL_PATH"
+    Write-Step "Model already exists, skipping: $MODEL_LOCAL_PATH"
 } else {
     if (-not (Test-CommandExists "git")) {
-        Write-Err "Git 未安装，无法下载模型。请安装 Git 后重新运行。"
-        Read-Host "按回车退出"
+        Write-Err "Git not installed. Cannot download model."
+        Read-Host "Press Enter to exit"
         exit 1
     }
 
-    # 确保 Git LFS 已初始化
+    # Ensure Git LFS is initialized
     git lfs install 2>&1 | Out-Null
 
-    Write-Step "从 ModelScope 下载模型 ($MODEL_DIR_NAME) ..."
-    Write-Info "源地址: $MODEL_SCOPE_URL"
-    Write-Info "目标路径: $MODEL_LOCAL_PATH"
-    Write-Info "模型较大，请耐心等待 ..."
+    Write-Step "Downloading model from ModelScope ($MODEL_DIR_NAME) ..."
+    Write-Info "URL: $MODEL_SCOPE_URL"
+    Write-Info "Target: $MODEL_LOCAL_PATH"
+    Write-Info "This may take a while for large model files ..."
 
     if (Test-Path (Join-Path $MODEL_LOCAL_PATH ".git")) {
-        Write-Info "检测到已有 git 仓库，执行增量更新 ..."
+        Write-Info "Existing git repo found, pulling updates ..."
         git -C $MODEL_LOCAL_PATH pull
         git -C $MODEL_LOCAL_PATH lfs pull
     } else {
@@ -354,161 +351,157 @@ if (Test-Path (Join-Path $MODEL_LOCAL_PATH "model.safetensors")) {
     }
 
     if ($LASTEXITCODE -ne 0) {
-        Write-Err "模型下载失败，请检查网络连接"
-        Write-Info "也可以手动下载后放到: $MODEL_LOCAL_PATH"
-        Read-Host "按回车退出"
+        Write-Err "Model download failed. Check your network connection."
+        Write-Info "You can also download manually and place in: $MODEL_LOCAL_PATH"
+        Read-Host "Press Enter to exit"
         exit 1
     }
-    Write-Step "模型下载完成！"
+    Write-Step "Model download complete!"
 }
 
 # ============================================================
-#  第七步：环境检查 (Qwen Doctor)
+#  Step 7: Verify Qwen3-TTS environment
 # ============================================================
-Write-Title "第七步：验证 Qwen3-TTS 环境"
+Write-Title "Step 7/9: Verify Qwen3-TTS"
 
-Write-Step "运行 Qwen 环境检查 ..."
+Write-Step "Running Qwen environment check ..."
 $env:QWEN_PYTHON = $VENV_PYTHON
 & $VENV_PYTHON (Join-Path $ROOT_DIR "scripts" "qwen_tts_worker.py") --check
 if ($LASTEXITCODE -eq 0) {
-    Write-Step "Qwen3-TTS 环境验证通过！"
+    Write-Step "Qwen3-TTS environment verified!"
 } else {
-    Write-Warn "环境检查未完全通过，但不影响后续安装"
-    Write-Info "你可以稍后运行: npm run qwen:doctor 重新检查"
+    Write-Warn "Verification incomplete, but this won't block installation"
+    Write-Info "Run later: npm run qwen:doctor"
 }
 
 # ============================================================
-#  第八步：生成 Windows 快捷启动脚本
+#  Step 8: Generate shortcut scripts
 # ============================================================
-Write-Title "第八步：生成快捷启动脚本"
+Write-Title "Step 8/9: Generate Shortcut Scripts"
 
-# --- render-video.bat ---
+# --- render-video.bat (root convenience script) ---
 $renderBat = Join-Path $ROOT_DIR "render-video.bat"
-@"
+$renderContent = @"
 @echo off
 chcp 65001 >nul 2>&1
-title Markdown-to-Video 渲染
+title Markdown-to-Video Render
 
-set ROOT_DIR=%~dp0
-set ROOT_DIR=%ROOT_DIR:~0,-1%
+set "ROOT_DIR=%~dp0"
+set "ROOT_DIR=%ROOT_DIR:~0,-1%"
 cd /d "%ROOT_DIR%"
 
-set QWEN_PYTHON=%ROOT_DIR%\.venv-qwen\Scripts\python.exe
-set TTS_PROVIDER=qwen-local
-set QWEN_TTS_MODEL=$MODEL_REPO
+set "QWEN_PYTHON=%ROOT_DIR%\.venv-qwen\Scripts\python.exe"
+set "TTS_PROVIDER=qwen-local"
+set "QWEN_TTS_MODEL=$MODEL_REPO"
 
-if exist "%QWEN_PYTHON%" (
-    echo [info] Python: %QWEN_PYTHON%
-) else (
-    echo [error] 未找到 Python 虚拟环境，请先运行 install-win.bat
+if not exist "%QWEN_PYTHON%" (
+    echo [error] Python venv not found. Run install-win.bat first.
     pause
     exit /b 1
 )
 
 if "%~1"=="" (
     echo.
-    echo 用法: render-video.bat ^<input.md^> [output.mp4]
+    echo Usage: render-video.bat ^<input.md^> [output.mp4]
     echo.
-    echo 示例:
+    echo Examples:
     echo   render-video.bat examples\demo\demo.md
-    echo   render-video.bat examples\published\001-llm-wiki-karpathy-zh.md dist\output.mp4
+    echo   render-video.bat examples\published\001-llm-wiki-karpathy-zh.md dist\out.mp4
     echo.
     pause
     exit /b 0
 )
 
-set INPUT=%~1
-set OUTPUT=%~2
-
-if "%OUTPUT%"=="" (
-    for %%F in ("%INPUT%") do set BASENAME=%%~nF
-    set OUTPUT=dist\%BASENAME%.mp4
-)
-
-echo [render-video] 开始渲染
-echo   input : %INPUT%
-echo   output: %OUTPUT%
+echo [render-video] Starting render ...
+echo   input : %~1
+echo   output: %~2
 echo   model : $MODEL_REPO
 
-npx.cmd remotion render src/index.ts MarkdownVideo "%OUTPUT%" --props "{}"
-echo [render-video] 如需完整渲染（含 TTS），请使用:
-echo   npm run render:md -- "%INPUT%" "%OUTPUT%"
+npm run render:md -- "%~1" "%~2"
 pause
-"@ | Out-File -FilePath $renderBat -Encoding utf8
+"@
+[System.IO.File]::WriteAllText($renderBat, $renderContent, [System.Text.Encoding]::UTF8)
 
 # --- start-studio.bat ---
 $studioBat = Join-Path $ROOT_DIR "start-studio.bat"
-@"
+$studioContent = @"
 @echo off
 chcp 65001 >nul 2>&1
 title Remotion Studio
 
-set ROOT_DIR=%~dp0
-set ROOT_DIR=%ROOT_DIR:~0,-1%
+set "ROOT_DIR=%~dp0"
+set "ROOT_DIR=%ROOT_DIR:~0,-1%"
 cd /d "%ROOT_DIR%"
 
-set QWEN_PYTHON=%ROOT_DIR%\.venv-qwen\Scripts\python.exe
-set TTS_PROVIDER=qwen-local
-set QWEN_TTS_MODEL=$MODEL_REPO
+set "QWEN_PYTHON=%ROOT_DIR%\.venv-qwen\Scripts\python.exe"
+set "TTS_PROVIDER=qwen-local"
+set "QWEN_TTS_MODEL=$MODEL_REPO"
 
-echo [studio] 启动 Remotion Studio ...
+echo [studio] Starting Remotion Studio ...
 echo [studio] Python: %QWEN_PYTHON%
 echo.
 
 npm run dev
 
 pause
-"@ | Out-File -FilePath $studioBat -Encoding utf8
+"@
+[System.IO.File]::WriteAllText($studioBat, $studioContent, [System.Text.Encoding]::UTF8)
 
-Write-Step "已生成快捷脚本:"
-Write-Info "  render-video.bat  — 渲染 Markdown 为视频"
-Write-Info "  start-studio.bat  — 启动 Remotion Studio 预览"
+Write-Step "Shortcut scripts created:"
+Write-Info "  render-video.bat  - Render Markdown to video"
+Write-Info "  start-studio.bat  - Launch Remotion Studio preview"
 
 # ============================================================
-#  第九步：写入 .env 配置文件
+#  Step 9: Generate .env config
 # ============================================================
-Write-Title "第九步：生成环境配置"
+Write-Title "Step 9/9: Generate Configuration"
 
 $envFile = Join-Path $ROOT_DIR ".env"
-@"
-# Markdown-to-Video Windows 环境配置
-# 由 install-win.bat 自动生成于 $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+$deviceVal = if ($hasCuda) { "auto" } else { "cpu" }
+$dtypeVal  = if ($hasCuda) { "auto" } else { "float32" }
+$envContent = @"
+# Markdown-to-Video Windows Configuration
+# Auto-generated by install-win.bat at $timestamp
 
-# TTS 引擎
+# TTS engine
 TTS_PROVIDER=qwen-local
 
-# Python 路径（虚拟环境）
+# Python path (virtual environment)
 QWEN_PYTHON=$VENV_PYTHON
 
-# TTS 模型
+# TTS model
 QWEN_TTS_MODEL=$MODEL_REPO
 
-# 设备配置（有 NVIDIA GPU 时使用 auto，否则 cpu）
-QWEN_TTS_DEVICE=$(if ($hasCuda) { "auto" } else { "cpu" })
-QWEN_TTS_DTYPE=$(if ($hasCuda) { "auto" } else { "float32" })
-"@ | Out-File -FilePath $envFile -Encoding utf8
-Write-Step "环境配置已写入: .env"
+# Device config (auto = CUDA if available, otherwise cpu)
+QWEN_TTS_DEVICE=$deviceVal
+QWEN_TTS_DTYPE=$dtypeVal
+"@
+[System.IO.File]::WriteAllText($envFile, $envContent, [System.Text.Encoding]::UTF8)
+Write-Step "Config saved to: .env"
 
 # ============================================================
-#  安装完成
+#  Done
 # ============================================================
-Write-Title "安装完成！"
+Write-Title "Installation Complete!"
 
-Write-Host "  已安装内容：" -ForegroundColor White
-Write-Host "    - Node.js 依赖 (npm install)" -ForegroundColor Gray
-Write-Host "    - Python 虚拟环境 (.venv-qwen)" -ForegroundColor Gray
-Write-Host "    - Qwen3-TTS 模型 ($MODEL_DIR_NAME)" -ForegroundColor Gray
-Write-Host "    - npm / pip 国内镜像加速" -ForegroundColor Gray
-Write-Host "    - 快捷启动脚本" -ForegroundColor Gray
+Write-Host "  Installed:" -ForegroundColor White
+Write-Host "    - Node.js dependencies (npm install)" -ForegroundColor Gray
+Write-Host "    - Python venv (.venv-qwen)" -ForegroundColor Gray
+Write-Host "    - Qwen3-TTS model ($MODEL_DIR_NAME)" -ForegroundColor Gray
+Write-Host "    - npm / pip China mirror acceleration" -ForegroundColor Gray
+Write-Host "    - Shortcut scripts" -ForegroundColor Gray
 Write-Host ""
-Write-Host "  快速开始：" -ForegroundColor White
+Write-Host "  Quick Start:" -ForegroundColor White
 Write-Host ""
-Write-Host "    1. 启动预览:  双击 start-studio.bat" -ForegroundColor Green
-Write-Host "    2. 渲染视频:  render-video.bat examples\demo\demo.md" -ForegroundColor Green
-Write-Host "    3. 环境检查:  npm run qwen:doctor" -ForegroundColor Green
+Write-Host "    1. Preview:  double-click start-studio.bat" -ForegroundColor Green
+Write-Host "    2. Render:   render-video.bat examples\demo\demo.md" -ForegroundColor Green
+Write-Host "    3. Doctor:   npm run qwen:doctor" -ForegroundColor Green
 Write-Host ""
-Write-Host "  或使用命令行：" -ForegroundColor White
+Write-Host "  CLI usage:" -ForegroundColor White
 Write-Host ""
-Write-Host "    set QWEN_PYTHON=%ROOT_DIR%\.venv-qwen\Scripts\python.exe" -ForegroundColor DarkGray
-Write-Host "    npm run video:render -- examples\demo\demo.md" -ForegroundColor DarkGray
+Write-Host "    set QWEN_PYTHON=$VENV_PYTHON" -ForegroundColor DarkGray
+Write-Host "    npm run render:md -- examples\demo\demo.md dist\demo.mp4" -ForegroundColor DarkGray
 Write-Host ""
+
+Read-Host "Press Enter to exit"

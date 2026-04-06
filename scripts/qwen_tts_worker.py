@@ -142,20 +142,49 @@ def main():
 
         if mode == "voice-design":
             instructs = normalize_batch_value([item.get("instruct") for item in items], len(items), "")
-            wavs, sample_rate = model.generate_voice_design(
-                text=texts if len(texts) > 1 else texts[0],
-                language=languages if len(languages) > 1 else languages[0],
-                instruct=instructs if len(instructs) > 1 else instructs[0],
-            )
+            try:
+                wavs, sample_rate = model.generate_voice_design(
+                    text=texts if len(texts) > 1 else texts[0],
+                    language=languages if len(languages) > 1 else languages[0],
+                    instruct=instructs if len(instructs) > 1 else instructs[0],
+                )
+            except (TypeError, ValueError):
+                # Fallback: some models (e.g. 1.7B) do not support batch input
+                wavs = []
+                sample_rate = None
+                for i in range(len(texts)):
+                    wav_i, sr_i = model.generate_voice_design(
+                        text=texts[i],
+                        language=languages[i],
+                        instruct=instructs[i],
+                    )
+                    wavs.append(wav_i)
+                    if sample_rate is None:
+                        sample_rate = sr_i
         elif mode == "custom-voice":
             speakers = normalize_batch_value([item.get("speaker") or "Vivian" for item in items], len(items), "Vivian")
             instructs = normalize_batch_value([item.get("instruct") or "" for item in items], len(items), "")
-            wavs, sample_rate = model.generate_custom_voice(
-                text=texts if len(texts) > 1 else texts[0],
-                language=languages if len(languages) > 1 else languages[0],
-                speaker=speakers if len(speakers) > 1 else speakers[0],
-                instruct=instructs if len(instructs) > 1 else instructs[0],
-            )
+            try:
+                wavs, sample_rate = model.generate_custom_voice(
+                    text=texts if len(texts) > 1 else texts[0],
+                    language=languages if len(languages) > 1 else languages[0],
+                    speaker=speakers if len(speakers) > 1 else speakers[0],
+                    instruct=instructs if len(instructs) > 1 else instructs[0],
+                )
+            except (TypeError, ValueError):
+                # Fallback: some models (e.g. 1.7B) do not support batch input
+                wavs = []
+                sample_rate = None
+                for i in range(len(texts)):
+                    wav_i, sr_i = model.generate_custom_voice(
+                        text=texts[i],
+                        language=languages[i],
+                        speaker=speakers[i],
+                        instruct=instructs[i],
+                    )
+                    wavs.append(wav_i)
+                    if sample_rate is None:
+                        sample_rate = sr_i
         else:
             raise ValueError(f"不支持的 mode: {mode}")
 

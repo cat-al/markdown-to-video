@@ -147,10 +147,12 @@ def main():
             instructs = normalize_batch_value([item.get("instruct") for item in items], len(items), "")
             for i in range(len(texts)):
                 wav_i, sr_i = model.generate_voice_design(
-                    text=texts[i],
-                    language=languages[i],
-                    instruct=instructs[i],
+                    text=[texts[i]],
+                    language=[languages[i]],
+                    instruct=[instructs[i]],
                 )
+                if isinstance(wav_i, (list, tuple)):
+                    wav_i = wav_i[0]
                 wavs.append(wav_i)
                 if sample_rate is None:
                     sample_rate = sr_i
@@ -159,11 +161,13 @@ def main():
             instructs = normalize_batch_value([item.get("instruct") or "" for item in items], len(items), "")
             for i in range(len(texts)):
                 wav_i, sr_i = model.generate_custom_voice(
-                    text=texts[i],
-                    language=languages[i],
-                    speaker=speakers[i],
-                    instruct=instructs[i],
+                    text=[texts[i]],
+                    language=[languages[i]],
+                    speaker=[speakers[i]],
+                    instruct=[instructs[i]],
                 )
+                if isinstance(wav_i, (list, tuple)):
+                    wav_i = wav_i[0]
                 wavs.append(wav_i)
                 if sample_rate is None:
                     sample_rate = sr_i

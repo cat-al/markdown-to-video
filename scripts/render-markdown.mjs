@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import {existsSync, mkdirSync} from 'node:fs';
+import {existsSync, mkdirSync, writeFileSync, unlinkSync} from 'node:fs';
 import {basename, dirname, extname, resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
 
@@ -54,16 +54,24 @@ const props = JSON.stringify({
   markdown: markdownText,
   presentation,
 });
+
+// Write props to a temp file to avoid Windows command-line length limits
+const propsFilePath = resolve(cwd, 'dist', `${assetKey}.props.json`);
+writeFileSync(propsFilePath, props, 'utf8');
+
 const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 const result = spawnSync(
   command,
-  ['remotion', 'render', 'src/index.ts', 'MarkdownVideo', outputPath, '--props', props],
+  ['remotion', 'render', 'src/index.ts', 'MarkdownVideo', outputPath, '--props', propsFilePath],
   {
     cwd,
     stdio: 'inherit',
     env: process.env,
   },
 );
+
+// Clean up temp props file
+try { unlinkSync(propsFilePath); } catch {}
 
 if (result.status === 0) {
   console.log(`字幕文件已生成: ${subtitlesPath}`);

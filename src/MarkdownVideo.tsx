@@ -722,7 +722,6 @@ const SceneChrome: React.FC<{
     extrapolateRight: 'clamp',
   });
 
-  const durationSeconds = Math.max(1, Math.round(slide.durationInFrames / fps));
   const layoutTheme = getLayoutTheme(accentColor, variant);
 
   return (
@@ -771,27 +770,6 @@ const SceneChrome: React.FC<{
         {children}
       </div>
 
-      <div style={styles.footer}>
-        <div style={styles.footerMetaRow}>
-          <div style={styles.footerMeta}>
-            <AppIcon name="list" size={16} color="#93c5fd" />
-            <span>Scene {slideIndex + 1}</span>
-          </div>
-          <div style={styles.footerMeta}>
-            <AppIcon name="clock" size={16} color="#93c5fd" />
-            <span>{durationSeconds}s</span>
-          </div>
-        </div>
-        <div style={styles.progressTrack}>
-          <div
-            style={{
-              ...styles.progressFill,
-              width: `${((slideIndex + 1) / presentation.slides.length) * 100}%`,
-              background: `linear-gradient(90deg, ${accentColor}, #38bdf8)`,
-            }}
-          />
-        </div>
-      </div>
 
       {activeCaption ? (
         <div style={{...styles.captionShell, opacity: captionOpacity}}>
@@ -3070,30 +3048,6 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 22,
     lineHeight: 1.55,
     overflow: 'hidden',
-  },
-  footer: {
-    position: 'absolute',
-    left: 64,
-    right: 64,
-    bottom: 120,
-    zIndex: 10,
-  },
-  footerMetaRow: {
-    display: 'flex',
-    gap: 14,
-    alignItems: 'center',
-  },
-  footerMeta: {
-    padding: '8px 14px',
-    borderRadius: 999,
-    backgroundColor: 'rgba(15, 23, 42, 0.64)',
-    border: '1px solid rgba(148,163,184,0.16)',
-    fontSize: 18,
-    color: '#94a3b8',
-    fontWeight: 700,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
   },
   backgroundOrb: {
     position: 'absolute',

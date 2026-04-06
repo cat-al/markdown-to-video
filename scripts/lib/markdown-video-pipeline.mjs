@@ -568,8 +568,11 @@ const generateSpeechWithQwen = ({slides, ttsConfig}) => {
 
   if (result.status !== 0) {
     const parsed = parseWorkerJson(result.stdout) ?? parseWorkerJson(result.stderr);
-    const message = parsed?.error ?? result.stderr ?? result.stdout ?? 'Qwen3-TTS worker 执行失败';
-    throw new Error(`${message}\n\n可先执行: \`npm run qwen:doctor\` 检查本地 Python / qwen-tts 环境。`);
+    const errorMsg = parsed?.error ?? 'Qwen3-TTS worker 执行失败';
+    const tb = parsed?.traceback ?? '';
+    const stderr = result.stderr ?? '';
+    const detail = [errorMsg, tb, stderr].filter(Boolean).join('\n');
+    throw new Error(`${detail}\n\n可先执行: \`npm run qwen:doctor\` 检查本地 Python / qwen-tts 环境。`);
   }
 };
 

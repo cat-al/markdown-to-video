@@ -7,5 +7,5 @@ public/generated
 log
 .DS_Store
 .env
-render-video.bat
-start-studio.bat
+/render-video.bat
+/start-studio.bat

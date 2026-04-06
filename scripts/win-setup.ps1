@@ -47,6 +47,9 @@ function Test-CommandExists { param([string]$Command)
     $null -ne (Get-Command $Command -ErrorAction SilentlyContinue)
 }
 
+# UTF-8 without BOM — critical for pip.ini and other config files
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+
 # ============================================================
 #  Step 1: System environment check
 # ============================================================
@@ -202,7 +205,7 @@ $pipContent = @"
 index-url = https://pypi.tuna.tsinghua.edu.cn/simple
 trusted-host = pypi.tuna.tsinghua.edu.cn
 "@
-[System.IO.File]::WriteAllText($pipConfFile, $pipContent, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText($pipConfFile, $pipContent, $utf8NoBom)
 Write-Info "pip index => https://pypi.tuna.tsinghua.edu.cn/simple"
 
 # PyTorch mirror
@@ -420,7 +423,7 @@ echo   model : $MODEL_REPO
 npm run render:md -- "%~1" "%~2"
 pause
 "@
-[System.IO.File]::WriteAllText($renderBat, $renderContent, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText($renderBat, $renderContent, $utf8NoBom)
 
 # --- start-studio.bat ---
 $studioBat = Join-Path $ROOT_DIR "start-studio.bat"
@@ -445,7 +448,7 @@ npm run dev
 
 pause
 "@
-[System.IO.File]::WriteAllText($studioBat, $studioContent, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText($studioBat, $studioContent, $utf8NoBom)
 
 Write-Step "Shortcut scripts created:"
 Write-Info "  render-video.bat  - Render Markdown to video"
@@ -477,7 +480,7 @@ QWEN_TTS_MODEL=$MODEL_REPO
 QWEN_TTS_DEVICE=$deviceVal
 QWEN_TTS_DTYPE=$dtypeVal
 "@
-[System.IO.File]::WriteAllText($envFile, $envContent, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText($envFile, $envContent, $utf8NoBom)
 Write-Step "Config saved to: .env"
 
 # ============================================================

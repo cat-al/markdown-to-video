@@ -297,9 +297,9 @@ QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run render:md -- examples/demo/qwen
   - `demo.md`：默认 demo，已切到 Qwen 默认配置
   - `qwen-local.md`：显式 Qwen 本地语音示例
   - `ai-brain-fry-demo.md`：根据视频转录整理的简体中文演示稿
-- `examples/published/`：已经发布或接近发布状态的成型文稿
-  - `llm-wiki-karpathy-zh.md`：Karpathy《LLM Wiki》精读稿
-  - `sam-altman-technical-only-zh.md`：Sam Altman 技术向访谈精读稿
+- `examples/published/`：已经发布或接近发布状态的成型文稿，使用三位编号前缀
+  - `001-llm-wiki-karpathy-zh.md`：Karpathy《LLM Wiki》精读稿
+  - `002-sam-altman-technical-only-zh.md`：Sam Altman 技术向访谈精读稿
 
 更详细的放置规则见 `examples/README.md`。
 

@@ -27,10 +27,16 @@
 - 已经成型、可直接复用的精读稿
 - 后续只做小修而不是大改结构的成稿
 
+命名规则：
+
+- 使用三位编号前缀：`001-xxx.md`
+- 新稿按发布时间或入库顺序递增编号
+- 已经对外发布后，尽量不要频繁改编号
+
 当前文件：
 
-- `llm-wiki-karpathy-zh.md`
-- `sam-altman-technical-only-zh.md`
+- `001-llm-wiki-karpathy-zh.md`
+- `002-sam-altman-technical-only-zh.md`
 
 ### 放置规则
 

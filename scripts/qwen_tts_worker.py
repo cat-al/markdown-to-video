@@ -104,6 +104,12 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] == "--check":
         raise SystemExit(do_check())
 
+    # Force UTF-8 for stdin/stdout/stderr on Windows
+    if sys.platform == "win32":
+        sys.stdin.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+
     try:
         payload = json.loads(sys.stdin.read() or "{}")
         items = payload.get("items") or []
@@ -146,13 +152,12 @@ def main():
         if mode == "voice-design":
             instructs = normalize_batch_value([item.get("instruct") for item in items], len(items), "")
             for i in range(len(texts)):
-                wav_i, sr_i = model.generate_voice_design(
+                result_wavs, sr_i = model.generate_voice_design(
                     text=[texts[i]],
                     language=[languages[i]],
                     instruct=[instructs[i]],
                 )
-                if isinstance(wav_i, (list, tuple)):
-                    wav_i = wav_i[0]
+                wav_i = result_wavs[0] if isinstance(result_wavs, (list, tuple)) else result_wavs
                 wavs.append(wav_i)
                 if sample_rate is None:
                     sample_rate = sr_i
@@ -160,14 +165,13 @@ def main():
             speakers = normalize_batch_value([item.get("speaker") or "Vivian" for item in items], len(items), "Vivian")
             instructs = normalize_batch_value([item.get("instruct") or "" for item in items], len(items), "")
             for i in range(len(texts)):
-                wav_i, sr_i = model.generate_custom_voice(
+                result_wavs, sr_i = model.generate_custom_voice(
                     text=[texts[i]],
                     language=[languages[i]],
                     speaker=[speakers[i]],
                     instruct=[instructs[i]],
                 )
-                if isinstance(wav_i, (list, tuple)):
-                    wav_i = wav_i[0]
+                wav_i = result_wavs[0] if isinstance(result_wavs, (list, tuple)) else result_wavs
                 wavs.append(wav_i)
                 if sample_rate is None:
                     sample_rate = sr_i

@@ -64,19 +64,19 @@ npm run dev
 #### 6. 一键渲染 Markdown 为视频（推荐）
 
 ```bash
-./scripts/render-video.sh examples/demo.md
+./scripts/render-video.sh examples/demo/demo.md
 ```
 
 如果希望指定输出文件：
 
 ```bash
-./scripts/render-video.sh examples/demo.md dist/demo.mp4
+./scripts/render-video.sh examples/demo/demo.md dist/demo.mp4
 ```
 
 如果更习惯走 npm 命令：
 
 ```bash
-npm run video:render -- examples/demo.md dist/demo.mp4
+npm run video:render -- examples/demo/demo.md dist/demo.mp4
 ```
 
 这个脚本会固定做几件事：
@@ -89,7 +89,7 @@ npm run video:render -- examples/demo.md dist/demo.mp4
 如果你想直接调用底层命令，也仍然可以用：
 
 ```bash
-npm run render:md -- examples/demo.md dist/demo.mp4
+npm run render:md -- examples/demo/demo.md dist/demo.mp4
 ```
 
 ### 常用命令
@@ -97,7 +97,7 @@ npm run render:md -- examples/demo.md dist/demo.mp4
 - **`./scripts/render-video.sh <input.md> [output.mp4]`**：推荐的一键渲染入口，固定走标准视频生成流程
 - **`npm run video:render -- <input.md> [output.mp4]`**：上面脚本的 npm 包装命令
 - **`npm run prepare:preview`**：使用默认示例生成预览素材
-- **`npm run prepare:preview:qwen`**：使用 `examples/qwen-local.md` 生成 Qwen 预览素材
+- **`npm run prepare:preview:qwen`**：使用 `examples/demo/qwen-local.md` 生成 Qwen 预览素材
 - **`npm run studio`**：直接打开当前预览素材对应的 `Remotion Studio`，**不会重跑 TTS**
 - **`npm run dev`**：准备默认预览素材并打开 `Remotion Studio`
 - **`npm run dev:qwen`**：准备 `Qwen3-TTS` 预览素材并打开 `Remotion Studio`
@@ -121,7 +121,7 @@ npm run render:md -- examples/demo.md dist/demo.mp4
 1. **先生成一次预览素材**（首轮或文稿变更后再做）
 
 ```bash
-npm run prepare:preview -- examples/demo.md
+npm run prepare:preview -- examples/demo/demo.md
 ```
 
 这一步会更新：
@@ -151,6 +151,7 @@ npm run render:preview -- dist/style-preview.mp4
 ### Markdown 写法约定
 
 如果你在写 **精读 / 解读 / 拆解类** 中文讲解稿，建议先看 `docs/文案生成规则.md`，再开始写第一页。
+如果你在挑选示例底稿，先看 `examples/README.md`，确认应该放到 `examples/demo/` 还是 `examples/published/`。
 
 支持简单 frontmatter 与分页语法：
 
@@ -269,7 +270,7 @@ npm run dev:qwen
 #### 使用 Qwen 渲染视频
 
 ```bash
-QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run render:md -- examples/qwen-local.md dist/qwen-local.mp4
+QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run render:md -- examples/demo/qwen-local.md dist/qwen-local.mp4
 ```
 
 ### 系统 TTS 说明
@@ -292,9 +293,15 @@ QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run render:md -- examples/qwen-loca
 
 ### 示例文件
 
-- `examples/demo.md`：默认 demo，已切到 Qwen 默认配置
-- `examples/qwen-local.md`：显式 Qwen 本地语音示例
-- `examples/ai-brain-fry-demo.md`：根据视频转录整理的简体中文演示稿
+- `examples/demo/`：演示稿与功能验证案例
+  - `demo.md`：默认 demo，已切到 Qwen 默认配置
+  - `qwen-local.md`：显式 Qwen 本地语音示例
+  - `ai-brain-fry-demo.md`：根据视频转录整理的简体中文演示稿
+- `examples/published/`：已经发布或接近发布状态的成型文稿
+  - `llm-wiki-karpathy-zh.md`：Karpathy《LLM Wiki》精读稿
+  - `sam-altman-technical-only-zh.md`：Sam Altman 技术向访谈精读稿
+
+更详细的放置规则见 `examples/README.md`。
 
 ### 当前适合的使用场景
 

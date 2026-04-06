@@ -10,9 +10,9 @@ usage() {
   ./scripts/render-video.sh <input.md> [output.mp4]
 
 示例:
-  ./scripts/render-video.sh examples/llm-wiki-karpathy-zh.md
-  ./scripts/render-video.sh examples/llm-wiki-karpathy-zh.md dist/llm-wiki-karpathy-zh.mp4
-  npm run video:render -- examples/llm-wiki-karpathy-zh.md dist/llm-wiki-karpathy-zh.mp4
+  ./scripts/render-video.sh examples/published/llm-wiki-karpathy-zh.md
+  ./scripts/render-video.sh examples/published/llm-wiki-karpathy-zh.md dist/llm-wiki-karpathy-zh.mp4
+  npm run video:render -- examples/published/llm-wiki-karpathy-zh.md dist/llm-wiki-karpathy-zh.mp4
 
 默认行为:
   - 默认使用 qwen-local 生成配音视频

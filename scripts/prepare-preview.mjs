@@ -14,7 +14,7 @@ import {
 } from './lib/markdown-video-pipeline.mjs';
 
 const cwd = process.cwd();
-const previewSource = process.argv[2] ?? process.env.PREVIEW_MARKDOWN ?? 'examples/demo.md';
+const previewSource = process.argv[2] ?? process.env.PREVIEW_MARKDOWN ?? 'examples/demo/demo.md';
 const inputPath = resolve(cwd, previewSource);
 const markdownText = readMarkdownFile(inputPath);
 const assetKey = sanitizeFileSegment(basename(inputPath, extname(inputPath))) || 'preview';

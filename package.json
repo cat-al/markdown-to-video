@@ -13,6 +13,7 @@
     "render": "remotion render",
     "render:md": "node scripts/render-markdown.mjs",
     "video:render": "bash scripts/render-video.sh",
+    "video:render:win": "scripts\\render-video.bat",
     "render:preview": "remotion render src/index.ts MarkdownVideo",
     "qwen:doctor": "node scripts/check-qwen.mjs",
     "check": "tsc --noEmit"

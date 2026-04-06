@@ -393,8 +393,15 @@ const resolveDefaultQwenPython = () => {
     return process.env.QWEN_PYTHON;
   }
 
-  const localVenvPython = join(process.cwd(), '.venv-qwen', 'bin', 'python');
-  return existsSync(localVenvPython) ? localVenvPython : 'python3';
+  const isWindows = process.platform === 'win32';
+  const localVenvPython = isWindows
+    ? join(process.cwd(), '.venv-qwen', 'Scripts', 'python.exe')
+    : join(process.cwd(), '.venv-qwen', 'bin', 'python');
+  if (existsSync(localVenvPython)) {
+    return localVenvPython;
+  }
+
+  return isWindows ? 'python' : 'python3';
 };
 
 const resolveLocalQwenModelPath = (modelName) => {

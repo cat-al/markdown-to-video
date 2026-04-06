@@ -24,10 +24,35 @@
 ### 环境要求
 
 - **Node.js**：建议 `18+`
-- **Python**：使用 `qwen-local` 需要 Python 3 环境
-- **ffprobe**：建议安装，用于音频时长探测；没有时会回退到 `afinfo`
+- **Python**：使用 `qwen-local` 需要 Python 3.9+ 环境
+- **ffprobe**：建议安装，用于音频时长探测；macOS 没有时会回退到 `afinfo`
+- **Git + Git LFS**：用于从 ModelScope 下载模型
 
-### 快速开始
+### Windows 一键安装（推荐）
+
+如果你在 **Windows** 上使用，直接双击 `install-win.bat` 即可完成全部安装：
+
+```
+双击 install-win.bat
+```
+
+安装脚本会自动完成：
+
+1. **系统环境检查**：Node.js、Python、Git、GPU、内存、磁盘空间
+2. **更换国内镜像加速**：npm → npmmirror、pip → 清华、PyTorch → 上海交大镜像
+3. **安装 Node.js 和 Python 依赖**
+4. **选择 TTS 模型**：0.6B（推荐，~1.7GB）或 1.7B（更高质量，~4.8GB）
+5. **从 ModelScope 下载模型**（国内源，避免海外下载慢）
+6. **验证 Qwen3-TTS 环境**
+7. **生成快捷启动脚本**：`start-studio.bat`、`render-video.bat`
+
+安装完成后，双击 `start-studio.bat` 启动预览，或使用：
+
+```cmd
+scripts\render-video.bat examples\demo\demo.md
+```
+
+### 快速开始（macOS / Linux）
 
 #### 1. 安装依赖
 

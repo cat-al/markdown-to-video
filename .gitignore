@@ -6,3 +6,6 @@ public/generated
 .models
 log
 .DS_Store
+.env
+render-video.bat
+start-studio.bat

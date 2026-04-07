@@ -229,7 +229,7 @@ ttsLanguage: Chinese
 - **只在关键页手动覆写**：例如封面页、章节过渡页、金句总结页、结尾提醒页
 - **把样式决策留在 Markdown 内**：尽量不要为了某一篇文章去改 `MarkdownVideo.tsx` 里的硬编码规则
 
-当前支持的 `layout` 值有：
+当前支持的 `layout` 值有（共 30 种）：
 
 - **`hero`**：封面 / 开场大标题
 - **`split-list`**：轻量清单页
@@ -243,6 +243,24 @@ ttsLanguage: Chinese
 - **`quote`**：金句 / 对比结论 / 收尾页
 - **`code`**：代码讲解页
 - **`panel`**：通用兜底布局
+- **`centered`**：居中大段文字 + 引号装饰
+- **`waterfall`**：瀑布流纵向递进卡片
+- **`radar`**：中心辐射圆形布局
+- **`compare`**：左右对比双栏
+- **`pyramid`**：金字塔层级递进
+- **`stat-cards`**：大数字统计卡片
+- **`headline`**：巨幅标题 + 章节过渡
+- **`sidebar-note`**：左窄侧栏 + 右主区
+- **`filmstrip`**：横向胶片条步骤
+- **`duo`**：上下两等分对比卡片
+- **`orbit`**：左主题 + 右侧条目列表
+- **`kanban`**：看板三列分类
+- **`stack`**：堆叠偏移卡片
+- **`accent-bar`**：粗色条 + 大文字声明
+- **`split-quote`**：左引言右解释
+- **`checklist`**：勾选列表样式
+- **`minimal`**：极简大留白呼吸页
+- **`magazine`**：杂志多栏信息密集布局
 
 ### 输出产物
 

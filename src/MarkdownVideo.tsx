@@ -283,6 +283,24 @@ const getVariantIcon = (variant: SlideVariant): IconName => {
     quote: 'quote',
     code: 'code',
     panel: 'list',
+    centered: 'focus',
+    waterfall: 'layers',
+    radar: 'spark',
+    compare: 'switch',
+    pyramid: 'trend',
+    'stat-cards': 'trend',
+    headline: 'spark',
+    'sidebar-note': 'list',
+    filmstrip: 'clock',
+    duo: 'switch',
+    orbit: 'spark',
+    kanban: 'layers',
+    stack: 'layers',
+    'accent-bar': 'alert',
+    'split-quote': 'quote',
+    checklist: 'check',
+    minimal: 'focus',
+    magazine: 'list',
   };
 
   return mapping[variant];
@@ -414,6 +432,24 @@ const slideAccentPalettes: Record<SlideVariant, string[]> = {
   quote: ['#f87171', '#fb923c', '#a78bfa', '#60a5fa'],
   code: ['#22d3ee', '#60a5fa', '#34d399', '#a78bfa'],
   panel: ['#60a5fa', '#34d399', '#f59e0b', '#a78bfa'],
+  centered: ['#c084fc', '#fb7185', '#22d3ee', '#fbbf24'],
+  waterfall: ['#2dd4bf', '#60a5fa', '#f472b6', '#a78bfa'],
+  radar: ['#f59e0b', '#a78bfa', '#34d399', '#60a5fa'],
+  compare: ['#60a5fa', '#fb923c', '#a78bfa', '#34d399'],
+  pyramid: ['#fbbf24', '#f87171', '#60a5fa', '#34d399'],
+  'stat-cards': ['#22d3ee', '#f472b6', '#fbbf24', '#a78bfa'],
+  headline: ['#8b5cf6', '#f87171', '#22d3ee', '#34d399'],
+  'sidebar-note': ['#a78bfa', '#60a5fa', '#34d399', '#fb923c'],
+  filmstrip: ['#38bdf8', '#fbbf24', '#f472b6', '#34d399'],
+  duo: ['#fb923c', '#60a5fa', '#34d399', '#a78bfa'],
+  orbit: ['#c084fc', '#22d3ee', '#fbbf24', '#f472b6'],
+  kanban: ['#34d399', '#60a5fa', '#fb923c', '#a78bfa'],
+  stack: ['#a78bfa', '#22d3ee', '#f472b6', '#fbbf24'],
+  'accent-bar': ['#f87171', '#fbbf24', '#60a5fa', '#34d399'],
+  'split-quote': ['#f472b6', '#a78bfa', '#22d3ee', '#34d399'],
+  checklist: ['#34d399', '#60a5fa', '#fbbf24', '#a78bfa'],
+  minimal: ['#94a3b8', '#60a5fa', '#a78bfa', '#22d3ee'],
+  magazine: ['#60a5fa', '#f472b6', '#fbbf24', '#2dd4bf'],
 };
 
 const itemTonePalettes: Record<SlideVariant, string[]> = {
@@ -429,6 +465,24 @@ const itemTonePalettes: Record<SlideVariant, string[]> = {
   quote: ['#f87171', '#fb923c', '#a78bfa', '#60a5fa', '#fbbf24', '#22d3ee'],
   code: ['#22d3ee', '#60a5fa', '#34d399', '#a78bfa', '#f472b6', '#fb923c'],
   panel: ['#60a5fa', '#34d399', '#a78bfa', '#fb923c', '#f472b6', '#22d3ee'],
+  centered: ['#c084fc', '#fb7185', '#22d3ee', '#fbbf24', '#34d399', '#60a5fa'],
+  waterfall: ['#2dd4bf', '#60a5fa', '#f472b6', '#a78bfa', '#fbbf24', '#fb923c', '#22d3ee'],
+  radar: ['#f59e0b', '#a78bfa', '#34d399', '#60a5fa', '#f472b6', '#22d3ee'],
+  compare: ['#60a5fa', '#fb923c', '#a78bfa', '#34d399', '#f472b6', '#fbbf24'],
+  pyramid: ['#fbbf24', '#f87171', '#60a5fa', '#34d399', '#a78bfa', '#22d3ee'],
+  'stat-cards': ['#22d3ee', '#f472b6', '#fbbf24', '#a78bfa', '#34d399', '#60a5fa', '#fb923c'],
+  headline: ['#8b5cf6', '#f87171', '#22d3ee', '#34d399', '#fbbf24', '#60a5fa'],
+  'sidebar-note': ['#a78bfa', '#60a5fa', '#34d399', '#fb923c', '#f472b6', '#fbbf24'],
+  filmstrip: ['#38bdf8', '#fbbf24', '#f472b6', '#34d399', '#a78bfa', '#60a5fa', '#fb923c'],
+  duo: ['#fb923c', '#60a5fa', '#34d399', '#a78bfa', '#22d3ee', '#f472b6'],
+  orbit: ['#c084fc', '#22d3ee', '#fbbf24', '#f472b6', '#34d399', '#60a5fa'],
+  kanban: ['#34d399', '#60a5fa', '#fb923c', '#a78bfa', '#f472b6', '#fbbf24', '#22d3ee'],
+  stack: ['#a78bfa', '#22d3ee', '#f472b6', '#fbbf24', '#34d399', '#60a5fa'],
+  'accent-bar': ['#f87171', '#fbbf24', '#60a5fa', '#34d399', '#a78bfa', '#22d3ee'],
+  'split-quote': ['#f472b6', '#a78bfa', '#22d3ee', '#34d399', '#fbbf24', '#60a5fa'],
+  checklist: ['#34d399', '#60a5fa', '#fbbf24', '#a78bfa', '#f472b6', '#22d3ee', '#fb923c'],
+  minimal: ['#94a3b8', '#60a5fa', '#a78bfa', '#22d3ee', '#34d399', '#f472b6'],
+  magazine: ['#60a5fa', '#f472b6', '#fbbf24', '#2dd4bf', '#a78bfa', '#fb923c', '#22d3ee'],
 };
 
 const getSlideAccentColor = ({
@@ -586,6 +640,13 @@ const getSlideVariant = ({
   const isSummarySlide = /一句话总结|总结|结论|closing|takeaway/.test(heading)
     || hasBlockquote
     || (slideIndex >= totalSlides - 1 && (/更像|核心洞见|运行中产物/.test(narrative) || structure.strongPhrases.length > 0));
+  const isCompareSlide = /对比|比较|区别|不同|vs|versus|差异/.test(heading);
+  const isDataSlide = /数据|数字|统计|百分|percent|data|stat|指标|研究/.test(heading);
+  const isStepSlide = /步骤|流程|方法|做法|step|how to|怎么做/.test(heading);
+  const isListSlide = /清单|规则|原则|事项|准则|注意|checklist|rule/.test(heading);
+  const isQuoteSlide = /引用|原话|说过|曾说|quote|金句/.test(heading);
+  const paragraphCount = structure.paragraphs.length;
+  const narrationLen = slide.narration.length;
 
   if (structure.codeBlock) {
     return 'code';
@@ -596,50 +657,87 @@ const getSlideVariant = ({
   }
 
   if (isSummarySlide) {
-    return 'quote';
+    return slideIndex % 2 === 0 ? 'quote' : 'centered';
+  }
+
+  if (isCompareSlide && totalListItems >= 2) {
+    return totalListItems === 2 ? 'duo' : 'compare';
+  }
+
+  if (isDataSlide && totalListItems >= 2) {
+    return totalListItems >= 4 ? 'stat-cards' : 'stat-cards';
+  }
+
+  if (isListSlide && totalListItems >= 3) {
+    return 'checklist';
+  }
+
+  if (isQuoteSlide) {
+    return 'split-quote';
   }
 
   if (isFrameworkSlide && totalListItems >= 3) {
-    return 'manifesto';
+    return slideIndex % 2 === 0 ? 'manifesto' : 'kanban';
   }
 
   if (isWhySlide && totalListItems >= 4) {
-    return 'argument';
+    return slideIndex % 2 === 0 ? 'argument' : 'radar';
   }
 
   if (isSceneSlide && structure.bulletItems.length >= 4) {
-    return 'mosaic';
+    return slideIndex % 2 === 0 ? 'mosaic' : 'waterfall';
+  }
+
+  if (isStepSlide && structure.orderedItems.length >= 3) {
+    return slideIndex % 2 === 0 ? 'timeline' : 'filmstrip';
   }
 
   if (structure.orderedItems.length >= 3) {
-    return 'timeline';
+    return slideIndex % 3 === 0 ? 'timeline' : slideIndex % 3 === 1 ? 'filmstrip' : 'stack';
   }
 
   if (totalListItems === 3) {
-    return 'triptych';
+    return slideIndex % 3 === 0 ? 'triptych' : slideIndex % 3 === 1 ? 'kanban' : 'orbit';
   }
 
   if (slideIndex === totalSlides - 1) {
-    return totalListItems >= 3 ? 'triptych' : 'spotlight';
+    if (totalListItems >= 3) {
+      return 'triptych';
+    }
+
+    return structure.strongPhrases.length > 0 ? 'accent-bar' : 'minimal';
   }
 
   if (structure.bulletItems.length >= 5) {
-    return 'mosaic';
+    return slideIndex % 2 === 0 ? 'mosaic' : 'waterfall';
   }
 
   if (structure.orderedItems.length >= 3 || structure.bulletItems.length >= 4) {
-    return 'grid';
+    return slideIndex % 3 === 0 ? 'grid' : slideIndex % 3 === 1 ? 'magazine' : 'stat-cards';
+  }
+
+  if (structure.bulletItems.length === 2) {
+    return slideIndex % 3 === 0 ? 'split-list' : slideIndex % 3 === 1 ? 'duo' : 'compare';
   }
 
   if (structure.bulletItems.length >= 2) {
-    return 'split-list';
+    return slideIndex % 2 === 0 ? 'split-list' : 'sidebar-note';
   }
 
-  if (structure.strongPhrases.length > 0 || getNarrationSentences(slide.narration).length <= 2) {
-    return 'spotlight';
+  if (structure.strongPhrases.length > 0) {
+    return slideIndex % 3 === 0 ? 'spotlight' : slideIndex % 3 === 1 ? 'accent-bar' : 'centered';
   }
 
-  return 'panel';
+  if (narrationLen <= 60) {
+    return slideIndex % 2 === 0 ? 'minimal' : 'headline';
+  }
+
+  if (paragraphCount >= 2 && totalListItems === 0) {
+    return slideIndex % 3 === 0 ? 'spotlight' : slideIndex % 3 === 1 ? 'split-quote' : 'sidebar-note';
+  }
+
+  const fallbackVariants: SlideVariant[] = ['panel', 'centered', 'headline', 'minimal', 'accent-bar', 'sidebar-note'];
+  return fallbackVariants[slideIndex % fallbackVariants.length];
 };
 
 const getLayoutTheme = (accentColor: string, variant: SlideVariant) => {
@@ -656,6 +754,24 @@ const getLayoutTheme = (accentColor: string, variant: SlideVariant) => {
     quote: 'radial-gradient(circle at top left, rgba(69, 26, 58, 0.88), #020617 58%, #111827 100%)',
     code: 'linear-gradient(145deg, #020617 0%, #111827 52%, #0f172a 100%)',
     panel: 'linear-gradient(145deg, #020617 0%, #111827 45%, #0f172a 100%)',
+    centered: 'radial-gradient(ellipse at center, rgba(15, 23, 42, 0.96), #020617 68%)',
+    waterfall: 'linear-gradient(170deg, #020617 0%, #0a1628 35%, #0f172a 65%, #111827 100%)',
+    radar: 'radial-gradient(circle at 40% 40%, rgba(30, 20, 50, 0.92), #020617 62%)',
+    compare: 'linear-gradient(90deg, #020617 0%, #0b1628 50%, #020617 100%)',
+    pyramid: 'linear-gradient(180deg, #020617 0%, #1a0f0a 42%, #0f172a 100%)',
+    'stat-cards': 'linear-gradient(145deg, #020617 0%, #071a28 48%, #111827 100%)',
+    headline: 'radial-gradient(ellipse at top left, rgba(20, 10, 45, 0.9), #020617 55%)',
+    'sidebar-note': 'linear-gradient(135deg, #020617 0%, #0f172a 55%, #0b1a2e 100%)',
+    filmstrip: 'linear-gradient(180deg, #020617 0%, #0c1524 38%, #111827 100%)',
+    duo: 'linear-gradient(180deg, #020617 0%, #0f172a 50%, #020617 100%)',
+    orbit: 'radial-gradient(circle at center, rgba(20, 15, 40, 0.94), #020617 60%)',
+    kanban: 'linear-gradient(145deg, #020617 0%, #0d1a2a 42%, #0f172a 100%)',
+    stack: 'linear-gradient(160deg, #020617 0%, #0f172a 48%, #131b2e 100%)',
+    'accent-bar': 'linear-gradient(145deg, #120a08 0%, #0f172a 40%, #020617 100%)',
+    'split-quote': 'linear-gradient(135deg, #020617 0%, #1a0f2a 42%, #0f172a 100%)',
+    checklist: 'linear-gradient(145deg, #020617 0%, #061a14 38%, #0f172a 100%)',
+    minimal: 'linear-gradient(145deg, #020617 0%, #0a0f1a 50%, #020617 100%)',
+    magazine: 'linear-gradient(155deg, #020617 0%, #0f172a 42%, #0d1220 100%)',
   };
 
   const orbScaleByVariant: Record<SlideVariant, number> = {
@@ -671,6 +787,24 @@ const getLayoutTheme = (accentColor: string, variant: SlideVariant) => {
     quote: 1.14,
     code: 0.88,
     panel: 1,
+    centered: 1.32,
+    waterfall: 0.94,
+    radar: 1.2,
+    compare: 0.96,
+    pyramid: 1.1,
+    'stat-cards': 0.9,
+    headline: 1.28,
+    'sidebar-note': 0.92,
+    filmstrip: 0.96,
+    duo: 1.02,
+    orbit: 1.22,
+    kanban: 0.88,
+    stack: 1.06,
+    'accent-bar': 1.14,
+    'split-quote': 1.08,
+    checklist: 0.9,
+    minimal: 0.76,
+    magazine: 0.86,
   };
 
   return {
@@ -1860,6 +1994,692 @@ const PanelSlideLayout: React.FC<{
   );
 };
 
+/* ===== 18 NEW LAYOUT COMPONENTS ===== */
+
+const CenteredSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const spotlight = structure.strongPhrases[0] ?? structure.paragraphs[0] ?? getNarrationSentences(slide.narration)[0] ?? slide.heading;
+  const support = structure.paragraphs[1] ?? getNarrationSentences(slide.narration)[1] ?? '';
+  const slideIcon = getSlideIcon(slide, 'centered', structure);
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="centered" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '0 80px'}}>
+        <div style={{fontSize: 120, lineHeight: 0.9, fontWeight: 900, color: `${accentColor}30`, marginBottom: -20}}>"</div>
+        <IconBadge name={slideIcon} color={accentColor} size={58} tone="solid" />
+        <div style={{marginTop: 24, fontSize: 52, fontWeight: 850, color: '#e2e8f0', lineHeight: 1.1}}>{slide.heading}</div>
+        <div style={{marginTop: 32, fontSize: 48, fontWeight: 800, color: '#f8fafc', lineHeight: 1.3, maxWidth: 1100}}>{spotlight}</div>
+        {support ? <div style={{marginTop: 28, fontSize: 28, color: '#94a3b8', lineHeight: 1.55, maxWidth: 900}}>{support}</div> : null}
+        <div style={{marginTop: 36, width: 80, height: 5, borderRadius: 999, background: accentColor, opacity: 0.7}} />
+      </div>
+    </SceneChrome>
+  );
+};
+
+const WaterfallSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 7);
+  const slideIcon = getSlideIcon(slide, 'waterfall', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'waterfall'});
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="waterfall" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 16}}>
+        <div style={{...styles.labelRow}}>
+          <IconBadge name={slideIcon} color={accentColor} size={52} tone="solid" />
+          <div style={{fontSize: 48, fontWeight: 850, color: '#f8fafc'}}>{slide.heading}</div>
+        </div>
+        <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center'}}>
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            return (
+              <div key={`${item}-${index}`} style={{
+                padding: '18px 24px', borderRadius: 24, border: `1px solid ${tc}4a`,
+                background: `linear-gradient(90deg, ${tc}18, rgba(15,23,42,0.88))`,
+                display: 'flex', alignItems: 'center', gap: 16,
+                marginLeft: index * 28, maxWidth: `calc(100% - ${index * 28}px)`,
+                boxShadow: `0 14px 36px ${tc}14`,
+              }}>
+                <div style={{minWidth: 36, height: 36, borderRadius: 999, background: `${tc}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 900, color: tc}}>{index + 1}</div>
+                <div style={{fontSize: 28, fontWeight: 700, color: '#f8fafc', lineHeight: 1.4}}>{item}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const RadarSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 6);
+  const slideIcon = getSlideIcon(slide, 'radar', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'radar'});
+  const intro = structure.paragraphs[0] ?? '';
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="radar" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', gap: 28}}>
+        <div style={{flex: '0 0 420px', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
+          <IconBadge name={slideIcon} color={accentColor} size={56} tone="solid" />
+          <div style={{marginTop: 20, fontSize: 56, fontWeight: 850, color: '#f8fafc', lineHeight: 1.08}}>{slide.heading}</div>
+          {intro ? <div style={{marginTop: 20, fontSize: 28, color: '#cbd5e1', lineHeight: 1.55}}>{intro}</div> : null}
+        </div>
+        <div style={{flex: 1, display: 'flex', flexWrap: 'wrap', alignContent: 'center', gap: 16, justifyContent: 'center'}}>
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            const size = index === 0 ? 220 : 180;
+            return (
+              <div key={`${item}-${index}`} style={{
+                width: size, height: size, borderRadius: '50%', border: `2px solid ${tc}55`,
+                background: `radial-gradient(circle, ${tc}20, rgba(15,23,42,0.9))`,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                padding: 18, textAlign: 'center', boxShadow: `0 0 40px ${tc}18`,
+              }}>
+                <div style={{fontSize: 18, fontWeight: 900, color: tc, marginBottom: 8}}>{String(index + 1).padStart(2, '0')}</div>
+                <div style={{fontSize: index === 0 ? 22 : 20, fontWeight: 700, color: '#f8fafc', lineHeight: 1.35}}>{item}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const CompareSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems];
+  const half = Math.ceil(items.length / 2);
+  const leftItems = items.slice(0, half);
+  const rightItems = items.slice(half);
+  const slideIcon = getSlideIcon(slide, 'compare', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'compare'});
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="compare" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 24}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14}}>
+          <IconBadge name={slideIcon} color={accentColor} size={52} tone="solid" />
+          <div style={{fontSize: 52, fontWeight: 850, color: '#f8fafc'}}>{slide.heading}</div>
+        </div>
+        <div style={{flex: 1, display: 'grid', gridTemplateColumns: '1fr 4px 1fr', gap: 24, alignItems: 'stretch'}}>
+          <div style={{display: 'flex', flexDirection: 'column', gap: 14, justifyContent: 'center'}}>
+            {leftItems.map((item, index) => {
+              const tc = itemColors[index] ?? accentColor;
+              return (
+                <div key={`l-${index}`} style={{padding: '20px 24px', borderRadius: 24, border: `1px solid ${tc}4a`, background: `linear-gradient(135deg, ${tc}18, rgba(15,23,42,0.88))`, boxShadow: `0 14px 36px ${tc}14`}}>
+                  <div style={{fontSize: 28, fontWeight: 700, color: '#f8fafc', lineHeight: 1.45}}>{item}</div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{background: `linear-gradient(180deg, ${accentColor}55, ${accentColor}11)`, borderRadius: 999}} />
+          <div style={{display: 'flex', flexDirection: 'column', gap: 14, justifyContent: 'center'}}>
+            {rightItems.map((item, index) => {
+              const tc = itemColors[half + index] ?? accentColor;
+              return (
+                <div key={`r-${index}`} style={{padding: '20px 24px', borderRadius: 24, border: `1px solid ${tc}4a`, background: `linear-gradient(135deg, ${tc}18, rgba(15,23,42,0.88))`, boxShadow: `0 14px 36px ${tc}14`}}>
+                  <div style={{fontSize: 28, fontWeight: 700, color: '#f8fafc', lineHeight: 1.45}}>{item}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const PyramidSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 5);
+  const slideIcon = getSlideIcon(slide, 'pyramid', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'pyramid'});
+  const intro = structure.paragraphs[0] ?? '';
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="pyramid" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 20}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14}}>
+          <IconBadge name={slideIcon} color={accentColor} size={52} tone="solid" />
+          <div><div style={{fontSize: 52, fontWeight: 850, color: '#f8fafc'}}>{slide.heading}</div></div>
+        </div>
+        {intro ? <div style={{fontSize: 28, color: '#cbd5e1', lineHeight: 1.55, maxWidth: 900}}>{intro}</div> : null}
+        <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: 10, justifyContent: 'center', alignItems: 'center'}}>
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            const widthPercent = 45 + index * 12;
+            return (
+              <div key={`${item}-${index}`} style={{
+                width: `${widthPercent}%`, padding: '16px 24px', borderRadius: 20,
+                border: `1px solid ${tc}4a`, background: `linear-gradient(135deg, ${tc}1a, rgba(15,23,42,0.88))`,
+                display: 'flex', alignItems: 'center', gap: 14, boxShadow: `0 12px 32px ${tc}14`,
+              }}>
+                <div style={{minWidth: 32, height: 32, borderRadius: 999, background: `${tc}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 900, color: tc}}>{index + 1}</div>
+                <div style={{fontSize: 26, fontWeight: 700, color: '#f8fafc', lineHeight: 1.4}}>{item}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const StatCardsSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 6);
+  const slideIcon = getSlideIcon(slide, 'stat-cards', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'stat-cards'});
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="stat-cards" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 24}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14}}>
+          <IconBadge name={slideIcon} color={accentColor} size={52} tone="solid" />
+          <div style={{...styles.kicker, color: accentColor, marginBottom: 0}}>Data Insights</div>
+        </div>
+        <div style={{fontSize: 52, fontWeight: 850, color: '#f8fafc', lineHeight: 1.08}}>{slide.heading}</div>
+        <div style={{flex: 1, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18}}>
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            const numMatch = item.match(/[\d.]+%?/);
+            const num = numMatch ? numMatch[0] : String(index + 1).padStart(2, '0');
+            const label = numMatch ? item.replace(numMatch[0], '').trim() : item;
+            return (
+              <div key={`${item}-${index}`} style={{
+                borderRadius: 30, padding: '28px 24px', border: `1px solid ${tc}4a`,
+                background: `linear-gradient(180deg, ${tc}18, rgba(15,23,42,0.85))`,
+                display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+                textAlign: 'center', boxShadow: `0 18px 44px ${tc}16`,
+              }}>
+                <div style={{fontSize: 52, fontWeight: 900, color: tc, lineHeight: 1}}>{num}</div>
+                <div style={{marginTop: 14, fontSize: 24, fontWeight: 700, color: '#e2e8f0', lineHeight: 1.4}}>{label}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const HeadlineSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const support = structure.paragraphs[0] ?? getNarrationSentences(slide.narration)[0] ?? '';
+  const slideIcon = getSlideIcon(slide, 'headline', structure);
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="headline" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 1300}}>
+        <div style={{width: 72, height: 6, borderRadius: 999, background: accentColor, marginBottom: 32}} />
+        <div style={{fontSize: 96, lineHeight: 1, fontWeight: 900, color: '#f8fafc'}}>{slide.heading}</div>
+        {support ? <div style={{marginTop: 36, fontSize: 34, lineHeight: 1.55, color: '#94a3b8', maxWidth: 1000}}>{support}</div> : null}
+        <div style={{marginTop: 40, display: 'flex', alignItems: 'center', gap: 12}}>
+          <IconBadge name={slideIcon} color={accentColor} size={44} tone="soft" />
+          <div style={{fontSize: 22, fontWeight: 700, color: accentColor, letterSpacing: 1.5, textTransform: 'uppercase'}}>Chapter Focus</div>
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const SidebarNoteSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 5);
+  const lead = structure.paragraphs[0] ?? getNarrationSentences(slide.narration)[0] ?? '';
+  const slideIcon = getSlideIcon(slide, 'sidebar-note', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'sidebar-note'});
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="sidebar-note" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'grid', gridTemplateColumns: '280px 1fr', gap: 28}}>
+        <div style={{borderRadius: 30, padding: '32px 24px', border: `1px solid ${accentColor}3a`, background: `linear-gradient(180deg, ${accentColor}18, rgba(15,23,42,0.82))`, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16}}>
+          <IconBadge name={slideIcon} color={accentColor} size={48} tone="solid" />
+          <div style={{fontSize: 18, fontWeight: 800, color: accentColor, letterSpacing: 1.5, textTransform: 'uppercase'}}>Side Note</div>
+          <div style={{fontSize: 22, color: '#cbd5e1', lineHeight: 1.55}}>{lead || presentation.meta.subtitle || ''}</div>
+        </div>
+        <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 18}}>
+          <div style={{fontSize: 54, fontWeight: 850, color: '#f8fafc', lineHeight: 1.08}}>{slide.heading}</div>
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            return (
+              <div key={`${item}-${index}`} style={{padding: '18px 24px', borderRadius: 24, border: `1px solid ${tc}40`, background: `linear-gradient(90deg, ${tc}14, rgba(15,23,42,0.88))`, display: 'flex', alignItems: 'center', gap: 14, boxShadow: `0 12px 30px ${tc}12`}}>
+                <IconBadge name={getItemIcon(item, index, 'sidebar-note')} color={tc} size={38} tone="soft" />
+                <div style={{fontSize: 27, fontWeight: 700, color: '#f8fafc', lineHeight: 1.4}}>{item}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const FilmstripSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.orderedItems, ...structure.bulletItems].slice(0, 5);
+  const slideIcon = getSlideIcon(slide, 'filmstrip', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'filmstrip'});
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="filmstrip" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 24}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14}}>
+          <IconBadge name={slideIcon} color={accentColor} size={52} tone="solid" />
+          <div style={{fontSize: 48, fontWeight: 850, color: '#f8fafc'}}>{slide.heading}</div>
+        </div>
+        <div style={{flex: 1, display: 'flex', gap: 14, alignItems: 'stretch'}}>
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            return (
+              <div key={`${item}-${index}`} style={{
+                flex: 1, borderRadius: 28, padding: '24px 20px', border: `1px solid ${tc}4a`,
+                background: `linear-gradient(180deg, ${tc}16, rgba(15,23,42,0.88))`,
+                borderTop: `5px solid ${tc}`, display: 'flex', flexDirection: 'column', gap: 14,
+                boxShadow: `0 18px 44px ${tc}14`,
+              }}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                  <div style={{fontSize: 40, fontWeight: 900, color: `${tc}55`}}>{String(index + 1).padStart(2, '0')}</div>
+                  <IconBadge name={getItemIcon(item, index, 'filmstrip')} color={tc} size={36} tone="soft" />
+                </div>
+                <div style={{flex: 1, fontSize: 26, fontWeight: 700, color: '#f8fafc', lineHeight: 1.45}}>{item}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const DuoSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 2);
+  const slideIcon = getSlideIcon(slide, 'duo', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'duo'});
+  const topItem = items[0] ?? structure.paragraphs[0] ?? '';
+  const bottomItem = items[1] ?? structure.paragraphs[1] ?? '';
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="duo" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 20}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14}}>
+          <IconBadge name={slideIcon} color={accentColor} size={50} tone="solid" />
+          <div style={{fontSize: 48, fontWeight: 850, color: '#f8fafc'}}>{slide.heading}</div>
+        </div>
+        {[topItem, bottomItem].filter(Boolean).map((item, index) => {
+          const tc = itemColors[index] ?? accentColor;
+          return (
+            <div key={`duo-${index}`} style={{
+              flex: 1, borderRadius: 34, padding: '32px 38px', border: `1px solid ${tc}4a`,
+              background: `linear-gradient(${index === 0 ? '135deg' : '225deg'}, ${tc}18, rgba(15,23,42,0.88))`,
+              display: 'flex', alignItems: 'center', gap: 20, boxShadow: `0 20px 52px ${tc}16`,
+            }}>
+              <div style={{minWidth: 64, height: 64, borderRadius: 20, background: `${tc}22`, border: `1px solid ${tc}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, fontWeight: 900, color: tc}}>{index === 0 ? 'A' : 'B'}</div>
+              <div style={{fontSize: 32, fontWeight: 700, color: '#f8fafc', lineHeight: 1.45}}>{item}</div>
+            </div>
+          );
+        })}
+      </div>
+    </SceneChrome>
+  );
+};
+
+const OrbitSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 5);
+  const slideIcon = getSlideIcon(slide, 'orbit', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'orbit'});
+  const intro = structure.paragraphs[0] ?? '';
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="orbit" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', gap: 32}}>
+        <div style={{flex: '0 0 480px', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
+          <IconBadge name={slideIcon} color={accentColor} size={56} tone="solid" />
+          <div style={{marginTop: 20, fontSize: 56, fontWeight: 850, color: '#f8fafc', lineHeight: 1.08}}>{slide.heading}</div>
+          {intro ? <div style={{marginTop: 20, fontSize: 28, color: '#cbd5e1', lineHeight: 1.55}}>{intro}</div> : null}
+        </div>
+        <div style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 14}}>
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            return (
+              <div key={`${item}-${index}`} style={{
+                padding: '18px 22px', borderRadius: 22, border: `1px solid ${tc}40`,
+                background: `linear-gradient(135deg, ${tc}15, rgba(15,23,42,0.88))`,
+                display: 'flex', alignItems: 'center', gap: 14,
+                borderLeft: `5px solid ${tc}`, boxShadow: `0 12px 32px ${tc}12`,
+              }}>
+                <IconBadge name={getItemIcon(item, index, 'orbit')} color={tc} size={38} tone={index === 0 ? 'solid' : 'soft'} />
+                <div style={{fontSize: 27, fontWeight: 700, color: '#f8fafc', lineHeight: 1.4}}>{item}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const KanbanSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 6);
+  const cols = 3;
+  const slideIcon = getSlideIcon(slide, 'kanban', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'kanban'});
+  const colLabels = ['Insight', 'Action', 'Outcome'];
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="kanban" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 22}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14}}>
+          <IconBadge name={slideIcon} color={accentColor} size={52} tone="solid" />
+          <div style={{fontSize: 48, fontWeight: 850, color: '#f8fafc'}}>{slide.heading}</div>
+        </div>
+        <div style={{flex: 1, display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 18}}>
+          {Array.from({length: cols}, (_, colIndex) => {
+            const colItems = items.filter((_, i) => i % cols === colIndex);
+            const colColor = itemColors[colIndex] ?? accentColor;
+            return (
+              <div key={colIndex} style={{borderRadius: 28, border: `1px solid ${colColor}33`, background: `linear-gradient(180deg, ${colColor}0d, rgba(15,23,42,0.75))`, padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 14}}>
+                <div style={{fontSize: 18, fontWeight: 800, color: colColor, letterSpacing: 1.2, textTransform: 'uppercase', textAlign: 'center', padding: '10px 0', borderBottom: `2px solid ${colColor}33`}}>{colLabels[colIndex] ?? `Col ${colIndex + 1}`}</div>
+                {colItems.map((item, i) => {
+                  const tc = itemColors[colIndex * 2 + i] ?? colColor;
+                  return (
+                    <div key={`${item}-${i}`} style={{padding: '16px 18px', borderRadius: 20, border: `1px solid ${tc}40`, background: `linear-gradient(135deg, ${tc}16, rgba(15,23,42,0.88))`, fontSize: 25, fontWeight: 700, color: '#f8fafc', lineHeight: 1.42, boxShadow: `0 10px 28px ${tc}12`}}>{item}</div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const StackSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.orderedItems, ...structure.bulletItems].slice(0, 5);
+  const slideIcon = getSlideIcon(slide, 'stack', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'stack'});
+  const intro = structure.paragraphs[0] ?? '';
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="stack" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', gap: 32}}>
+        <div style={{flex: '0 0 440px', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
+          <IconBadge name={slideIcon} color={accentColor} size={54} tone="solid" />
+          <div style={{marginTop: 18, fontSize: 54, fontWeight: 850, color: '#f8fafc', lineHeight: 1.08}}>{slide.heading}</div>
+          {intro ? <div style={{marginTop: 20, fontSize: 28, color: '#cbd5e1', lineHeight: 1.55}}>{intro}</div> : null}
+        </div>
+        <div style={{flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            return (
+              <div key={`${item}-${index}`} style={{
+                position: 'absolute', top: `${10 + index * 15}%`, left: index * 14,
+                right: (items.length - 1 - index) * 14,
+                padding: '22px 28px', borderRadius: 28, border: `1px solid ${tc}4a`,
+                background: `linear-gradient(135deg, ${tc}1a, rgba(15,23,42,0.92))`,
+                boxShadow: `0 20px 52px ${tc}18, 0 4px 12px rgba(0,0,0,0.3)`,
+                zIndex: items.length - index,
+              }}>
+                <div style={{display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10}}>
+                  <div style={{fontSize: 16, fontWeight: 900, color: tc}}>{String(index + 1).padStart(2, '0')}</div>
+                  <IconBadge name={getItemIcon(item, index, 'stack')} color={tc} size={34} tone="soft" />
+                </div>
+                <div style={{fontSize: 27, fontWeight: 700, color: '#f8fafc', lineHeight: 1.42}}>{item}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const AccentBarSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const statement = structure.strongPhrases[0] ?? structure.paragraphs[0] ?? getNarrationSentences(slide.narration)[0] ?? '';
+  const slideIcon = getSlideIcon(slide, 'accent-bar', structure);
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="accent-bar" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
+        <div style={{width: '100%', padding: '48px 56px', borderRadius: 36, background: `linear-gradient(135deg, ${accentColor}28, ${accentColor}0a)`, borderLeft: `8px solid ${accentColor}`, boxShadow: `0 28px 72px ${accentColor}1a`}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24}}>
+            <IconBadge name={slideIcon} color={accentColor} size={52} tone="solid" />
+            <div style={{fontSize: 22, fontWeight: 800, color: accentColor, letterSpacing: 1.5, textTransform: 'uppercase'}}>Key Statement</div>
+          </div>
+          <div style={{fontSize: 58, lineHeight: 1.15, fontWeight: 850, color: '#f8fafc', marginBottom: 24}}>{slide.heading}</div>
+          {statement ? <div style={{fontSize: 36, lineHeight: 1.45, color: '#e2e8f0', fontWeight: 700, maxWidth: 1100}}>{statement}</div> : null}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const SplitQuoteSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const quoteText = structure.strongPhrases[0] ?? structure.paragraphs[0] ?? getNarrationSentences(slide.narration)[0] ?? '';
+  const explanation = structure.paragraphs[1] ?? getNarrationSentences(slide.narration)[1] ?? '';
+  const slideIcon = getSlideIcon(slide, 'split-quote', structure);
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 3);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'split-quote'});
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="split-quote" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 28}}>
+        <div style={{borderRadius: 38, padding: '42px 40px', border: `1px solid ${accentColor}3f`, background: `linear-gradient(180deg, ${accentColor}16, rgba(2,6,23,0.84))`, display: 'flex', flexDirection: 'column', justifyContent: 'center', boxShadow: `0 24px 64px ${accentColor}18`}}>
+          <div style={{fontSize: 80, lineHeight: 0.8, fontWeight: 900, color: `${accentColor}35`}}>"</div>
+          <div style={{fontSize: 44, fontWeight: 850, color: '#f8fafc', lineHeight: 1.2, marginTop: 8}}>{slide.heading}</div>
+          <div style={{marginTop: 24, fontSize: 36, fontWeight: 700, color: '#e2e8f0', lineHeight: 1.4}}>{quoteText}</div>
+        </div>
+        <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 18}}>
+          {explanation ? <div style={{padding: '24px 28px', borderRadius: 28, border: `1px solid ${accentColor}30`, background: `linear-gradient(135deg, ${accentColor}0d, rgba(15,23,42,0.82))`, fontSize: 28, color: '#cbd5e1', lineHeight: 1.55}}>{explanation}</div> : null}
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            return (
+              <div key={`${item}-${index}`} style={{padding: '18px 22px', borderRadius: 24, border: `1px solid ${tc}40`, background: `linear-gradient(135deg, ${tc}14, rgba(15,23,42,0.88))`, display: 'flex', alignItems: 'center', gap: 12, boxShadow: `0 12px 30px ${tc}12`}}>
+                <IconBadge name={getItemIcon(item, index, 'split-quote')} color={tc} size={36} tone="soft" />
+                <div style={{fontSize: 26, fontWeight: 700, color: '#f8fafc', lineHeight: 1.4}}>{item}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const ChecklistSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 7);
+  const slideIcon = getSlideIcon(slide, 'checklist', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'checklist'});
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="checklist" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 20}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 14}}>
+          <IconBadge name={slideIcon} color={accentColor} size={52} tone="solid" />
+          <div style={{fontSize: 50, fontWeight: 850, color: '#f8fafc'}}>{slide.heading}</div>
+        </div>
+        <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: 12, justifyContent: 'center'}}>
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            return (
+              <div key={`${item}-${index}`} style={{
+                padding: '16px 22px', borderRadius: 20, border: `1px solid ${tc}35`,
+                background: `linear-gradient(90deg, ${tc}10, rgba(15,23,42,0.85))`,
+                display: 'flex', alignItems: 'center', gap: 16, boxShadow: `0 8px 24px ${tc}0d`,
+              }}>
+                <div style={{minWidth: 38, height: 38, borderRadius: 10, border: `2px solid ${tc}`, background: `${tc}18`, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                  <AppIcon name="check" size={20} color={tc} />
+                </div>
+                <div style={{fontSize: 28, fontWeight: 700, color: '#f8fafc', lineHeight: 1.4}}>{item}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
+const MinimalSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const support = structure.paragraphs[0] ?? getNarrationSentences(slide.narration)[0] ?? '';
+  const slideIcon = getSlideIcon(slide, 'minimal', structure);
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="minimal" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '0 120px'}}>
+        <div style={{fontSize: 72, lineHeight: 1.08, fontWeight: 900, color: '#f8fafc', maxWidth: 1100}}>{slide.heading}</div>
+        {support ? <div style={{marginTop: 32, fontSize: 30, lineHeight: 1.55, color: '#64748b', maxWidth: 900}}>{support}</div> : null}
+      </div>
+    </SceneChrome>
+  );
+};
+
+const MagazineSlideLayout: React.FC<{
+  accentColor: string;
+  presentation: MarkdownPresentation;
+  slide: MarkdownSlide;
+  slideIndex: number;
+  structure: SlideStructure;
+}> = ({accentColor, presentation, slide, slideIndex, structure}) => {
+  const items = [...structure.bulletItems, ...structure.orderedItems].slice(0, 6);
+  const slideIcon = getSlideIcon(slide, 'magazine', structure);
+  const itemColors = getDistinctItemToneColors({accentColor, items, variant: 'magazine'});
+  const intro = structure.paragraphs[0] ?? '';
+
+  return (
+    <SceneChrome accentColor={accentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} variant="magazine" sceneIcon={slideIcon}>
+      <div style={{height: '100%', display: 'flex', flexDirection: 'column', gap: 20}}>
+        <div style={{display: 'grid', gridTemplateColumns: '1fr auto', gap: 24, alignItems: 'center'}}>
+          <div>
+            <div style={{display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10}}>
+              <IconBadge name={slideIcon} color={accentColor} size={44} tone="solid" />
+              <div style={{fontSize: 18, fontWeight: 800, color: accentColor, letterSpacing: 1.5, textTransform: 'uppercase'}}>In Depth</div>
+            </div>
+            <div style={{fontSize: 48, fontWeight: 850, color: '#f8fafc', lineHeight: 1.08}}>{slide.heading}</div>
+          </div>
+          {intro ? <div style={{maxWidth: 420, fontSize: 24, color: '#94a3b8', lineHeight: 1.55, textAlign: 'right'}}>{intro}</div> : null}
+        </div>
+        <div style={{width: '100%', height: 2, background: `linear-gradient(90deg, ${accentColor}, transparent)`}} />
+        <div style={{flex: 1, display: 'grid', gridTemplateColumns: items.length > 4 ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)', gap: 16}}>
+          {items.map((item, index) => {
+            const tc = itemColors[index] ?? accentColor;
+            return (
+              <div key={`${item}-${index}`} style={{
+                padding: '22px 22px', borderRadius: 24, border: `1px solid ${tc}3a`,
+                background: `linear-gradient(180deg, ${tc}12, rgba(15,23,42,0.85))`,
+                display: 'flex', flexDirection: 'column', gap: 12, boxShadow: `0 14px 36px ${tc}10`,
+              }}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                  <div style={{fontSize: 14, fontWeight: 900, color: tc, letterSpacing: 1}}>{String(index + 1).padStart(2, '0')}</div>
+                  <IconBadge name={getItemIcon(item, index, 'magazine')} color={tc} size={32} tone="soft" />
+                </div>
+                <div style={{fontSize: 26, fontWeight: 700, color: '#f8fafc', lineHeight: 1.42}}>{item}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </SceneChrome>
+  );
+};
+
 const SlideCard: React.FC<{
   accentColor: string;
   presentation: MarkdownPresentation;
@@ -2011,6 +2831,78 @@ const SlideCard: React.FC<{
         structure={structure}
       />
     );
+  }
+
+  if (variant === 'centered') {
+    return <CenteredSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'waterfall') {
+    return <WaterfallSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'radar') {
+    return <RadarSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'compare') {
+    return <CompareSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'pyramid') {
+    return <PyramidSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'stat-cards') {
+    return <StatCardsSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'headline') {
+    return <HeadlineSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'sidebar-note') {
+    return <SidebarNoteSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'filmstrip') {
+    return <FilmstripSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'duo') {
+    return <DuoSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'orbit') {
+    return <OrbitSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'kanban') {
+    return <KanbanSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'stack') {
+    return <StackSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'accent-bar') {
+    return <AccentBarSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'split-quote') {
+    return <SplitQuoteSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'checklist') {
+    return <ChecklistSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'minimal') {
+    return <MinimalSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
+  }
+
+  if (variant === 'magazine') {
+    return <MagazineSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} structure={structure} />;
   }
 
   return <PanelSlideLayout accentColor={resolvedAccentColor} presentation={presentation} slide={slide} slideIndex={slideIndex} />;

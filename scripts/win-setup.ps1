@@ -51,34 +51,94 @@ function Test-CommandExists { param([string]$Command)
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 # ============================================================
-#  Step 1: System environment check
+#  Step 1: System environment check + auto-install
 # ============================================================
 Write-Title "Step 1/9: System Environment Check"
+
+# --- Helper: Refresh PATH in current session after installs ---
+function Refresh-Path {
+    $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+    $userPath    = [Environment]::GetEnvironmentVariable("Path", "User")
+    $env:Path    = "$machinePath;$userPath"
+}
+
+# --- Helper: Check if winget is available ---
+$hasWinget = Test-CommandExists "winget"
+if ($hasWinget) {
+    Write-Info "winget detected - will auto-install missing dependencies"
+} else {
+    Write-Info "winget not found - will provide manual install instructions"
+    Write-Info "Tip: winget is built into Windows 10 1709+ and Windows 11"
+}
+
+# --- Helper: Install via winget with fallback instructions ---
+function Install-WithWinget {
+    param(
+        [string]$PackageId,
+        [string]$DisplayName,
+        [string]$ManualUrl,
+        [string]$ExtraArgs = ""
+    )
+    if ($hasWinget) {
+        Write-Step "Auto-installing $DisplayName via winget ..."
+        $cmd = "winget install --id $PackageId --accept-source-agreements --accept-package-agreements -e"
+        if ($ExtraArgs) { $cmd += " $ExtraArgs" }
+        Invoke-Expression $cmd
+        if ($LASTEXITCODE -eq 0) {
+            Refresh-Path
+            Write-Info "$DisplayName installed successfully!"
+            return $true
+        } else {
+            Write-Warn "winget install returned code $LASTEXITCODE"
+            Write-Info "The package may already be installed or needs a reboot."
+            Refresh-Path
+            return $true
+        }
+    } else {
+        Write-Err "$DisplayName not found!"
+        Write-Info "Please install manually: $ManualUrl"
+        return $false
+    }
+}
 
 $allOk = $true
 
 # --- Node.js ---
 Write-Step "Checking Node.js ..."
+$needNodeInstall = $false
 if (Test-CommandExists "node") {
     $nodeVer = (node --version 2>&1).ToString().Trim()
     $nodeMajor = [int]($nodeVer -replace "^v","" -split "\.")[0]
     Write-Info "Node.js: $nodeVer"
     if ($nodeMajor -lt 18) {
-        Write-Warn "Node.js >= 18 recommended. Current: $nodeVer"
-        $allOk = $false
+        Write-Warn "Node.js >= 18 required. Current: $nodeVer"
+        $needNodeInstall = $true
     }
 } else {
-    Write-Err "Node.js not found! Install Node.js 18+ from https://nodejs.org"
-    $allOk = $false
+    $needNodeInstall = $true
+}
+if ($needNodeInstall) {
+    $result = Install-WithWinget "OpenJS.NodeJS.LTS" "Node.js LTS" "https://nodejs.org"
+    if (-not $result) { $allOk = $false }
+    # Verify after install
+    Refresh-Path
+    if (Test-CommandExists "node") {
+        $nodeVer = (node --version 2>&1).ToString().Trim()
+        Write-Info "Node.js installed: $nodeVer"
+    } else {
+        Write-Warn "Node.js installed but not in PATH yet. You may need to restart the terminal."
+        $allOk = $false
+    }
 }
 
-# --- npm ---
+# --- npm (comes with Node.js) ---
 Write-Step "Checking npm ..."
 if (Test-CommandExists "npm") {
     $npmVer = (npm --version 2>&1).ToString().Trim()
     Write-Info "npm: $npmVer"
 } else {
-    Write-Err "npm not found! It usually comes with Node.js."
+    Write-Warn "npm not found. It should come with Node.js."
+    Write-Info "If Node.js was just installed, restart your terminal and re-run."
     $allOk = $false
 }
 
@@ -101,9 +161,29 @@ foreach ($cmd in @("python", "python3", "py")) {
     }
 }
 if (-not $pythonCmd) {
-    Write-Err "Python 3.9+ not found! Install from https://www.python.org/downloads/"
-    Write-Info "IMPORTANT: Check 'Add Python to PATH' during installation"
-    $allOk = $false
+    $result = Install-WithWinget "Python.Python.3.11" "Python 3.11" "https://www.python.org/downloads/" "--scope machine"
+    if (-not $result) { $allOk = $false }
+    # Verify after install
+    Refresh-Path
+    foreach ($cmd in @("python", "python3", "py")) {
+        if (Test-CommandExists $cmd) {
+            try {
+                $pyVer = & $cmd --version 2>&1 | Select-Object -First 1
+                $pyVerStr = $pyVer.ToString().Trim()
+                $pyMajor = [int](($pyVerStr -replace "Python\s*","") -split "\.")[0]
+                $pyMinor = [int](($pyVerStr -replace "Python\s*","") -split "\.")[1]
+                if ($pyMajor -ge 3 -and $pyMinor -ge 9) {
+                    $pythonCmd = $cmd
+                    Write-Info "Python installed: $pyVerStr (cmd: $cmd)"
+                    break
+                }
+            } catch {}
+        }
+    }
+    if (-not $pythonCmd) {
+        Write-Warn "Python installed but not in PATH yet. You may need to restart the terminal."
+        $allOk = $false
+    }
 }
 
 # --- Git ---
@@ -113,7 +193,16 @@ if (Test-CommandExists "git") {
     Write-Info "Git: $gitVer"
 } else {
     Write-Warn "Git not found. Required for model download."
-    Write-Info "Install from https://git-scm.com/download/win"
+    $result = Install-WithWinget "Git.Git" "Git" "https://git-scm.com/download/win"
+    if ($result) {
+        Refresh-Path
+        if (Test-CommandExists "git") {
+            $gitVer = (git --version 2>&1).ToString().Trim()
+            Write-Info "Git installed: $gitVer"
+        } else {
+            Write-Warn "Git installed but not in PATH yet. You may need to restart the terminal."
+        }
+    }
 }
 
 # --- Git LFS ---
@@ -124,7 +213,13 @@ if (Test-CommandExists "git") {
         if ($LASTEXITCODE -eq 0) {
             Write-Info "Git LFS: $($lfsVer.ToString().Trim())"
         } else {
-            Write-Warn "Git LFS not installed. Run: git lfs install"
+            Write-Warn "Git LFS not installed. Attempting install ..."
+            $result = Install-WithWinget "GitHub.GitLFS" "Git LFS" "https://git-lfs.com/"
+            if ($result) {
+                Refresh-Path
+                git lfs install 2>&1 | Out-Null
+                Write-Info "Git LFS installed"
+            }
         }
     } catch {
         Write-Warn "Git LFS check failed"
@@ -138,8 +233,19 @@ Write-Step "Checking ffprobe ..."
 if (Test-CommandExists "ffprobe") {
     Write-Info "ffprobe: OK"
 } else {
-    Write-Warn "ffprobe not found. Audio duration detection may be limited."
-    Write-Info "Install ffmpeg from https://ffmpeg.org/download.html and add to PATH"
+    Write-Warn "ffprobe not found. Attempting auto-install ..."
+    $result = Install-WithWinget "Gyan.FFmpeg" "FFmpeg" "https://ffmpeg.org/download.html"
+    if ($result) {
+        Refresh-Path
+        if (Test-CommandExists "ffprobe") {
+            Write-Info "ffprobe installed: OK"
+        } else {
+            Write-Warn "FFmpeg installed but ffprobe not in PATH yet."
+            Write-Info "You may need to restart the terminal, or add FFmpeg bin to PATH manually."
+        }
+    } else {
+        Write-Warn "ffprobe not available. Audio duration detection may be limited."
+    }
 }
 
 # --- NVIDIA GPU ---
@@ -179,7 +285,8 @@ if ($freeGB -lt 10) {
 
 Write-Host ""
 if (-not $allOk) {
-    Write-Err "Required dependencies missing. Please fix the issues above and re-run."
+    Write-Err "Some dependencies could not be auto-installed."
+    Write-Info "Please install them manually, then restart the terminal and re-run this script."
     Read-Host "Press Enter to exit"
     exit 1
 }

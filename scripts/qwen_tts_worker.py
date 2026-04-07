@@ -139,7 +139,12 @@ def main():
         if attn_implementation and attn_implementation != "auto":
             model_kwargs["attn_implementation"] = attn_implementation
         elif device.startswith("cuda"):
-            model_kwargs["attn_implementation"] = "flash_attention_2"
+            # flash_attn is Linux-only; fall back to sdpa (PyTorch 2.0+ native) on Windows
+            try:
+                import flash_attn  # type: ignore  # noqa: F401
+                model_kwargs["attn_implementation"] = "flash_attention_2"
+            except ImportError:
+                model_kwargs["attn_implementation"] = "sdpa"
 
         model = Qwen3TTSModel.from_pretrained(model_name, **model_kwargs)
 

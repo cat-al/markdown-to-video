@@ -14,6 +14,7 @@
     "download:qwen:modelscope": "mkdir -p .models && if [ -d .models/Qwen3-TTS-12Hz-0.6B-CustomVoice/.git ]; then git -C .models/Qwen3-TTS-12Hz-0.6B-CustomVoice pull && git -C .models/Qwen3-TTS-12Hz-0.6B-CustomVoice lfs pull; else git clone https://www.modelscope.cn/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice.git .models/Qwen3-TTS-12Hz-0.6B-CustomVoice; fi",
     "render": "remotion render",
     "render:md": "node scripts/render-markdown.mjs",
+    "render:fast": "node scripts/render-incremental.mjs",
     "video:render": "bash scripts/render-video.sh",
     "video:render:win": "scripts\\render-video.bat",
     "render:preview": "remotion render src/index.ts MarkdownVideo",

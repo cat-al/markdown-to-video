@@ -93,16 +93,6 @@ if (slideNumbers.length === 0) {
 const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 const results = [];
 
-for (const num of slideNumbers) {
-  const slideIndex = num - 1;
-  const slide = presentation.slides[slideIndex];
-  const outputPath = resolve(previewDir, `slide-${String(num).padStart(2, '0')}.mp4`);
-  const audioPath = join(assetDir, `slide-${String(num).padStart(2, '0')}.wav`);
-
-// Step 2: Render each slide as individual video
-const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-const results = [];
-
 // Calculate frame offsets
 const slideOffsets = [];
 let frameOffset = 0;

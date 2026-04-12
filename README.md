@@ -127,7 +127,8 @@ npm run render:md -- examples/demo/demo.md dist/demo.mp4
 - **`npm run dev`**：准备默认预览素材并打开 `Remotion Studio`
 - **`npm run dev:qwen`**：准备 `Qwen3-TTS` 预览素材并打开 `Remotion Studio`
 - **`npm run dev:mimo`**：准备 `MiMo-V2-TTS` 预览素材并打开 `Remotion Studio`（需 `MIMO_API_KEY`）
-- **`npm run render:md -- <input.md> [output.mp4]`**：底层渲染命令，适合已经明确参数时直接调用
+- **`npm run render:md -- <input.md> [output.mp4]`**：全量渲染，从头渲染所有页
+- **`npm run render:fast -- <input.md> [output.mp4]`**：**增量渲染（推荐）**，只渲染改动的页，其余复用缓存，ffmpeg 拼接
 - **`npm run render:preview -- <output.mp4>`**：直接渲染当前预览组合，**不会重跑 TTS**
 - **`npm run qwen:doctor`**：检查本地 `Qwen3-TTS` 运行环境
 - **`npm run download:qwen:modelscope`**：通过 `ModelScope` 拉取 `0.6B-CustomVoice` 模型镜像
@@ -185,10 +186,72 @@ npm run preview:still -- examples/published/004-hermes-agent-vs-openclaw-zh.md 3
 
 #### 第四步：确认无误后生成完整视频
 
-所有页面画面和音频都确认没问题后，才执行最终渲染：
+所有页面画面和音频都确认没问题后，执行最终渲染。**推荐使用增量渲染**：
 
 ```bash
+# 推荐：增量渲染（只渲染改动的页，其余复用缓存）
+npm run render:fast -- examples/published/004-hermes-agent-vs-openclaw-zh.md
+
+# 备选：全量渲染（从头渲染所有页）
 npm run render:md -- examples/published/004-hermes-agent-vs-openclaw-zh.md
+```
+
+### 增量渲染（render:fast）
+
+`render:fast` 是日常迭代的**推荐渲染方式**，只重新渲染改动的页，其他页复用上次的视频片段，最后 ffmpeg 拼接。
+
+#### 性能对比
+
+| 场景 | `render:md`（全量） | `render:fast`（增量） |
+|------|:---:|:---:|
+| 首次渲染 | ~15 分钟 | ~15 分钟（首次无缓存） |
+| 换 1 页音频 | ~15 分钟 | **~1 分钟** |
+| 改 2-3 页文案 | ~15 分钟 | **~2-3 分钟** |
+| 改了样式代码 | ~15 分钟 | ~15 分钟（需 `--force`） |
+
+#### 用法
+
+```bash
+# 日常使用：自动检测改动页，只渲染变化的部分
+npm run render:fast -- input.md
+
+# 指定输出路径
+npm run render:fast -- input.md dist/output.mp4
+
+# 改了样式代码后，强制全部重新渲染
+npm run render:fast -- input.md --force
+```
+
+#### 工作原理
+
+1. 为每页生成内容指纹（markdown + narration + audioSrc + duration 等）
+2. 与上次渲染的指纹对比，只重新渲染内容有变化的页
+3. 每页渲染为独立 mp4 片段，缓存在 `public/generated/<name>/segments/`
+4. 最后 ffmpeg concat 拼接所有片段为完整视频
+
+#### 什么时候需要 `--force`
+
+- 修改了 `src/MarkdownVideo.tsx` 中的布局、动画、样式代码
+- 修改了 `src/markdown.ts` 中的解析逻辑
+- 指纹不含样式信息，所以纯样式改动不会自动触发重新渲染
+
+#### 什么时候不需要 `--force`
+
+- 修改了 Markdown 文案内容（自动检测）
+- 重新生成了某页 TTS 音频（自动检测）
+- 修改了 voiceover 文本（自动检测）
+
+#### 典型工作流：换一段音频
+
+```bash
+# 1. 重新生成第 11 页音频
+npm run tts:redo -- input.md 11
+
+# 2. 试听
+open public/generated/<name>/slide-11.wav
+
+# 3. 增量渲染（只渲染第 11 页，~1 分钟）
+npm run render:fast -- input.md
 ```
 
 ### 单页音频重新生成（TTS 质量修复）

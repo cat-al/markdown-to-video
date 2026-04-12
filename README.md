@@ -131,7 +131,112 @@ npm run render:md -- examples/demo/demo.md dist/demo.mp4
 - **`npm run render:preview -- <output.mp4>`**：直接渲染当前预览组合，**不会重跑 TTS**
 - **`npm run qwen:doctor`**：检查本地 `Qwen3-TTS` 运行环境
 - **`npm run download:qwen:modelscope`**：通过 `ModelScope` 拉取 `0.6B-CustomVoice` 模型镜像
+- **`npm run tts:redo -- <input.md> <页码> [--render]`**：单页音频重新生成，不满意某页配音时使用
+- **`npm run preview:still -- <input.md> <页码|all>`**：单页截图预览，只看样式不跑 TTS，秒出 PNG
+- **`npm run preview:slide -- <input.md> <页码|all>`**：单页视频预览，含音频，用于最终确认
 - **`npm run check`**：TypeScript 类型检查
+
+### 视频制作流程（必须遵守）
+
+**重要规则：所有视频在最终合成前，必须先逐页确认画面和音频。不允许跳过预览直接生成完整视频。**
+
+完整流程分四步：
+
+#### 第一步：截图预览画面（必选，最快）
+
+不跑 TTS，只生成 PNG 截图，几秒一张，快速检查布局和样式：
+
+```bash
+# 看所有页样式
+npm run preview:still -- examples/published/004-hermes-agent-vs-openclaw-zh.md all
+
+# 只看第 5 页
+npm run preview:still -- examples/published/004-hermes-agent-vs-openclaw-zh.md 5
+
+# 一次打开所有截图
+open dist/preview/004-hermes-agent-vs-openclaw-zh/slide-*.png
+```
+
+检查要点：布局是否正确、表格是否显示完整、文字是否溢出、标题是否重复。
+
+#### 第二步：试听音频（必选）
+
+确认画面没问题后，生成 TTS 音频并试听：
+
+```bash
+# 全篇生成音频（会自动缓存）
+npm run preview:slide -- examples/published/004-hermes-agent-vs-openclaw-zh.md all
+
+# 或只听某一页
+open public/generated/004-hermes-agent-vs-openclaw-zh/slide-05.wav
+```
+
+检查要点：语句是否通顺、有无吞字或语调异常、节奏是否自然。
+
+#### 第三步：修复问题页（按需）
+
+```bash
+# 音频有问题：重新生成某页音频
+npm run tts:redo -- examples/published/004-hermes-agent-vs-openclaw-zh.md 3
+
+# 画面有问题：改完代码后重新截图确认
+npm run preview:still -- examples/published/004-hermes-agent-vs-openclaw-zh.md 3
+```
+
+#### 第四步：确认无误后生成完整视频
+
+所有页面画面和音频都确认没问题后，才执行最终渲染：
+
+```bash
+npm run render:md -- examples/published/004-hermes-agent-vs-openclaw-zh.md
+```
+
+### 单页音频重新生成（TTS 质量修复）
+
+云端 TTS（如 MiMo）和本地 TTS（如 Qwen）都可能出现某一页配音质量不稳定的情况（语调异常、吞字、节奏不自然等）。这时不需要重新渲染整篇视频，只需要重新生成有问题的那一页音频即可。
+
+#### 基本用法
+
+```bash
+# 重新生成第 3 页的音频（只生成音频，不渲染视频）
+npm run tts:redo -- examples/published/004-hermes-agent-vs-openclaw-zh.md 3
+
+# 重新生成第 3、5、7 页
+npm run tts:redo -- examples/published/004-hermes-agent-vs-openclaw-zh.md 3,5,7
+
+# 重新生成第 3 到 7 页
+npm run tts:redo -- examples/published/004-hermes-agent-vs-openclaw-zh.md 3-7
+```
+
+#### 试听后渲染
+
+不加 `--render` 时，脚本只会重新生成音频文件，并打印 wav 路径供你试听：
+
+```bash
+# 1. 先重新生成音频
+npm run tts:redo -- examples/published/004-hermes-agent-vs-openclaw-zh.md 3
+
+# 2. 试听（macOS）
+open public/generated/004-hermes-agent-vs-openclaw-zh/slide-03.wav
+
+# 3. 满意后再渲染视频
+npm run render:md -- examples/published/004-hermes-agent-vs-openclaw-zh.md
+```
+
+#### 一步到位
+
+如果不需要试听，加 `--render` 可以重新生成音频后立即渲染视频：
+
+```bash
+npm run tts:redo -- examples/published/004-hermes-agent-vs-openclaw-zh.md 3 --render
+```
+
+#### 工作原理
+
+- 删除指定页的音频缓存记录（`tts-manifest.json`）和 wav 文件
+- 重跑管线时，其他页通过 SHA1 缓存**自动复用**，只有被失效的页会重新调用 TTS
+- 即使没有修改文案，也能**强制重新生成**（用于解决 TTS 随机质量问题）
+- 页码从 1 开始，对应 Markdown 中用 `---` 分隔的第几页
 
 ### 样式调试工作流（避免重复跑 TTS）
 

@@ -19,6 +19,9 @@
     "render:preview": "remotion render src/index.ts MarkdownVideo",
     "qwen:doctor": "node scripts/check-qwen.mjs",
     "mimo:showcase": "node mimo-tts-voice-showcase/generate-samples.mjs",
+    "tts:redo": "node scripts/regenerate-slide.mjs",
+    "preview:slide": "node scripts/preview-slide.mjs",
+    "preview:still": "node scripts/preview-still.mjs",
     "check": "tsc --noEmit"
   },
   "keywords": [

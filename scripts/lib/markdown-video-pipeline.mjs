@@ -4,6 +4,27 @@ import {existsSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync} 
 import {dirname, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
+// Load .env file from project root (if exists) for MIMO_API_KEY and other config
+const loadDotEnv = () => {
+  const envPath = join(process.cwd(), '.env');
+  if (!existsSync(envPath)) return;
+  try {
+    const content = readFileSync(envPath, 'utf8');
+    content.split(/\r?\n/).forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) return;
+      const eqIndex = trimmed.indexOf('=');
+      if (eqIndex === -1) return;
+      const key = trimmed.slice(0, eqIndex).trim();
+      const value = trimmed.slice(eqIndex + 1).trim().replace(/^["']|["']$/g, '');
+      if (key && !process.env[key]) {
+        process.env[key] = value;
+      }
+    });
+  } catch {}
+};
+loadDotEnv();
+
 export const DEFAULT_FPS = 30;
 export const AUDIO_TAIL_SECONDS = 0.45;
 export const MIN_SLIDE_SECONDS = 3;
@@ -150,6 +171,8 @@ export const parseFrontmatter = (markdownText) => {
     if (normalizedKey === 'ttsmodel' || normalizedKey === 'tts-model') meta.ttsModel = value;
     if (normalizedKey === 'ttslanguage' || normalizedKey === 'tts-language') meta.ttsLanguage = value;
     if (normalizedKey === 'ttsinstruction' || normalizedKey === 'tts-instruction') meta.ttsInstruction = value;
+    if (normalizedKey === 'ttsapikey' || normalizedKey === 'tts-api-key') meta.ttsApiKey = value;
+    if (normalizedKey === 'ttsbaseurl' || normalizedKey === 'tts-base-url') meta.ttsBaseUrl = value;
   });
 
   return {body, meta};
@@ -341,6 +364,10 @@ const normalizeTtsProvider = (value) => {
     return 'qwen-local';
   }
 
+  if (normalized === 'mimo' || normalized === 'mimo-v2' || normalized === 'mimo-tts' || normalized === 'mimo-v2-tts' || normalized === 'xiaomi') {
+    return 'mimo';
+  }
+
   return normalized;
 };
 
@@ -438,6 +465,17 @@ const resolveLocalQwenModelPath = (modelName) => {
   return existsSync(localMirrorDir) ? localMirrorDir : normalized;
 };
 
+const inferMimoVoice = (requestedVoice, language) => {
+  const normalized = String(requestedVoice ?? '').trim().toLowerCase();
+  const validVoices = ['mimo_default', 'default_zh', 'default_en'];
+
+  if (validVoices.includes(normalized)) {
+    return normalized;
+  }
+
+  return language === 'Chinese' ? 'default_zh' : 'default_en';
+};
+
 const resolveTtsConfig = ({meta, markdownText, availableVoices = []}) => {
   const provider = normalizeTtsProvider(process.env.TTS_PROVIDER ?? meta.ttsProvider ?? 'qwen-local');
   const language = normalizeTtsLanguage(process.env.TTS_LANGUAGE ?? meta.ttsLanguage ?? 'auto', markdownText);
@@ -462,6 +500,27 @@ const resolveTtsConfig = ({meta, markdownText, availableVoices = []}) => {
       device: process.env.QWEN_TTS_DEVICE ?? (process.platform === 'darwin' ? 'cpu' : 'auto'),
       dtype: process.env.QWEN_TTS_DTYPE ?? (process.platform === 'darwin' ? 'float32' : 'auto'),
       attnImplementation: process.env.QWEN_TTS_ATTENTION ?? process.env.QWEN_TTS_ATTN_IMPLEMENTATION ?? 'auto',
+    };
+  }
+
+  if (provider === 'mimo') {
+    const apiKey = process.env.MIMO_API_KEY ?? meta.ttsApiKey ?? '';
+    const baseUrl = process.env.MIMO_BASE_URL ?? meta.ttsBaseUrl ?? 'https://api.xiaomimimo.com/v1';
+    const model = process.env.MIMO_TTS_MODEL ?? meta.ttsModel ?? 'mimo-v2-tts';
+    const voice = inferMimoVoice(requestedVoice, language);
+    const speed = meta.ttsRate ? meta.ttsRate / 175 : 1.0;
+
+    return {
+      provider,
+      language,
+      requestedVoice,
+      voice,
+      rate,
+      instruction,
+      model,
+      apiKey,
+      baseUrl,
+      speed: clamp(speed, 0.25, 4.0),
     };
   }
 
@@ -594,6 +653,116 @@ const generateSpeechWithQwen = ({slides, ttsConfig}) => {
   }
 };
 
+const generateSpeechWithMimo = ({slides, ttsConfig}) => {
+  const items = slides
+    .filter((slide) => slide.narration)
+    .map((slide) => ({
+      text: slide.narration,
+      outputPath: slide.audioOutputPath,
+    }));
+
+  if (items.length === 0) {
+    return;
+  }
+
+  if (!ttsConfig.apiKey) {
+    throw new Error(
+      'MiMo-V2-TTS 需要 API Key。请通过以下任一方式提供：\n' +
+      '  1. 环境变量: MIMO_API_KEY=your_key\n' +
+      '  2. Markdown frontmatter: ttsApiKey: your_key\n' +
+      '  3. .env 文件: MIMO_API_KEY=your_key\n' +
+      '获取 API Key: https://platform.xiaomimimo.com/',
+    );
+  }
+
+  const baseUrl = ttsConfig.baseUrl.replace(/\/+$/, '');
+  const endpoint = `${baseUrl}/chat/completions`;
+
+  console.log(`[mimo] using model: ${ttsConfig.model}, voice: ${ttsConfig.voice}`);
+  console.log(`[mimo] endpoint: ${endpoint}`);
+  console.log(`[mimo] generating ${items.length} audio file(s) ...`);
+
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const contentText = ttsConfig.instruction
+      ? `<style>${ttsConfig.instruction}</style>${item.text}`
+      : item.text;
+
+    const payload = JSON.stringify({
+      model: ttsConfig.model,
+      audio: {
+        format: 'wav',
+        voice: ttsConfig.voice,
+      },
+      messages: [
+        {
+          role: 'assistant',
+          content: contentText,
+        },
+      ],
+    });
+
+    mkdirSync(dirname(item.outputPath), {recursive: true});
+
+    // Write payload to a temp file to avoid shell escaping issues
+    const payloadTmpPath = `${item.outputPath}.req.json`;
+    writeFileSync(payloadTmpPath, payload, 'utf8');
+
+    const curlArgs = [
+      '-s', '-S', '--fail-with-body',
+      '-X', 'POST', endpoint,
+      '-H', 'Content-Type: application/json',
+      '-H', `api-key: ${ttsConfig.apiKey}`,
+      '-d', `@${payloadTmpPath}`,
+      '--max-time', '120',
+    ];
+
+    const result = spawnSync('curl', curlArgs, {
+      encoding: 'utf8',
+      maxBuffer: 50 * 1024 * 1024,
+    });
+
+    // Clean up temp file
+    try { unlinkSync(payloadTmpPath); } catch {}
+
+    if (result.status !== 0) {
+      const stderr = result.stderr ?? '';
+      const stdout = result.stdout ?? '';
+      const errorDetail = stderr.includes('401') || stdout.includes('401')
+        ? 'API Key 无效或已过期，请检查 MIMO_API_KEY'
+        : stderr.includes('429') || stdout.includes('429')
+          ? 'API 请求过于频繁，请稍后重试'
+          : stderr || stdout || 'MiMo-V2-TTS API 调用失败';
+      throw new Error(`[mimo] slide ${i + 1} 音频生成失败: ${errorDetail}`);
+    }
+
+    // Parse JSON response and extract base64 audio data
+    const responseText = result.stdout ?? '';
+    let audioBase64;
+    try {
+      const parsed = JSON.parse(responseText);
+      audioBase64 = parsed?.choices?.[0]?.message?.audio?.data;
+      if (!audioBase64) {
+        const errMsg = parsed?.error?.message ?? JSON.stringify(parsed).slice(0, 200);
+        throw new Error(`API 响应中无音频数据: ${errMsg}`);
+      }
+    } catch (parseErr) {
+      if (parseErr.message.includes('API 响应')) throw parseErr;
+      throw new Error(`[mimo] slide ${i + 1} 响应解析失败: ${responseText.slice(0, 300)}`);
+    }
+
+    // Decode base64 and write wav file
+    const audioBuffer = Buffer.from(audioBase64, 'base64');
+    writeFileSync(item.outputPath, audioBuffer);
+
+    if (!existsSync(item.outputPath)) {
+      throw new Error(`[mimo] slide ${i + 1} 音频文件未生成: ${item.outputPath}`);
+    }
+
+    console.log(`[mimo] slide ${i + 1}/${items.length} done`);
+  }
+};
+
 export const getAudioDurationInSeconds = (audioPath) => {
   // Method 1: ffprobe (cross-platform, preferred)
   const ffprobeResult = spawnSync(
@@ -688,6 +857,8 @@ export const createPresentationAssets = ({markdownText, fps, assetDir, assetPref
 
   if (ttsConfig.provider === 'qwen-local') {
     generateSpeechWithQwen({slides: slidesNeedingAudio, ttsConfig});
+  } else if (ttsConfig.provider === 'mimo') {
+    generateSpeechWithMimo({slides: slidesNeedingAudio, ttsConfig});
   } else {
     slidesNeedingAudio.forEach((slide) => {
       if (!slide.narration) {

@@ -126,6 +126,7 @@ npm run render:md -- examples/demo/demo.md dist/demo.mp4
 - **`npm run studio`**：直接打开当前预览素材对应的 `Remotion Studio`，**不会重跑 TTS**
 - **`npm run dev`**：准备默认预览素材并打开 `Remotion Studio`
 - **`npm run dev:qwen`**：准备 `Qwen3-TTS` 预览素材并打开 `Remotion Studio`
+- **`npm run dev:mimo`**：准备 `MiMo-V2-TTS` 预览素材并打开 `Remotion Studio`（需 `MIMO_API_KEY`）
 - **`npm run render:md -- <input.md> [output.mp4]`**：底层渲染命令，适合已经明确参数时直接调用
 - **`npm run render:preview -- <output.mp4>`**：直接渲染当前预览组合，**不会重跑 TTS**
 - **`npm run qwen:doctor`**：检查本地 `Qwen3-TTS` 运行环境
@@ -210,9 +211,9 @@ ttsLanguage: Chinese
 
 - **`title` / `subtitle`**：演示文稿标题与副标题
 - **`themeColor`**：整篇视频的默认主题色
-- **`ttsProvider`**：默认推荐 `qwen-local`，也保留 `system` 兼容分支
-- **`ttsModel`**：Qwen 模型名或本地模型路径
-- **`ttsVoice`**：Qwen `CustomVoice` 音色名，例如 `Vivian`
+- **`ttsProvider`**：默认推荐 `qwen-local`，也支持 `mimo`（小米云端）和 `system`（macOS 兼容）
+- **`ttsModel`**：Qwen 模型名 / 本地路径；MiMo 默认 `mimo-v2-tts`
+- **`ttsVoice`**：Qwen `CustomVoice` 音色名（如 `Vivian`）；MiMo 音色（如 `default_zh`）
 - **`ttsRate`**：系统 TTS 兼容字段，Qwen 默认不会用到
 - **`ttsLanguage`**：如 `Chinese` / `English`
 - **`ttsInstruction`**：Qwen `VoiceDesign` 模式下的音色描述
@@ -316,6 +317,63 @@ npm run dev:qwen
 QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run render:md -- examples/demo/qwen-local.md dist/qwen-local.mp4
 ```
 
+### 使用 MiMo-V2-TTS 云端语音（Xiaomi）
+
+MiMo-V2-TTS 是小米推出的云端语音合成模型，**无需本地 GPU**，通过 API 调用即可获得高质量语音。目前 API 限时免费。
+
+#### 1. 获取 API Key
+
+前往 [Xiaomi MiMo 开放平台](https://platform.xiaomimimo.com/) 注册并创建 API Key。
+
+#### 2. 配置 API Key
+
+在项目根目录创建或编辑 `.env` 文件：
+
+```bash
+MIMO_API_KEY=your_api_key_here
+```
+
+#### 3. 在 Markdown 中使用 MiMo
+
+```md
+---
+title: MiMo 演示
+ttsProvider: mimo
+ttsVoice: default_zh
+ttsLanguage: Chinese
+ttsInstruction: 自然、清晰
+---
+```
+
+支持的音色：
+
+- **`mimo_default`**：默认音色
+- **`default_zh`**：中文女声
+- **`default_en`**：英文女声
+
+支持的风格控制（通过 `ttsInstruction`）：
+
+- 情绪：开心、悲伤、生气
+- 语速：变快、变慢
+- 方言：东北话、四川话、粤语
+- 特殊：悄悄话、角色扮演（如孙悟空、林黛玉）
+
+#### 4. 预览与渲染
+
+```bash
+# 预览
+npm run dev:mimo
+
+# 渲染
+MIMO_API_KEY=your_key npm run render:md -- examples/demo/mimo-tts.md dist/mimo-demo.mp4
+```
+
+也可以通过环境变量覆盖 Markdown 中的设置：
+
+```bash
+TTS_PROVIDER=mimo MIMO_API_KEY=your_key npm run render:md -- your-file.md
+```
+
 ### 系统 TTS 说明
 
 代码里仍保留了 `system` provider 兼容分支，但它已经**不再是默认方案**。常规预览和渲染流程现在都默认使用 `Qwen3-TTS`。
@@ -339,6 +397,7 @@ QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run render:md -- examples/demo/qwen
 - `examples/demo/`：演示稿与功能验证案例
   - `demo.md`：默认 demo，已切到 Qwen 默认配置
   - `qwen-local.md`：显式 Qwen 本地语音示例
+  - `mimo-tts.md`：MiMo-V2-TTS 云端语音示例
   - `ai-brain-fry-demo.md`：根据视频转录整理的简体中文演示稿
 - `examples/published/`：已经发布或接近发布状态的成型文稿，使用三位编号前缀
   - `001-llm-wiki-karpathy-zh.md`：Karpathy《LLM Wiki》精读稿

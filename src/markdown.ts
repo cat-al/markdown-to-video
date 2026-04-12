@@ -8,6 +8,8 @@ export type PresentationMeta = {
   ttsModel?: string;
   ttsLanguage?: string;
   ttsInstruction?: string;
+  ttsApiKey?: string;
+  ttsBaseUrl?: string;
 };
 
 export const slideLayoutNames = [
@@ -221,6 +223,14 @@ const parseFrontmatter = (markdown: string) => {
 
     if (normalizedKey === 'ttsinstruction' || normalizedKey === 'tts-instruction') {
       meta.ttsInstruction = trimmedValue;
+    }
+
+    if (normalizedKey === 'ttsapikey' || normalizedKey === 'tts-api-key') {
+      meta.ttsApiKey = trimmedValue;
+    }
+
+    if (normalizedKey === 'ttsbaseurl' || normalizedKey === 'tts-base-url') {
+      meta.ttsBaseUrl = trimmedValue;
     }
   });
 

@@ -6,9 +6,11 @@
   "scripts": {
     "prepare:preview": "node scripts/prepare-preview.mjs",
     "prepare:preview:qwen": "PREVIEW_MARKDOWN=examples/demo/qwen-local.md node scripts/prepare-preview.mjs",
+    "prepare:preview:mimo": "PREVIEW_MARKDOWN=examples/demo/mimo-tts.md TTS_PROVIDER=mimo node scripts/prepare-preview.mjs",
     "studio": "remotion studio",
     "dev": "npm run prepare:preview && npm run studio",
     "dev:qwen": "PREVIEW_MARKDOWN=examples/demo/qwen-local.md npm run prepare:preview && npm run studio",
+    "dev:mimo": "PREVIEW_MARKDOWN=examples/demo/mimo-tts.md TTS_PROVIDER=mimo npm run prepare:preview && npm run studio",
     "download:qwen:modelscope": "mkdir -p .models && if [ -d .models/Qwen3-TTS-12Hz-0.6B-CustomVoice/.git ]; then git -C .models/Qwen3-TTS-12Hz-0.6B-CustomVoice pull && git -C .models/Qwen3-TTS-12Hz-0.6B-CustomVoice lfs pull; else git clone https://www.modelscope.cn/Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice.git .models/Qwen3-TTS-12Hz-0.6B-CustomVoice; fi",
     "render": "remotion render",
     "render:md": "node scripts/render-markdown.mjs",
@@ -16,6 +18,7 @@
     "video:render:win": "scripts\\render-video.bat",
     "render:preview": "remotion render src/index.ts MarkdownVideo",
     "qwen:doctor": "node scripts/check-qwen.mjs",
+    "mimo:showcase": "node mimo-tts-voice-showcase/generate-samples.mjs",
     "check": "tsc --noEmit"
   },
   "keywords": [

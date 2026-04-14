@@ -1,6 +1,6 @@
 import {Composition} from 'remotion';
 
-import {MarkdownVideo, type MarkdownVideoProps} from './MarkdownVideo';
+import {MarkdownVideo, type MarkdownVideoProps} from './video/MarkdownVideo';
 import {analyzeMarkdownPresentation} from './markdown';
 import {previewMarkdown, previewPresentation} from './generated/preview-presentation';
 

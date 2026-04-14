@@ -50,14 +50,19 @@ if [[ -z "${QWEN_PYTHON:-}" && -x "$ROOT_DIR/.venv-qwen/bin/python" ]]; then
   export QWEN_PYTHON="$ROOT_DIR/.venv-qwen/bin/python"
 fi
 
-export TTS_PROVIDER="${TTS_PROVIDER:-qwen-local}"
+# Only set default if user explicitly passed TTS_PROVIDER; otherwise let frontmatter decide
+if [[ -n "${TTS_PROVIDER:-}" ]]; then
+  export TTS_PROVIDER
+fi
 
 if [[ "$OSTYPE" == darwin* ]]; then
   export QWEN_TTS_DEVICE="${QWEN_TTS_DEVICE:-cpu}"
   export QWEN_TTS_DTYPE="${QWEN_TTS_DTYPE:-float32}"
 fi
 
-if [[ "$TTS_PROVIDER" == "qwen-local" ]]; then
+EFFECTIVE_TTS="${TTS_PROVIDER:-}"
+
+if [[ "$EFFECTIVE_TTS" == "qwen-local" ]]; then
   echo "[render-video] 检查 Qwen3-TTS 环境..."
   npm run qwen:doctor
 fi
@@ -65,8 +70,8 @@ fi
 echo "[render-video] 开始渲染"
 echo "  input : $INPUT_PATH"
 echo "  output: $OUTPUT_PATH"
-echo "  tts   : $TTS_PROVIDER"
-if [[ "$TTS_PROVIDER" == "qwen-local" ]]; then
+echo "  tts   : ${EFFECTIVE_TTS:-<由 frontmatter 决定>}"
+if [[ "$EFFECTIVE_TTS" == "qwen-local" ]]; then
   echo "  device: ${QWEN_TTS_DEVICE:-auto}"
   echo "  dtype : ${QWEN_TTS_DTYPE:-auto}"
 fi

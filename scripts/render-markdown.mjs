@@ -43,6 +43,7 @@ mkdirSync(dirname(outputPath), {recursive: true});
 const markdownText = readMarkdownFile(inputPath);
 const presentation = createPresentationAssets({
   markdownText,
+  markdownFilePath: inputPath,
   fps: DEFAULT_FPS,
   assetDir,
   assetPrefix,

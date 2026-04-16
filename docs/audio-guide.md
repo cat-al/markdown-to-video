@@ -15,6 +15,12 @@
 
 ### 使用 Qwen3-TTS 本地模型
 
+项目现在同时支持三类 Qwen3-TTS 用法：
+
+- **`VoiceDesign`**：用自然语言描述想要的音色
+- **`CustomVoice`**：使用模型内置的预置音色（如 `Vivian`、`Serena`）
+- **`Base / VoiceClone`**：提供参考音频 + 逐字转写，复刻指定说话人的声音
+
 如果你想显式写在 Markdown 中，可以这样配置：
 
 ```md
@@ -51,6 +57,61 @@ QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run render:md -- examples/demo/qwen
 ```bash
 QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run qwen:doctor
 ```
+
+### 使用 Qwen3-TTS Base / VoiceClone 复刻指定声音
+
+`Qwen3-TTS-12Hz-0.6B-Base` 走的是 **参考音频 + 参考文本** 模式，不再使用 `ttsVoice` 里的预置音色名。
+
+#### Base 模式 frontmatter 示例
+
+如果你已经有参考录音、但还没来得及补逐字转写，可以先这样接：
+
+```md
+---
+title: Patrick Clone Demo
+ttsProvider: qwen-local
+ttsModel: Qwen/Qwen3-TTS-12Hz-0.6B-Base
+ttsLanguage: Chinese
+ttsReferenceAudio: ../findings.wav
+ttsXVectorOnlyMode: true
+---
+```
+
+等你把参考文本听写好之后，再补成完整版：
+
+```md
+---
+title: Patrick Clone Demo
+ttsProvider: qwen-local
+ttsModel: Qwen/Qwen3-TTS-12Hz-0.6B-Base
+ttsLanguage: Chinese
+ttsReferenceAudio: ../findings.wav
+ttsReferenceText: 请替换为你实际截取的参考音频逐字转写
+ttsXVectorOnlyMode: false
+---
+```
+
+#### Base 模式说明
+
+- **`ttsReferenceAudio`**：参考音频路径，支持相对当前 Markdown 文件的相对路径
+- **`ttsReferenceText`**：参考音频的逐字转写，建议和音频严格一致
+- **`ttsXVectorOnlyMode`**：可选，设为 `true` 时可不提供文本，适合“先接通、后补转写”的第一阶段；但音色稳定性通常会下降
+- **`ttsVoice`**：在 Base 模式下会被忽略
+- **仓库现成示例**：`examples/demo/qwen-base-clone.md` 已默认接到 `examples/findings.wav`
+
+#### 下载 Base 模型
+
+```bash
+npm run download:qwen:base:modelscope
+```
+
+#### 使用 Base 模式渲染
+
+```bash
+QWEN_PYTHON=$(pwd)/.venv-qwen/bin/python npm run render:md -- examples/demo/qwen-base-clone.md dist/qwen-base-clone.mp4
+```
+
+更完整的派大星复刻方案见 `docs/qwen-base-voice-clone.md`。
 
 ### 使用 MiMo-V2-TTS 云端语音（Xiaomi）
 

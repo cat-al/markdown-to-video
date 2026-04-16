@@ -61,7 +61,7 @@ def resolve_dtype(requested: str, device: str, torch_module):
 
 def normalize_batch_value(values, length, fallback):
     if isinstance(values, list):
-        return values
+        return [fallback if value is None else value for value in values]
     return [fallback] * length if values is None else [values] * length
 
 
@@ -128,9 +128,6 @@ def main():
         attn_implementation = payload.get("attnImplementation", "auto")
         mode = normalize_mode(model_name, payload.get("mode"))
 
-        if mode == "base":
-            raise ValueError("当前 worker 暂不支持 Base / VoiceClone 模式，请改用 VoiceDesign 或 CustomVoice 模型。")
-
         model_kwargs = {
             "device_map": device,
             "dtype": dtype,
@@ -176,6 +173,44 @@ def main():
                     speaker=[speakers[i]],
                     instruct=[instructs[i]],
                 )
+                wav_i = result_wavs[0] if isinstance(result_wavs, (list, tuple)) else result_wavs
+                wavs.append(wav_i)
+                if sample_rate is None:
+                    sample_rate = sr_i
+        elif mode == "base":
+            reference_audio = payload.get("referenceAudio") or payload.get("refAudio")
+            reference_text = payload.get("referenceText") or payload.get("refText")
+            x_vector_only_mode = bool(payload.get("xVectorOnlyMode"))
+
+            if not reference_audio:
+                raise ValueError("Base / VoiceClone 模式缺少 referenceAudio 参数")
+            if not x_vector_only_mode and not reference_text:
+                raise ValueError("Base / VoiceClone 模式缺少 referenceText 参数；如只想用 x-vector，请显式设置 xVectorOnlyMode=true")
+
+            prompt_items = None
+            if hasattr(model, "create_voice_clone_prompt"):
+                prompt_kwargs = {
+                    "ref_audio": reference_audio,
+                    "x_vector_only_mode": x_vector_only_mode,
+                }
+                if reference_text:
+                    prompt_kwargs["ref_text"] = reference_text
+                prompt_items = model.create_voice_clone_prompt(**prompt_kwargs)
+
+            for i in range(len(texts)):
+                generate_kwargs = {
+                    "text": [texts[i]],
+                    "language": [languages[i]],
+                }
+                if prompt_items is not None:
+                    generate_kwargs["voice_clone_prompt"] = prompt_items
+                else:
+                    generate_kwargs["ref_audio"] = reference_audio
+                    generate_kwargs["x_vector_only_mode"] = x_vector_only_mode
+                    if reference_text:
+                        generate_kwargs["ref_text"] = reference_text
+
+                result_wavs, sr_i = model.generate_voice_clone(**generate_kwargs)
                 wav_i = result_wavs[0] if isinstance(result_wavs, (list, tuple)) else result_wavs
                 wavs.append(wav_i)
                 if sample_rate is None:

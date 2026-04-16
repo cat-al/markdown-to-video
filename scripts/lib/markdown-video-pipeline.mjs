@@ -1,7 +1,7 @@
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {existsSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync} from 'node:fs';
-import {dirname, join} from 'node:path';
+import {existsSync, mkdirSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync} from 'node:fs';
+import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 // Load .env file from project root (if exists) for MIMO_API_KEY and other config
@@ -86,6 +86,49 @@ export const parseNumericValue = (value) => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
+const parseBooleanValue = (value) => {
+  const normalized = String(value ?? '').trim().toLowerCase();
+
+  if (!normalized) {
+    return undefined;
+  }
+
+  if (['1', 'true', 'yes', 'y', 'on'].includes(normalized)) {
+    return true;
+  }
+
+  if (['0', 'false', 'no', 'n', 'off'].includes(normalized)) {
+    return false;
+  }
+
+  return undefined;
+};
+
+const isRemoteAsset = (value) => /^(https?:)?\/\//i.test(String(value ?? '').trim()) || String(value ?? '').trim().startsWith('data:');
+
+const createReferenceAudioFingerprint = (referenceAudio) => {
+  const normalized = String(referenceAudio ?? '').trim();
+
+  if (!normalized) {
+    return '';
+  }
+
+  if (isRemoteAsset(normalized) || !existsSync(normalized)) {
+    return normalized;
+  }
+
+  try {
+    const stat = statSync(normalized);
+    return {
+      path: normalized,
+      size: stat.size,
+      mtimeMs: Math.round(stat.mtimeMs),
+    };
+  } catch {
+    return normalized;
+  }
+};
+
 const AUDIO_MANIFEST_VERSION = 1;
 
 const readAudioManifest = (manifestPath) => {
@@ -117,6 +160,9 @@ const createAudioCacheKey = ({narration, ttsConfig}) => {
       device: ttsConfig.device,
       dtype: ttsConfig.dtype,
       attnImplementation: ttsConfig.attnImplementation,
+      referenceAudio: createReferenceAudioFingerprint(ttsConfig.referenceAudio),
+      referenceText: ttsConfig.referenceText,
+      xVectorOnlyMode: ttsConfig.xVectorOnlyMode,
       narration,
     }))
     .digest('hex');
@@ -171,6 +217,9 @@ export const parseFrontmatter = (markdownText) => {
     if (normalizedKey === 'ttsmodel' || normalizedKey === 'tts-model') meta.ttsModel = value;
     if (normalizedKey === 'ttslanguage' || normalizedKey === 'tts-language') meta.ttsLanguage = value;
     if (normalizedKey === 'ttsinstruction' || normalizedKey === 'tts-instruction') meta.ttsInstruction = value;
+    if (normalizedKey === 'ttsreferenceaudio' || normalizedKey === 'tts-reference-audio' || normalizedKey === 'ttsrefaudio' || normalizedKey === 'tts-ref-audio') meta.ttsReferenceAudio = value;
+    if (normalizedKey === 'ttsreferencetext' || normalizedKey === 'tts-reference-text' || normalizedKey === 'ttsreftext' || normalizedKey === 'tts-ref-text') meta.ttsReferenceText = value;
+    if (normalizedKey === 'ttsxvectoronlymode' || normalizedKey === 'tts-x-vector-only-mode' || normalizedKey === 'ttsxvectoronly' || normalizedKey === 'tts-x-vector-only') meta.ttsXVectorOnlyMode = parseBooleanValue(value);
     if (normalizedKey === 'ttsapikey' || normalizedKey === 'tts-api-key') meta.ttsApiKey = value;
     if (normalizedKey === 'ttsbaseurl' || normalizedKey === 'tts-base-url') meta.ttsBaseUrl = value;
   });
@@ -465,6 +514,17 @@ const resolveLocalQwenModelPath = (modelName) => {
   return existsSync(localMirrorDir) ? localMirrorDir : normalized;
 };
 
+const resolveReferenceAudioPath = (referenceAudio, markdownFilePath) => {
+  const normalized = String(referenceAudio ?? '').trim();
+
+  if (!normalized || isRemoteAsset(normalized)) {
+    return normalized;
+  }
+
+  const baseDir = markdownFilePath ? dirname(markdownFilePath) : process.cwd();
+  return resolve(baseDir, normalized);
+};
+
 const inferMimoVoice = (requestedVoice, language) => {
   const normalized = String(requestedVoice ?? '').trim().toLowerCase();
   const validVoices = ['mimo_default', 'default_zh', 'default_en'];
@@ -476,7 +536,7 @@ const inferMimoVoice = (requestedVoice, language) => {
   return language === 'Chinese' ? 'default_zh' : 'default_en';
 };
 
-const resolveTtsConfig = ({meta, markdownText, availableVoices = []}) => {
+const resolveTtsConfig = ({meta, markdownText, markdownFilePath, availableVoices = []}) => {
   const provider = normalizeTtsProvider(process.env.TTS_PROVIDER ?? meta.ttsProvider ?? 'qwen-local');
   const language = normalizeTtsLanguage(process.env.TTS_LANGUAGE ?? meta.ttsLanguage ?? 'auto', markdownText);
   const requestedVoice = process.env.TTS_VOICE ?? meta.ttsVoice ?? (provider === 'qwen-local' ? process.env.QWEN_TTS_VOICE ?? 'Vivian' : undefined);
@@ -485,7 +545,14 @@ const resolveTtsConfig = ({meta, markdownText, availableVoices = []}) => {
 
   if (provider === 'qwen-local') {
     const requestedModel = process.env.QWEN_TTS_MODEL ?? meta.ttsModel ?? 'Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice';
+    const mode = inferQwenMode(requestedModel, requestedVoice);
     const model = resolveLocalQwenModelPath(requestedModel);
+    const rawReferenceAudio = process.env.QWEN_TTS_REFERENCE_AUDIO ?? meta.ttsReferenceAudio ?? '';
+    const referenceAudio = resolveReferenceAudioPath(rawReferenceAudio, markdownFilePath);
+    const referenceText = process.env.QWEN_TTS_REFERENCE_TEXT ?? meta.ttsReferenceText ?? '';
+    const xVectorOnlyMode = parseBooleanValue(
+      process.env.QWEN_TTS_X_VECTOR_ONLY_MODE ?? process.env.QWEN_TTS_X_VECTOR_ONLY ?? meta.ttsXVectorOnlyMode ?? '',
+    ) ?? false;
 
     return {
       provider,
@@ -493,9 +560,12 @@ const resolveTtsConfig = ({meta, markdownText, availableVoices = []}) => {
       requestedVoice,
       voice: requestedVoice,
       rate,
-      instruction: instruction ?? (inferQwenMode(requestedModel, requestedVoice) === 'voice-design' ? getDefaultQwenInstruction(language) : ''),
+      instruction: instruction ?? (mode === 'voice-design' ? getDefaultQwenInstruction(language) : ''),
       model,
-      mode: inferQwenMode(requestedModel, requestedVoice),
+      mode,
+      referenceAudio,
+      referenceText,
+      xVectorOnlyMode,
       pythonCommand: resolveDefaultQwenPython(),
       device: process.env.QWEN_TTS_DEVICE ?? (process.platform === 'darwin' ? 'cpu' : 'auto'),
       dtype: process.env.QWEN_TTS_DTYPE ?? (process.platform === 'darwin' ? 'float32' : 'auto'),
@@ -597,7 +667,7 @@ const parseWorkerJson = (text) => {
   }
 };
 
-export const checkQwenLocalEnvironment = ({pythonCommand = process.env.QWEN_PYTHON ?? 'python3'} = {}) => {
+export const checkQwenLocalEnvironment = ({pythonCommand = resolveDefaultQwenPython()} = {}) => {
   const result = runQwenWorker({pythonCommand, args: ['--check']});
   const parsed = parseWorkerJson(result.stdout) ?? parseWorkerJson(result.stderr);
 
@@ -612,7 +682,17 @@ export const checkQwenLocalEnvironment = ({pythonCommand = process.env.QWEN_PYTH
 
 const generateSpeechWithQwen = ({slides, ttsConfig}) => {
   if (ttsConfig.mode === 'base') {
-    throw new Error('当前 `qwen-local` provider 暂不支持 Base/VoiceClone 模式，请先使用 VoiceDesign 或 CustomVoice 模型。');
+    if (!ttsConfig.referenceAudio) {
+      throw new Error(
+        'Qwen3-TTS Base / VoiceClone 模式需要参考音频。请在 Markdown frontmatter 中配置 `ttsReferenceAudio`，或设置环境变量 `QWEN_TTS_REFERENCE_AUDIO`。',
+      );
+    }
+
+    if (!ttsConfig.xVectorOnlyMode && !ttsConfig.referenceText) {
+      throw new Error(
+        'Qwen3-TTS Base / VoiceClone 模式需要参考音频对应的逐字转写。请配置 `ttsReferenceText`，或显式设置 `ttsXVectorOnlyMode: true`（效果通常会差一些）。',
+      );
+    }
   }
 
   const items = slides
@@ -630,6 +710,9 @@ const generateSpeechWithQwen = ({slides, ttsConfig}) => {
   }
 
   console.log(`[qwen-local] using model: ${ttsConfig.model}`);
+  if (ttsConfig.mode === 'base') {
+    console.log(`[qwen-local] voice clone reference: ${ttsConfig.referenceAudio}`);
+  }
 
   const result = runQwenWorker({
     pythonCommand: ttsConfig.pythonCommand,
@@ -639,6 +722,9 @@ const generateSpeechWithQwen = ({slides, ttsConfig}) => {
       device: ttsConfig.device,
       dtype: ttsConfig.dtype,
       attnImplementation: ttsConfig.attnImplementation,
+      referenceAudio: ttsConfig.referenceAudio,
+      referenceText: ttsConfig.referenceText,
+      xVectorOnlyMode: ttsConfig.xVectorOnlyMode,
       items,
     },
   });
@@ -807,11 +893,11 @@ export const getAudioDurationInSeconds = (audioPath) => {
   throw new Error(`无法识别音频时长: ${audioPath}\n请安装 ffprobe (https://ffmpeg.org) 或确保 Python soundfile 可用。`);
 };
 
-export const createPresentationAssets = ({markdownText, fps, assetDir, assetPrefix, availableVoices}) => {
+export const createPresentationAssets = ({markdownText, markdownFilePath, fps, assetDir, assetPrefix, availableVoices}) => {
   const {body, meta} = parseFrontmatter(markdownText);
   const rawSlides = body.split(/\n-{3,}\n/g).filter((slide) => slide.trim().length > 0);
   const slidesSource = rawSlides.length > 0 ? rawSlides : [body];
-  const ttsConfig = resolveTtsConfig({meta, markdownText, availableVoices});
+  const ttsConfig = resolveTtsConfig({meta, markdownText, markdownFilePath, availableVoices});
 
   mkdirSync(assetDir, {recursive: true});
 
@@ -922,6 +1008,9 @@ export const createPresentationAssets = ({markdownText, fps, assetDir, assetPref
       ttsModel: ttsConfig.model,
       ttsLanguage: ttsConfig.language,
       ttsInstruction: ttsConfig.instruction,
+      ttsReferenceAudio: ttsConfig.referenceAudio,
+      ttsReferenceText: ttsConfig.referenceText,
+      ttsXVectorOnlyMode: ttsConfig.xVectorOnlyMode,
     },
     slides,
     totalFrames,

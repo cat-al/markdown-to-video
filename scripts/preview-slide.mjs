@@ -71,6 +71,7 @@ mkdirSync(previewDir, {recursive: true});
 console.log(`[preview] 生成 TTS 音频 ...`);
 const presentation = createPresentationAssets({
   markdownText,
+  markdownFilePath: inputPath,
   fps: DEFAULT_FPS,
   assetDir,
   assetPrefix,

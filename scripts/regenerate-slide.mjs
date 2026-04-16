@@ -133,6 +133,7 @@ const assetPrefix = `generated/${assetKey}`;
 
 const presentation = createPresentationAssets({
   markdownText,
+  markdownFilePath: inputPath,
   fps: DEFAULT_FPS,
   assetDir,
   assetPrefix,

@@ -7,6 +7,7 @@ import {spawnSync} from 'node:child_process';
 import {
   buildSrt,
   createPresentationAssets,
+  createHtmlPptAssets,
   DEFAULT_FPS,
   readMarkdownFile,
   sanitizeFileSegment,
@@ -49,50 +50,68 @@ const presentation = createPresentationAssets({
   assetPrefix,
 });
 
-writeTextFile(subtitlesPath, buildSrt(presentation, DEFAULT_FPS));
+// html-ppt mode: generate HTML slides → record video clips
+const runHtmlPpt = async () => {
+  if (presentation.meta.renderer === 'html-ppt') {
+    await createHtmlPptAssets({
+      presentation,
+      slidesSource: presentation.slidesSource,
+      assetDir,
+      assetPrefix,
+      fps: DEFAULT_FPS,
+    });
+  }
+};
 
-const props = JSON.stringify({
-  markdown: markdownText,
-  presentation,
+runHtmlPpt().then(() => {
+  writeTextFile(subtitlesPath, buildSrt(presentation, DEFAULT_FPS));
+
+  const props = JSON.stringify({
+    markdown: markdownText,
+    presentation,
+  });
+
+  // Write props to a temp file to avoid Windows command-line length limits
+  const propsFilePath = resolve(cwd, 'dist', `${assetKey}.props.json`);
+  writeFileSync(propsFilePath, props, 'utf8');
+
+  console.log(`[render] props file: ${propsFilePath} (${(props.length / 1024).toFixed(1)} KB)`);
+  console.log(`[render] output: ${outputPath}`);
+  console.log(`[render] starting remotion render ...`);
+
+  const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  const remotionArgs = [
+    'remotion', 'render', 'src/index.ts', 'MarkdownVideo', outputPath,
+    '--props', propsFilePath,
+  ];
+
+  console.log(`[render] command: ${command} ${remotionArgs.join(' ')}`);
+
+  const result = spawnSync(command, remotionArgs, {
+    cwd,
+    stdio: 'inherit',
+    env: process.env,
+    shell: process.platform === 'win32',
+  });
+
+  if (result.error) {
+    console.error(`[render] spawn error:`, result.error.message);
+  }
+
+  if (result.status !== 0) {
+    console.error(`[render] exit code: ${result.status}`);
+  }
+
+  // Clean up temp props file
+  try { unlinkSync(propsFilePath); } catch {}
+
+  if (result.status === 0) {
+    console.log(`[render] done: ${outputPath}`);
+    console.log(`[render] subtitles: ${subtitlesPath}`);
+  }
+
+  process.exit(result.status ?? 0);
+}).catch((err) => {
+  console.error(`[render] html-ppt error:`, err.message);
+  process.exit(1);
 });
-
-// Write props to a temp file to avoid Windows command-line length limits
-const propsFilePath = resolve(cwd, 'dist', `${assetKey}.props.json`);
-writeFileSync(propsFilePath, props, 'utf8');
-
-console.log(`[render] props file: ${propsFilePath} (${(props.length / 1024).toFixed(1)} KB)`);
-console.log(`[render] output: ${outputPath}`);
-console.log(`[render] starting remotion render ...`);
-
-const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-const remotionArgs = [
-  'remotion', 'render', 'src/index.ts', 'MarkdownVideo', outputPath,
-  '--props', propsFilePath,
-];
-
-console.log(`[render] command: ${command} ${remotionArgs.join(' ')}`);
-
-const result = spawnSync(command, remotionArgs, {
-  cwd,
-  stdio: 'inherit',
-  env: process.env,
-  shell: process.platform === 'win32',
-});
-
-if (result.error) {
-  console.error(`[render] spawn error:`, result.error.message);
-}
-
-if (result.status !== 0) {
-  console.error(`[render] exit code: ${result.status}`);
-}
-
-// Clean up temp props file
-try { unlinkSync(propsFilePath); } catch {}
-
-if (result.status === 0) {
-  console.log(`[render] done: ${outputPath}`);
-  console.log(`[render] subtitles: ${subtitlesPath}`);
-}
-
-process.exit(result.status ?? 0);

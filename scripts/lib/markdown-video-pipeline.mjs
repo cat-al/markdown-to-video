@@ -222,6 +222,12 @@ export const parseFrontmatter = (markdownText) => {
     if (normalizedKey === 'ttsxvectoronlymode' || normalizedKey === 'tts-x-vector-only-mode' || normalizedKey === 'ttsxvectoronly' || normalizedKey === 'tts-x-vector-only') meta.ttsXVectorOnlyMode = parseBooleanValue(value);
     if (normalizedKey === 'ttsapikey' || normalizedKey === 'tts-api-key') meta.ttsApiKey = value;
     if (normalizedKey === 'ttsbaseurl' || normalizedKey === 'tts-base-url') meta.ttsBaseUrl = value;
+    if (normalizedKey === 'renderer') {
+      const v = value.toLowerCase();
+      if (v === 'html-ppt' || v === 'native') meta.renderer = v;
+    }
+    if (normalizedKey === 'theme') meta.theme = value;
+    if (normalizedKey === 'template') meta.template = value;
   });
 
   return {body, meta};
@@ -1014,7 +1020,65 @@ export const createPresentationAssets = ({markdownText, markdownFilePath, fps, a
     },
     slides,
     totalFrames,
+    slidesSource,
   };
+};
+
+/**
+ * Generate HTML slides and record them to video (html-ppt mode).
+ * This is an async add-on step that runs AFTER createPresentationAssets.
+ *
+ * Mutates presentation.slides[].htmlVideoSrc in-place.
+ */
+export const createHtmlPptAssets = async ({presentation, slidesSource, assetDir, assetPrefix, fps}) => {
+  const {generateHtmlSlides} = await import('./html-slide-generator.mjs');
+  const {recordHtmlVideos} = await import('./html-video-recorder.mjs');
+  const {startHtmlServer} = await import('./html-server.mjs');
+
+  const projectRoot = resolve(__dirname, '..', '..');
+  const vendorDir = join(projectRoot, 'vendor', 'html-ppt');
+  const theme = presentation.meta.theme || 'tokyo-night';
+
+  // 1. Generate HTML slide files
+  const htmlOutputDir = join(assetDir, 'html-slides');
+  console.log(`[html-ppt] Generating HTML slides (theme: ${theme})...`);
+  const htmlPaths = generateHtmlSlides({
+    presentation,
+    slideMarkdownSources: slidesSource,
+    outputDir: htmlOutputDir,
+    theme,
+    assetsBasePath: join(vendorDir, 'assets'),
+  });
+  console.log(`[html-ppt] Generated ${htmlPaths.length} HTML files`);
+
+  // 2. Start local HTTP server (serves the whole project root so vendor/ paths work)
+  const server = await startHtmlServer({rootDir: projectRoot, port: 0});
+  console.log(`[html-ppt] HTTP server started at ${server.url}`);
+
+  try {
+    // 3. Record each slide to video
+    const durations = presentation.slides.map((s) => s.durationInFrames / fps);
+    const mp4Paths = await recordHtmlVideos({
+      htmlPaths,
+      durations,
+      outputDir: join(projectRoot, 'public', 'generated', assetPrefix.split('/').filter(Boolean).join('/')),
+      baseUrl: server.url,
+      htmlDir: projectRoot,
+      viewport: {width: 1920, height: 1080},
+    });
+
+    // 4. Write htmlVideoSrc into each slide
+    presentation.slides.forEach((slide, i) => {
+      if (mp4Paths[i]) {
+        const relativeMp4 = mp4Paths[i].slice(join(projectRoot, 'public').length + 1);
+        slide.htmlVideoSrc = relativeMp4;
+      }
+    });
+
+    console.log(`[html-ppt] Recorded ${mp4Paths.filter(Boolean).length}/${mp4Paths.length} video clips`);
+  } finally {
+    await server.close();
+  }
 };
 
 export const formatSrtTime = (totalSeconds) => {

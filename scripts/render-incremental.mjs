@@ -27,6 +27,7 @@ import {spawnSync} from 'node:child_process';
 import {
   buildSrt,
   createPresentationAssets,
+  createHtmlPptAssets,
   DEFAULT_FPS,
   readMarkdownFile,
   sanitizeFileSegment,
@@ -87,6 +88,22 @@ const presentation = createPresentationAssets({
   assetPrefix,
 });
 
+// Step 1b: html-ppt mode — generate HTML slides and record video clips
+const runHtmlPpt = async () => {
+  if (presentation.meta.renderer === 'html-ppt') {
+    await createHtmlPptAssets({
+      presentation,
+      slidesSource: presentation.slidesSource,
+      assetDir,
+      assetPrefix,
+      fps: DEFAULT_FPS,
+    });
+  }
+};
+
+const runMain = async () => {
+  await runHtmlPpt();
+
 // Step 2: Generate SRT
 writeTextFile(subtitlesPath, buildSrt(presentation, DEFAULT_FPS));
 
@@ -106,6 +123,7 @@ const createSlideFingerprint = (slide) => {
     layout: slide.layout,
     accentColor: slide.accentColor,
     heading: slide.heading,
+    htmlVideoSrc: slide.htmlVideoSrc,
   })).digest('hex');
 };
 
@@ -212,3 +230,9 @@ const fileSize = (statSync(outputPath).size / (1024 * 1024)).toFixed(1);
 console.log(`\n[incremental] 完成: ${outputPath} (${fileSize} MB)`);
 console.log(`[incremental] 字幕: ${subtitlesPath}`);
 console.log(`[incremental] 渲染: ${slidesToRender.length} 页, 复用: ${cachedCount} 页`);
+};
+
+runMain().catch((err) => {
+  console.error(`[incremental] error:`, err.message);
+  process.exit(1);
+});

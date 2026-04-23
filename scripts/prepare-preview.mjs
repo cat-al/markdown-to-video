@@ -6,6 +6,7 @@ import {basename, extname, resolve} from 'node:path';
 import {
   buildSrt,
   createPresentationAssets,
+  createHtmlPptAssets,
   DEFAULT_FPS,
   readMarkdownFile,
   sanitizeFileSegment,
@@ -35,12 +36,30 @@ const presentation = createPresentationAssets({
   assetPrefix,
 });
 
-writePreviewModule({
-  targetPath: previewModulePath,
-  markdownText,
-  presentation,
-});
-writeTextFile(previewSrtPath, buildSrt(presentation, DEFAULT_FPS));
+// html-ppt mode: generate HTML slides and record video clips
+const finish = async () => {
+  if (presentation.meta.renderer === 'html-ppt') {
+    await createHtmlPptAssets({
+      presentation,
+      slidesSource: presentation.slidesSource,
+      assetDir,
+      assetPrefix,
+      fps: DEFAULT_FPS,
+    });
+  }
 
-console.log(`预览素材已准备完成: ${previewModulePath}`);
-console.log(`预览字幕已生成: ${previewSrtPath}`);
+  writePreviewModule({
+    targetPath: previewModulePath,
+    markdownText,
+    presentation,
+  });
+  writeTextFile(previewSrtPath, buildSrt(presentation, DEFAULT_FPS));
+
+  console.log(`预览素材已准备完成: ${previewModulePath}`);
+  console.log(`预览字幕已生成: ${previewSrtPath}`);
+};
+
+finish().catch((err) => {
+  console.error(`[prepare-preview] error:`, err.message);
+  process.exit(1);
+});

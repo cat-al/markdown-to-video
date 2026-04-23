@@ -10,6 +10,12 @@ export type PresentationMeta = {
   ttsInstruction?: string;
   ttsApiKey?: string;
   ttsBaseUrl?: string;
+  ttsReferenceAudio?: string;
+  ttsReferenceText?: string;
+  ttsXVectorOnlyMode?: boolean;
+  renderer?: 'native' | 'html-ppt';
+  theme?: string;
+  template?: string;
 };
 
 export const slideLayoutNames = [
@@ -71,6 +77,7 @@ export type MarkdownSlide = {
   accentColor?: string;
   audioSrc?: string;
   audioDurationInFrames?: number;
+  htmlVideoSrc?: string;
 };
 
 export type MarkdownPresentation = {
@@ -231,6 +238,21 @@ const parseFrontmatter = (markdown: string) => {
 
     if (normalizedKey === 'ttsbaseurl' || normalizedKey === 'tts-base-url') {
       meta.ttsBaseUrl = trimmedValue;
+    }
+
+    if (normalizedKey === 'renderer') {
+      const val = trimmedValue.toLowerCase();
+      if (val === 'html-ppt' || val === 'native') {
+        meta.renderer = val;
+      }
+    }
+
+    if (normalizedKey === 'theme') {
+      meta.theme = trimmedValue;
+    }
+
+    if (normalizedKey === 'template') {
+      meta.template = trimmedValue;
     }
   });
 

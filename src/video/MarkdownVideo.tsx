@@ -1,12 +1,13 @@
-import {AbsoluteFill, Sequence, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 
 import {analyzeMarkdownPresentation} from '../markdown';
-import type {MarkdownVideoProps, MarkdownPresentation, MarkdownSlide} from './types';
+import type {MarkdownVideoProps, MarkdownPresentation, MarkdownSlide, CaptionCue} from './types';
 import {getSlideOffsets} from './utils';
 import {getSlideAccentColor} from './theme/palettes';
 import {parseSlideStructure} from './logic/slide-structure';
 import {getSlideVariant} from './logic/slide-variant';
 import {styles} from './styles';
+import {HtmlSlideBackground} from './components/HtmlSlideBackground';
 import {
   AccentBarSlideLayout,
   ArgumentSlideLayout,
@@ -43,12 +44,39 @@ import {
 
 export type {MarkdownVideoProps};
 
+/* ─── html-ppt mode: video background + caption overlay + audio ─── */
+const HtmlPptSlide: React.FC<{
+  slide: MarkdownSlide;
+}> = ({slide}) => {
+  const frame = useCurrentFrame();
+  const activeCue = slide.captionCues.find(
+    (cue: CaptionCue) => frame >= cue.startFrame && frame < cue.endFrame,
+  );
+
+  return (
+    <AbsoluteFill>
+      {slide.htmlVideoSrc && <HtmlSlideBackground videoSrc={slide.htmlVideoSrc} />}
+      {activeCue && (
+        <div style={styles.captionShell}>
+          <div style={styles.captionText}>{activeCue.text}</div>
+        </div>
+      )}
+      {slide.audioSrc && <Audio src={staticFile(slide.audioSrc)} />}
+    </AbsoluteFill>
+  );
+};
+
 const SlideCard: React.FC<{
   accentColor: string;
   presentation: MarkdownPresentation;
   slide: MarkdownSlide;
   slideIndex: number;
 }> = ({accentColor, presentation, slide, slideIndex}) => {
+  // html-ppt renderer: use pre-recorded video background
+  if (presentation.meta.renderer === 'html-ppt' && slide.htmlVideoSrc) {
+    return <HtmlPptSlide slide={slide} />;
+  }
+
   const structure = parseSlideStructure(slide.markdown);
   const variant = getSlideVariant({
     slide,

@@ -1,0 +1,9 @@
+{
+  "name": "video-render",
+  "version": "1.0.0",
+  "description": "video-render skill — 三阶段管线生成 MP4 视频",
+  "private": true,
+  "dependencies": {
+    "puppeteer": "^24.42.0"
+  }
+}

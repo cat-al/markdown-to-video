@@ -6,13 +6,14 @@
 
 ## 当前进度
 
-已落地五个模块，覆盖从文案到配音/字幕/时间轴的完整链路：
+已落地六个模块，覆盖从文案到最终视频输出的完整链路：
 
 1. `markdown-scriptwriter`：生成结构化的视频文案 Markdown
 2. `markdown-to-html`：将标准 Markdown 转成 16:9 宽屏 HTML 动画幻灯片
 3. `html-layout-review`：对 HTML 页面做 `1920x1080` 画布视觉验收
 4. `tts-voiceover`：解析文案字幕行，逐句调用 TTS 生成配音音频 + `tts-manifest.json`
 5. `subtitle-timeline`：消费 manifest + HTML，生成 SRT 字幕并用真实音频时长重写时间轴
+6. `video-render`：三阶段管线（Puppeteer 截帧 → 音频拼接 → FFmpeg 合成），输出可发布 MP4
 
 ## 完整链路
 
@@ -30,7 +31,10 @@ markdown-scriptwriter → Markdown 文案
                               ├── subtitles.srt
                               └── 原地修改 HTML（重写 stepConfig.duration + timelineConfig.scenes[].duration）
                                     ↓
-                              【下一步：视频输出】
+                          video-render
+                              ├── 阶段1: record  → silent.mp4
+                              ├── 阶段2: audio   → full-audio.wav
+                              └── 阶段3: compose → final.mp4 ✅
 ```
 
 `tts-voiceover` 和 `markdown-to-html` 是**平行**关系，都以 Markdown 文案为输入。`subtitle-timeline` 在两者之后，消费两者的输出。

@@ -1,0 +1,20 @@
+default: qwen3-local
+
+providers:
+  qwen3-local:
+    type: local
+    model_path: ~/models/Qwen3-TTS-12Hz-0.6B-Base
+    sample_rate: 24000
+    format: wav
+
+  minimax:
+    type: api
+    endpoint: https://api.minimax.chat/v1/tts
+    api_key_env: MINIMAX_API_KEY
+    format: mp3
+
+  mimo-v2:
+    type: api
+    endpoint: https://api.mimo.ai/v2/tts
+    api_key_env: MIMO_API_KEY
+    format: wav

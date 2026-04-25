@@ -9,3 +9,6 @@ log
 .env
 /render-video.bat
 /start-studio.bat
+output/
+__pycache__/
+*.pyc

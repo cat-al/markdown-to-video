@@ -2,7 +2,7 @@ node_modules
 build
 dist
 public/generated
-.venv-qwen
+.venv/
 .models
 log
 .DS_Store

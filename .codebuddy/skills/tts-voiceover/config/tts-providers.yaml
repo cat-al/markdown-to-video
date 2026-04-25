@@ -3,9 +3,15 @@ default: qwen3-local
 providers:
   qwen3-local:
     type: local
-    model_path: ~/models/Qwen3-TTS-12Hz-0.6B-Base
+    model_path: .models/Qwen3-TTS-12Hz-0.6B-Base
     sample_rate: 24000
     format: wav
+    language: chinese
+    # Base 模型通过声音克隆生成语音，必须提供参考音频
+    # ref_audio: 参考音频文件路径（相对项目根目录），支持 wav/mp3
+    # ref_text:  参考音频对应的文字内容（可选，提供后克隆效果更好）
+    ref_audio: assets/ref-voice/speaker.wav
+    ref_text: ~
 
   minimax:
     type: api

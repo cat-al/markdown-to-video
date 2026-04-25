@@ -1,38 +1,90 @@
-"""Qwen3-TTS local model adapter."""
+"""Qwen3-TTS local model adapter — uses official qwen-tts SDK."""
 
 import os
+import sys
 import wave
+
+import soundfile as sf
 
 from .base import TTSAdapter, TTSResult
 
+# 参考音频约定路径
+REF_VOICE_DIR = "assets/ref-voice"
+
 
 class Qwen3LocalAdapter(TTSAdapter):
-    """Adapter for local Qwen3-TTS model inference.
+    """Adapter for local Qwen3-TTS Base model via qwen-tts SDK (voice clone).
+
+    Base 模型通过声音克隆生成语音，**必须**提供一段参考音频。
+    用户需将参考音频放到项目根目录 assets/ref-voice/ 下，
+    并在 config/tts-providers.yaml 的 ref_audio 字段指定文件名。
 
     Expects config keys:
-        model_path: str  — path to model weights (~ expanded)
-        sample_rate: int — output sample rate (default 24000)
-        format: str      — output format (default "wav")
+        model_path: str   — 模型权重路径（相对 CWD 或绝对路径）
+        sample_rate: int  — 输出采样率 (default 24000)
+        format: str       — 输出格式 (default "wav")
+        language: str     — 合成语言 (default "chinese")
+        ref_audio: str    — 参考音频文件路径（必填，相对项目根目录）
+        ref_text: str     — 参考音频对应的文字（可选，提供后克隆效果更好）
     """
 
     def __init__(self, config: dict):
         super().__init__(config)
-        self.model_path = os.path.expanduser(config.get("model_path", ""))
+        raw_path = config.get("model_path", "")
+        if not os.path.isabs(raw_path):
+            self.model_path = os.path.abspath(raw_path)
+        else:
+            self.model_path = os.path.expanduser(raw_path)
         self.sample_rate = int(config.get("sample_rate", 24000))
         self.format = config.get("format", "wav")
+        self.language = config.get("language", "chinese")
+
+        # 参考音频 — 必填
+        ref_audio_raw = config.get("ref_audio", "")
+        if ref_audio_raw and not os.path.isabs(ref_audio_raw):
+            self.ref_audio = os.path.abspath(ref_audio_raw)
+        else:
+            self.ref_audio = ref_audio_raw or ""
+
+        # 参考文本 — 可选
+        self.ref_text = config.get("ref_text") or None
+
         self._model = None
 
+    def _validate_ref_audio(self):
+        """检查参考音频是否存在，不存在则给出明确提示。"""
+        if not self.ref_audio:
+            raise RuntimeError(
+                f"未配置参考音频。\n"
+                f"Qwen3-TTS Base 模型需要一段参考音频来克隆音色。\n"
+                f"请将一段 3~10 秒的清晰语音（wav/mp3）放到项目目录：\n"
+                f"  {REF_VOICE_DIR}/\n"
+                f"然后在 config/tts-providers.yaml 中设置：\n"
+                f"  ref_audio: {REF_VOICE_DIR}/your-voice.wav"
+            )
+        if not os.path.isfile(self.ref_audio):
+            raise RuntimeError(
+                f"参考音频文件不存在: {self.ref_audio}\n"
+                f"Qwen3-TTS Base 模型需要一段参考音频来克隆音色。\n"
+                f"请将一段 3~10 秒的清晰语音（wav/mp3）放到项目目录：\n"
+                f"  {REF_VOICE_DIR}/\n"
+                f"然后在 config/tts-providers.yaml 中设置：\n"
+                f"  ref_audio: {REF_VOICE_DIR}/speaker.wav\n"
+                f"  ref_text: \"参考音频中说的文字内容\"  # 可选，提供后效果更好"
+            )
+
     def _load_model(self):
-        """Lazy-load the Qwen3-TTS model."""
+        """Lazy-load the Qwen3-TTS model via qwen-tts SDK."""
         if self._model is not None:
             return
 
         try:
-            from transformers import AutoModelForCausalLM, AutoTokenizer
             import torch
+            from qwen_tts import Qwen3TTSModel
         except ImportError as e:
             raise RuntimeError(
-                f"Qwen3-TTS requires 'transformers' and 'torch'. Install them first.\n{e}"
+                f"Qwen3-TTS requires 'qwen-tts' and 'torch'. "
+                f"Install: pip install qwen-tts\n{e}"
             )
 
         if not os.path.isdir(self.model_path):
@@ -41,86 +93,57 @@ class Qwen3LocalAdapter(TTSAdapter):
                 "Download Qwen3-TTS model and set 'model_path' in config/tts-providers.yaml."
             )
 
-        self._tokenizer = AutoTokenizer.from_pretrained(
-            self.model_path, trust_remote_code=True
-        )
-        self._model = AutoModelForCausalLM.from_pretrained(
-            self.model_path, trust_remote_code=True
-        )
-        # Move to GPU if available
         if torch.cuda.is_available():
-            self._model = self._model.cuda()
+            device_map = "cuda:0"
+            dtype = torch.bfloat16
+        elif torch.backends.mps.is_available():
+            device_map = "mps"
+            dtype = torch.float32
+        else:
+            device_map = "cpu"
+            dtype = torch.float32
+
+        print(f"Loading Qwen3-TTS model from {self.model_path} on {device_map}...", file=sys.stderr)
+
+        self._model = Qwen3TTSModel.from_pretrained(
+            self.model_path,
+            device_map=device_map,
+            dtype=dtype,
+        )
+        self._device = device_map
+        print("Model loaded successfully.", file=sys.stderr)
 
     def synthesize(self, text: str, output_path: str) -> TTSResult:
-        """Synthesize text to audio using local Qwen3-TTS model."""
-        # Handle empty text
+        """Synthesize text to audio using local Qwen3-TTS Base model (voice clone)."""
         if not text or not text.strip():
             self._write_empty_wav(output_path)
             return TTSResult(path=output_path, duration_ms=0)
 
+        # 先检查参考音频，再加载模型（避免等半天模型加载完才报错）
+        self._validate_ref_audio()
         self._load_model()
-        import torch
 
-        # Qwen3-TTS inference
-        # NOTE: Actual inference API depends on the specific Qwen3-TTS version.
-        # This is the expected interface based on HuggingFace transformers convention.
         try:
-            inputs = self._tokenizer(
-                text, return_tensors="pt", padding=True
+            wavs, sr = self._model.generate_voice_clone(
+                text=text,
+                language=self.language.lower(),
+                ref_audio=self.ref_audio,
+                ref_text=self.ref_text,
             )
-            if torch.cuda.is_available():
-                inputs = {k: v.cuda() for k, v in inputs.items()}
 
-            with torch.no_grad():
-                # The model's generate method should return audio tokens/waveform
-                # Adjust based on actual Qwen3-TTS API
-                outputs = self._model.generate(
-                    **inputs,
-                    max_new_tokens=4096,
-                )
+            os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
-            # Extract audio waveform from model output
-            # NOTE: This section may need adjustment based on actual Qwen3-TTS output format
-            if hasattr(outputs, "audio") or hasattr(outputs, "waveform"):
-                audio_data = getattr(outputs, "audio", None) or getattr(outputs, "waveform")
-                if hasattr(audio_data, "cpu"):
-                    audio_data = audio_data.cpu().numpy()
-            else:
-                # Fallback: treat output tokens as audio codec tokens
-                # and decode them — this depends on the specific model architecture
-                raise RuntimeError(
-                    "Qwen3-TTS model output format not recognized. "
-                    "Please check model version and update the adapter accordingly."
-                )
+            audio = wavs[0]
+            if hasattr(audio, "cpu"):
+                audio = audio.cpu().numpy()
 
-            # Write WAV file
-            self._write_wav(output_path, audio_data)
-            duration_ms = int(len(audio_data) / self.sample_rate * 1000)
+            sf.write(output_path, audio, sr)
 
+            duration_ms = int(len(audio) / sr * 1000)
             return TTSResult(path=output_path, duration_ms=duration_ms)
 
         except Exception as e:
             raise RuntimeError(f"Qwen3-TTS synthesis failed: {e}")
-
-    def _write_wav(self, path: str, audio_data) -> None:
-        """Write audio data to WAV file."""
-        import numpy as np
-
-        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-
-        # Normalize to int16
-        if audio_data.dtype != np.int16:
-            audio_float = audio_data.astype(np.float32)
-            max_val = max(abs(audio_float.max()), abs(audio_float.min()), 1e-8)
-            audio_int16 = (audio_float / max_val * 32767).astype(np.int16)
-        else:
-            audio_int16 = audio_data
-
-        with wave.open(path, "wb") as wf:
-            wf.setnchannels(1)
-            wf.setsampwidth(2)  # 16-bit
-            wf.setframerate(self.sample_rate)
-            wf.writeframes(audio_int16.tobytes())
 
     def _write_empty_wav(self, path: str) -> None:
         """Write a valid but empty (0-sample) WAV file."""

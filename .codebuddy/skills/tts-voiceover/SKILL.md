@@ -90,6 +90,32 @@ output/audio/
 
 **ID 映射规则：** `scene_number` 是核心标识，与 Markdown 中 `## 场景N` 的 N 一致。下游 `subtitle-timeline` 用 `scene_number` 映射到 HTML 中的 `data-scene="N"`、`stepConfig["slide-N"]`、`timelineConfig.scenes[].scene === N`。
 
+## 前置条件：参考音频
+
+Qwen3-TTS Base 模型通过**声音克隆**生成语音，必须提供一段参考音频作为音色模板。
+
+**执行 TTS 之前，必须检查参考音频是否存在：**
+
+```bash
+ls assets/ref-voice/speaker.wav
+```
+
+如果文件不存在，**停止执行并提示用户**：
+
+> 请将一段 3~10 秒的清晰语音（wav/mp3）放到 `assets/ref-voice/` 目录下。
+> 建议使用你希望视频配音听起来像的声音，录音环境尽量安静。
+> 放好后在 `config/tts-providers.yaml` 中确认 `ref_audio` 路径正确。
+> 如果有参考音频的文字内容，填入 `ref_text` 字段可以提升克隆效果。
+
+参考音频配置在 `config/tts-providers.yaml`：
+
+```yaml
+providers:
+  qwen3-local:
+    ref_audio: assets/ref-voice/speaker.wav   # 必填
+    ref_text: "参考音频中说的文字内容"           # 可选，提供后效果更好
+```
+
 ## 执行流程
 
 ### 步骤 1：解析 Markdown
@@ -171,6 +197,7 @@ CLI 输出到 stdout 一行 JSON：`{"path": "...", "duration_ms": N}`
 
 | 场景 | 处理 |
 |------|------|
+| 参考音频不存在 | 停止执行，提示用户将音频放到 `assets/ref-voice/` 并配置 `ref_audio` |
 | TTS CLI 返回非零 exit code | 报告错误详情（stderr），停止当前场景，询问用户是否跳过 |
 | 空文本 `>` 行 | 跳过 TTS 调用，生成 0 字节音频，`duration_ms` = 0 |
 | 超长文本 | CLI 会报错退出，提示用户拆句 |
@@ -194,7 +221,8 @@ CLI 输出到 stdout 一行 JSON：`{"path": "...", "duration_ms": N}`
 |------|-----|
 | 输入 | `markdown-scriptwriter` 输出的标准 Markdown |
 | 输出 | `output/audio/scene-NN/NNN.wav` + `output/tts-manifest.json` |
-| CLI | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --text TEXT --output PATH` |
+| CLI 合成 | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --text TEXT --output PATH` |
+| CLI 验证 | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --demo` |
 | 配置 | `tts-voiceover/config/tts-providers.yaml` |
 | 契约 | `tts-manifest.json` — 下游唯一消费格式 |
 | 下游 | `subtitle-timeline` skill |
@@ -203,6 +231,7 @@ CLI 输出到 stdout 一行 JSON：`{"path": "...", "duration_ms": N}`
 
 | 错误 | 正确做法 |
 |------|----------|
+| 跳过参考音频检查直接调 TTS | 必须先确认 `assets/ref-voice/speaker.wav` 存在，否则停下来提示用户 |
 | 一次性把整个场景文本送 TTS | 逐行 `>` 字幕单独调用，确保句级时长精确 |
 | 手动计算或估算 `duration_ms` | 必须从 TTS CLI 的 stdout JSON 中读取真实时长 |
 | 忘记填 `html_path` | manifest 必须包含 HTML 文件路径，否则 `subtitle-timeline` 无法定位 |

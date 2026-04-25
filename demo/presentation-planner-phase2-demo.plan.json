@@ -1,0 +1,3432 @@
+{
+  "meta": {
+    "title": "Presentation Planner 阶段 2 能力演示",
+    "author": "markdown-to-html / phase 2 demo",
+    "topic": "presentation planner / layout intent / fallback",
+    "style": "产品演示",
+    "target_audience": "正在迭代 Markdown -> HTML 编排链路的开发者",
+    "estimated_duration": 5,
+    "scenes_count": 5
+  },
+  "globalTimelineDefaults": {
+    "autoPlay": true,
+    "transitionDuration": 800
+  },
+  "resources": {
+    "assetSlots": []
+  },
+  "scenePlans": [
+    {
+      "planId": "scene-1-overview",
+      "baseSceneId": 1,
+      "baseSceneTitle": "时间线场景现在会先总览，再展开关键阶段",
+      "mode": "overview",
+      "contentType": "timeline",
+      "derivedFrom": null,
+      "focusTarget": null,
+      "layoutIntent": "timeline-overview-focus",
+      "fallbackKind": null,
+      "fallbackReason": null,
+      "subtitleSlice": {
+        "start": 0,
+        "end": 4,
+        "lines": [
+          "先看这条时间线的三段主链路：输入整理、规划判断、页面分发。",
+          "首先输入整理负责把场景结构和页面配置都读出来，给后面的 planner 打基础。",
+          "接下来我们单独展开“规划判断”这一段，看它内部的 signals 和 strategy 是怎么工作的。"
+        ]
+      },
+      "steps": [
+        {
+          "enterAt": 1380,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "输入整理 建立场景、元素、字幕三层基础",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 1500,
+          "duration": 980,
+          "actionType": "highlight",
+          "target": {
+            "focusId": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "输入整理 建立场景、元素、字幕三层基础",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        },
+        {
+          "enterAt": 2560,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "规划判断 根据字幕与结构信号决定策略",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 1
+            }
+          }
+        },
+        {
+          "enterAt": 2680,
+          "duration": 980,
+          "actionType": "focus-item",
+          "target": {
+            "focusId": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "规划判断 根据字幕与结构信号决定策略",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 1
+            },
+            "resetGroup": false
+          }
+        },
+        {
+          "enterAt": 3740,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "timeline-7-页面分发-根据-layoutintent-走不同页面变体",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "页面分发 根据 layoutIntent 走不同页面变体",
+            "subtitleIndexRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        },
+        {
+          "enterAt": 3860,
+          "duration": 980,
+          "actionType": "focus-item",
+          "target": {
+            "focusId": "timeline-7-页面分发-根据-layoutintent-走不同页面变体",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "页面分发 根据 layoutIntent 走不同页面变体",
+            "subtitleIndexRange": {
+              "start": 2,
+              "end": 2
+            },
+            "resetGroup": false
+          }
+        }
+      ],
+      "assetSlots": [],
+      "pageOrder": 1,
+      "pageDuration": 12820,
+      "pageConfig": {
+        "sceneRole": "explanation",
+        "sceneVariant": "timeline-track",
+        "titleSize": "md",
+        "titleMaxWidth": "14ch",
+        "bodyColumns": 2,
+        "subtitlePlacement": "right-rail",
+        "headlineLayout": "hero-stack"
+      },
+      "sourceScene": {
+        "visual": "左侧是解说文案区，右侧是一条从上到下推进的阶段时间线。前三个顶层阶段依次点亮，随后“规划判断”被单独拉出，展示其子层级。",
+        "pageConfig": {
+          "sceneRole": "cover",
+          "sceneVariant": "cover-immersive",
+          "titleSize": "xl",
+          "titleMaxWidth": "12ch",
+          "bodyColumns": 1,
+          "subtitlePlacement": "bottom-band",
+          "headlineLayout": "hero-stack"
+        },
+        "layoutHints": {
+          "primaryElementType": "timeline",
+          "elementTypes": [
+            "timeline"
+          ],
+          "subtitleCount": 5,
+          "elementCount": 1,
+          "density": "high",
+          "titleLength": 19,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "timeline",
+            "items": [
+              {
+                "step": "输入整理 建立场景、元素、字幕三层基础",
+                "status": "ok",
+                "indent": 0
+              },
+              {
+                "step": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "规划判断 根据字幕与结构信号决定策略",
+                "status": "ok",
+                "indent": 0
+              },
+              {
+                "step": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "页面分发 根据 layoutIntent 走不同页面变体",
+                "status": "ok",
+                "indent": 0
+              },
+              {
+                "step": "overview 页面 保留全局视图并做 in-page focus",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "detail 页面 把关键阶段单独拆出来讲",
+                "status": "ok",
+                "indent": 2
+              }
+            ]
+          }
+        ]
+      },
+      "renderData": {
+        "structureSummary": {
+          "items": [
+            {
+              "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+              "label": "输入整理 建立场景、元素、字幕三层基础",
+              "status": "ok",
+              "level": 0
+            },
+            {
+              "id": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+              "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+              "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+              "label": "规划判断 根据字幕与结构信号决定策略",
+              "status": "ok",
+              "level": 0
+            },
+            {
+              "id": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+              "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+              "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-7-页面分发-根据-layoutintent-走不同页面变体",
+              "label": "页面分发 根据 layoutIntent 走不同页面变体",
+              "status": "ok",
+              "level": 0
+            },
+            {
+              "id": "timeline-8-overview-页面-保留全局视图并做-in-page-focus",
+              "label": "overview 页面 保留全局视图并做 in-page focus",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-9-detail-页面-把关键阶段单独拆出来讲",
+              "label": "detail 页面 把关键阶段单独拆出来讲",
+              "status": "ok",
+              "level": 1
+            }
+          ],
+          "groups": [
+            {
+              "item": {
+                "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+                "label": "输入整理 建立场景、元素、字幕三层基础",
+                "status": "ok",
+                "level": 0
+              },
+              "children": [
+                {
+                  "id": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+                  "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+                  "status": "ok",
+                  "level": 1
+                },
+                {
+                  "id": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+                  "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+                  "status": "ok",
+                  "level": 1
+                }
+              ]
+            },
+            {
+              "item": {
+                "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+                "label": "规划判断 根据字幕与结构信号决定策略",
+                "status": "ok",
+                "level": 0
+              },
+              "children": [
+                {
+                  "id": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+                  "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+                  "status": "ok",
+                  "level": 1
+                },
+                {
+                  "id": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+                  "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+                  "status": "ok",
+                  "level": 1
+                }
+              ]
+            },
+            {
+              "item": {
+                "id": "timeline-7-页面分发-根据-layoutintent-走不同页面变体",
+                "label": "页面分发 根据 layoutIntent 走不同页面变体",
+                "status": "ok",
+                "level": 0
+              },
+              "children": [
+                {
+                  "id": "timeline-8-overview-页面-保留全局视图并做-in-page-focus",
+                  "label": "overview 页面 保留全局视图并做 in-page focus",
+                  "status": "ok",
+                  "level": 1
+                },
+                {
+                  "id": "timeline-9-detail-页面-把关键阶段单独拆出来讲",
+                  "label": "detail 页面 把关键阶段单独拆出来讲",
+                  "status": "ok",
+                  "level": 1
+                }
+              ]
+            }
+          ],
+          "maxLevel": 1,
+          "itemCount": 9
+        },
+        "planningSignals": {
+          "contentType": "timeline",
+          "structureComplexity": 0.9444444444444443,
+          "subtitleGuidanceStrength": 0.6,
+          "matchedLineCount": 3,
+          "hasClearSequence": true,
+          "hasSummaryLead": true,
+          "lineInfos": [
+            {
+              "index": 0,
+              "line": "先看这条时间线的三段主链路：输入整理、规划判断、页面分发。",
+              "normalized": "先看这条时间线的三段主链路：输入整理、规划判断、页面分发。",
+              "hasSummaryHint": true,
+              "hasSequenceHint": false,
+              "textLength": 29
+            },
+            {
+              "index": 1,
+              "line": "首先输入整理负责把场景结构和页面配置都读出来，给后面的 planner 打基础。",
+              "normalized": "首先输入整理负责把场景结构和页面配置都读出来，给后面的 planner 打基础。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 40
+            },
+            {
+              "index": 2,
+              "line": "然后规划判断会综合 complexity、字幕 guidance 和 detail worthiness，决定当前场景到底要不要拆页。",
+              "normalized": "然后规划判断会综合 complexity、字幕 guidance 和 detail worthiness，决定当前场景到底要不要拆页。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 67
+            },
+            {
+              "index": 3,
+              "line": "最后页面分发阶段根据 layoutIntent 选择 overview、detail 或 fallback 的具体变体。",
+              "normalized": "最后页面分发阶段根据 layoutIntent 选择 overview、detail 或 fallback 的具体变体。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 60
+            },
+            {
+              "index": 4,
+              "line": "接下来我们单独展开“规划判断”这一段，看它内部的 signals 和 strategy 是怎么工作的。",
+              "normalized": "接下来我们单独展开规划判断这一段，看它内部的 signals 和 strategy 是怎么工作的。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 49
+            }
+          ],
+          "singlePagePressure": "high",
+          "detailWorthiness": 0.9081481481481481,
+          "fallbackConfidence": 0.17851851851851863
+        },
+        "planningDecision": {
+          "overviewOnlyCandidate": false,
+          "focusCandidate": true,
+          "detailCandidate": true,
+          "shouldFocus": true,
+          "shouldDetail": true,
+          "strategy": "overview+focus+detail",
+          "detailCount": 2
+        },
+        "planningExplanation": [
+          "字幕开头存在总述导语",
+          "字幕存在明显顺序推进",
+          "timeline 结构复杂度较高",
+          "单页承载压力较大，值得拆 detail",
+          "字幕和结构项存在较强对应关系"
+        ],
+        "items": [
+          {
+            "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+            "label": "输入整理 建立场景、元素、字幕三层基础",
+            "status": "ok",
+            "level": 0
+          },
+          {
+            "id": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+            "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+            "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+            "label": "规划判断 根据字幕与结构信号决定策略",
+            "status": "ok",
+            "level": 0
+          },
+          {
+            "id": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+            "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+            "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-7-页面分发-根据-layoutintent-走不同页面变体",
+            "label": "页面分发 根据 layoutIntent 走不同页面变体",
+            "status": "ok",
+            "level": 0
+          },
+          {
+            "id": "timeline-8-overview-页面-保留全局视图并做-in-page-focus",
+            "label": "overview 页面 保留全局视图并做 in-page focus",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-9-detail-页面-把关键阶段单独拆出来讲",
+            "label": "detail 页面 把关键阶段单独拆出来讲",
+            "status": "ok",
+            "level": 1
+          }
+        ],
+        "focusItems": [
+          {
+            "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+            "label": "输入整理 建立场景、元素、字幕三层基础",
+            "status": "ok",
+            "level": 0
+          },
+          {
+            "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+            "label": "规划判断 根据字幕与结构信号决定策略",
+            "status": "ok",
+            "level": 0
+          },
+          {
+            "id": "timeline-7-页面分发-根据-layoutintent-走不同页面变体",
+            "label": "页面分发 根据 layoutIntent 走不同页面变体",
+            "status": "ok",
+            "level": 0
+          }
+        ],
+        "description": "阶段 9 个，层级深度 2 层。",
+        "title": "时间线场景现在会先总览，再展开关键阶段",
+        "visual": "左侧是解说文案区，右侧是一条从上到下推进的阶段时间线。前三个顶层阶段依次点亮，随后“规划判断”被单独拉出，展示其子层级。",
+        "subtitles": [
+          "先看这条时间线的三段主链路：输入整理、规划判断、页面分发。",
+          "首先输入整理负责把场景结构和页面配置都读出来，给后面的 planner 打基础。",
+          "接下来我们单独展开“规划判断”这一段，看它内部的 signals 和 strategy 是怎么工作的。"
+        ],
+        "fallbackKind": null,
+        "fallbackReason": null
+      }
+    },
+    {
+      "planId": "scene-1-detail-1",
+      "baseSceneId": 1,
+      "baseSceneTitle": "时间线场景现在会先总览，再展开关键阶段",
+      "mode": "detail",
+      "contentType": "timeline",
+      "derivedFrom": "scene-1-overview",
+      "focusTarget": {
+        "type": "timeline-stage",
+        "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+        "label": "输入整理 建立场景、元素、字幕三层基础"
+      },
+      "layoutIntent": "timeline-detail-stage",
+      "fallbackKind": null,
+      "fallbackReason": null,
+      "subtitleSlice": {
+        "start": 2,
+        "end": 2,
+        "lines": [
+          "然后规划判断会综合 complexity、字幕 guidance 和 detail worthiness，决定当前场景到底要不要拆页。"
+        ]
+      },
+      "steps": [
+        {
+          "enterAt": 1380,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "输入整理 建立场景、元素、字幕三层基础",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 1500,
+          "duration": 980,
+          "actionType": "highlight",
+          "target": {
+            "focusId": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "输入整理 建立场景、元素、字幕三层基础",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        },
+        {
+          "enterAt": 2560,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 2680,
+          "duration": 980,
+          "actionType": "focus-item",
+          "target": {
+            "focusId": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        },
+        {
+          "enterAt": 3740,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 3860,
+          "duration": 980,
+          "actionType": "focus-item",
+          "target": {
+            "focusId": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        }
+      ],
+      "assetSlots": [],
+      "pageOrder": 2,
+      "pageDuration": 10820,
+      "pageConfig": {
+        "sceneRole": "explanation",
+        "sceneVariant": "timeline-stage-focus",
+        "titleSize": "lg",
+        "titleMaxWidth": "14ch",
+        "bodyColumns": 3,
+        "subtitlePlacement": "bottom-band",
+        "headlineLayout": "stacked"
+      },
+      "sourceScene": {
+        "visual": "左侧是解说文案区，右侧是一条从上到下推进的阶段时间线。前三个顶层阶段依次点亮，随后“规划判断”被单独拉出，展示其子层级。",
+        "pageConfig": {
+          "sceneRole": "cover",
+          "sceneVariant": "cover-immersive",
+          "titleSize": "xl",
+          "titleMaxWidth": "12ch",
+          "bodyColumns": 1,
+          "subtitlePlacement": "bottom-band",
+          "headlineLayout": "hero-stack"
+        },
+        "layoutHints": {
+          "primaryElementType": "timeline",
+          "elementTypes": [
+            "timeline"
+          ],
+          "subtitleCount": 5,
+          "elementCount": 1,
+          "density": "high",
+          "titleLength": 19,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "timeline",
+            "items": [
+              {
+                "step": "输入整理 建立场景、元素、字幕三层基础",
+                "status": "ok",
+                "indent": 0
+              },
+              {
+                "step": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "规划判断 根据字幕与结构信号决定策略",
+                "status": "ok",
+                "indent": 0
+              },
+              {
+                "step": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "页面分发 根据 layoutIntent 走不同页面变体",
+                "status": "ok",
+                "indent": 0
+              },
+              {
+                "step": "overview 页面 保留全局视图并做 in-page focus",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "detail 页面 把关键阶段单独拆出来讲",
+                "status": "ok",
+                "indent": 2
+              }
+            ]
+          }
+        ]
+      },
+      "renderData": {
+        "structureSummary": {
+          "items": [
+            {
+              "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+              "label": "输入整理 建立场景、元素、字幕三层基础",
+              "status": "ok",
+              "level": 0
+            },
+            {
+              "id": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+              "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+              "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+              "label": "规划判断 根据字幕与结构信号决定策略",
+              "status": "ok",
+              "level": 0
+            },
+            {
+              "id": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+              "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+              "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-7-页面分发-根据-layoutintent-走不同页面变体",
+              "label": "页面分发 根据 layoutIntent 走不同页面变体",
+              "status": "ok",
+              "level": 0
+            },
+            {
+              "id": "timeline-8-overview-页面-保留全局视图并做-in-page-focus",
+              "label": "overview 页面 保留全局视图并做 in-page focus",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-9-detail-页面-把关键阶段单独拆出来讲",
+              "label": "detail 页面 把关键阶段单独拆出来讲",
+              "status": "ok",
+              "level": 1
+            }
+          ],
+          "groups": [
+            {
+              "item": {
+                "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+                "label": "输入整理 建立场景、元素、字幕三层基础",
+                "status": "ok",
+                "level": 0
+              },
+              "children": [
+                {
+                  "id": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+                  "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+                  "status": "ok",
+                  "level": 1
+                },
+                {
+                  "id": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+                  "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+                  "status": "ok",
+                  "level": 1
+                }
+              ]
+            },
+            {
+              "item": {
+                "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+                "label": "规划判断 根据字幕与结构信号决定策略",
+                "status": "ok",
+                "level": 0
+              },
+              "children": [
+                {
+                  "id": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+                  "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+                  "status": "ok",
+                  "level": 1
+                },
+                {
+                  "id": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+                  "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+                  "status": "ok",
+                  "level": 1
+                }
+              ]
+            },
+            {
+              "item": {
+                "id": "timeline-7-页面分发-根据-layoutintent-走不同页面变体",
+                "label": "页面分发 根据 layoutIntent 走不同页面变体",
+                "status": "ok",
+                "level": 0
+              },
+              "children": [
+                {
+                  "id": "timeline-8-overview-页面-保留全局视图并做-in-page-focus",
+                  "label": "overview 页面 保留全局视图并做 in-page focus",
+                  "status": "ok",
+                  "level": 1
+                },
+                {
+                  "id": "timeline-9-detail-页面-把关键阶段单独拆出来讲",
+                  "label": "detail 页面 把关键阶段单独拆出来讲",
+                  "status": "ok",
+                  "level": 1
+                }
+              ]
+            }
+          ],
+          "maxLevel": 1,
+          "itemCount": 9
+        },
+        "planningSignals": {
+          "contentType": "timeline",
+          "structureComplexity": 0.9444444444444443,
+          "subtitleGuidanceStrength": 0.6,
+          "matchedLineCount": 3,
+          "hasClearSequence": true,
+          "hasSummaryLead": true,
+          "lineInfos": [
+            {
+              "index": 0,
+              "line": "先看这条时间线的三段主链路：输入整理、规划判断、页面分发。",
+              "normalized": "先看这条时间线的三段主链路：输入整理、规划判断、页面分发。",
+              "hasSummaryHint": true,
+              "hasSequenceHint": false,
+              "textLength": 29
+            },
+            {
+              "index": 1,
+              "line": "首先输入整理负责把场景结构和页面配置都读出来，给后面的 planner 打基础。",
+              "normalized": "首先输入整理负责把场景结构和页面配置都读出来，给后面的 planner 打基础。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 40
+            },
+            {
+              "index": 2,
+              "line": "然后规划判断会综合 complexity、字幕 guidance 和 detail worthiness，决定当前场景到底要不要拆页。",
+              "normalized": "然后规划判断会综合 complexity、字幕 guidance 和 detail worthiness，决定当前场景到底要不要拆页。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 67
+            },
+            {
+              "index": 3,
+              "line": "最后页面分发阶段根据 layoutIntent 选择 overview、detail 或 fallback 的具体变体。",
+              "normalized": "最后页面分发阶段根据 layoutIntent 选择 overview、detail 或 fallback 的具体变体。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 60
+            },
+            {
+              "index": 4,
+              "line": "接下来我们单独展开“规划判断”这一段，看它内部的 signals 和 strategy 是怎么工作的。",
+              "normalized": "接下来我们单独展开规划判断这一段，看它内部的 signals 和 strategy 是怎么工作的。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 49
+            }
+          ],
+          "singlePagePressure": "high",
+          "detailWorthiness": 0.9081481481481481,
+          "fallbackConfidence": 0.17851851851851863
+        },
+        "planningDecision": {
+          "overviewOnlyCandidate": false,
+          "focusCandidate": true,
+          "detailCandidate": true,
+          "shouldFocus": true,
+          "shouldDetail": true,
+          "strategy": "overview+focus+detail",
+          "detailCount": 2
+        },
+        "planningExplanation": [
+          "字幕开头存在总述导语",
+          "字幕存在明显顺序推进",
+          "timeline 结构复杂度较高",
+          "单页承载压力较大，值得拆 detail",
+          "字幕和结构项存在较强对应关系"
+        ],
+        "items": [
+          {
+            "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+            "label": "输入整理 建立场景、元素、字幕三层基础",
+            "status": "ok",
+            "level": 0
+          },
+          {
+            "id": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+            "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+            "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+            "status": "ok",
+            "level": 1
+          }
+        ],
+        "focusItems": [
+          {
+            "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+            "label": "输入整理 建立场景、元素、字幕三层基础",
+            "status": "ok",
+            "level": 0
+          },
+          {
+            "id": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+            "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+            "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+            "status": "ok",
+            "level": 1
+          }
+        ],
+        "primaryItem": {
+          "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+          "label": "输入整理 建立场景、元素、字幕三层基础",
+          "status": "ok",
+          "level": 0
+        },
+        "contextItems": [
+          {
+            "id": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+            "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+            "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+            "status": "ok",
+            "level": 1
+          }
+        ],
+        "description": "把某个阶段及其子层级拆出来单独讲解。",
+        "title": "时间线场景现在会先总览，再展开关键阶段 · 展开 输入整理 建立场景、元素、字幕三层基础",
+        "visual": "左侧是解说文案区，右侧是一条从上到下推进的阶段时间线。前三个顶层阶段依次点亮，随后“规划判断”被单独拉出，展示其子层级。",
+        "subtitles": [
+          "然后规划判断会综合 complexity、字幕 guidance 和 detail worthiness，决定当前场景到底要不要拆页。"
+        ],
+        "fallbackKind": null,
+        "fallbackReason": null
+      }
+    },
+    {
+      "planId": "scene-1-detail-2",
+      "baseSceneId": 1,
+      "baseSceneTitle": "时间线场景现在会先总览，再展开关键阶段",
+      "mode": "detail",
+      "contentType": "timeline",
+      "derivedFrom": "scene-1-overview",
+      "focusTarget": {
+        "type": "timeline-stage",
+        "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+        "label": "规划判断 根据字幕与结构信号决定策略"
+      },
+      "layoutIntent": "timeline-detail-stage",
+      "fallbackKind": null,
+      "fallbackReason": null,
+      "subtitleSlice": {
+        "start": 3,
+        "end": 3,
+        "lines": [
+          "最后页面分发阶段根据 layoutIntent 选择 overview、detail 或 fallback 的具体变体。"
+        ]
+      },
+      "steps": [
+        {
+          "enterAt": 1380,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "规划判断 根据字幕与结构信号决定策略",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 1500,
+          "duration": 980,
+          "actionType": "highlight",
+          "target": {
+            "focusId": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "规划判断 根据字幕与结构信号决定策略",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        },
+        {
+          "enterAt": 2560,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 2680,
+          "duration": 980,
+          "actionType": "focus-item",
+          "target": {
+            "focusId": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        },
+        {
+          "enterAt": 3740,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 3860,
+          "duration": 980,
+          "actionType": "focus-item",
+          "target": {
+            "focusId": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        }
+      ],
+      "assetSlots": [],
+      "pageOrder": 3,
+      "pageDuration": 10820,
+      "pageConfig": {
+        "sceneRole": "explanation",
+        "sceneVariant": "timeline-stage-focus",
+        "titleSize": "lg",
+        "titleMaxWidth": "14ch",
+        "bodyColumns": 3,
+        "subtitlePlacement": "bottom-band",
+        "headlineLayout": "stacked"
+      },
+      "sourceScene": {
+        "visual": "左侧是解说文案区，右侧是一条从上到下推进的阶段时间线。前三个顶层阶段依次点亮，随后“规划判断”被单独拉出，展示其子层级。",
+        "pageConfig": {
+          "sceneRole": "cover",
+          "sceneVariant": "cover-immersive",
+          "titleSize": "xl",
+          "titleMaxWidth": "12ch",
+          "bodyColumns": 1,
+          "subtitlePlacement": "bottom-band",
+          "headlineLayout": "hero-stack"
+        },
+        "layoutHints": {
+          "primaryElementType": "timeline",
+          "elementTypes": [
+            "timeline"
+          ],
+          "subtitleCount": 5,
+          "elementCount": 1,
+          "density": "high",
+          "titleLength": 19,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "timeline",
+            "items": [
+              {
+                "step": "输入整理 建立场景、元素、字幕三层基础",
+                "status": "ok",
+                "indent": 0
+              },
+              {
+                "step": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "规划判断 根据字幕与结构信号决定策略",
+                "status": "ok",
+                "indent": 0
+              },
+              {
+                "step": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "页面分发 根据 layoutIntent 走不同页面变体",
+                "status": "ok",
+                "indent": 0
+              },
+              {
+                "step": "overview 页面 保留全局视图并做 in-page focus",
+                "status": "ok",
+                "indent": 2
+              },
+              {
+                "step": "detail 页面 把关键阶段单独拆出来讲",
+                "status": "ok",
+                "indent": 2
+              }
+            ]
+          }
+        ]
+      },
+      "renderData": {
+        "structureSummary": {
+          "items": [
+            {
+              "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+              "label": "输入整理 建立场景、元素、字幕三层基础",
+              "status": "ok",
+              "level": 0
+            },
+            {
+              "id": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+              "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+              "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+              "label": "规划判断 根据字幕与结构信号决定策略",
+              "status": "ok",
+              "level": 0
+            },
+            {
+              "id": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+              "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+              "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-7-页面分发-根据-layoutintent-走不同页面变体",
+              "label": "页面分发 根据 layoutIntent 走不同页面变体",
+              "status": "ok",
+              "level": 0
+            },
+            {
+              "id": "timeline-8-overview-页面-保留全局视图并做-in-page-focus",
+              "label": "overview 页面 保留全局视图并做 in-page focus",
+              "status": "ok",
+              "level": 1
+            },
+            {
+              "id": "timeline-9-detail-页面-把关键阶段单独拆出来讲",
+              "label": "detail 页面 把关键阶段单独拆出来讲",
+              "status": "ok",
+              "level": 1
+            }
+          ],
+          "groups": [
+            {
+              "item": {
+                "id": "timeline-1-输入整理-建立场景-元素-字幕三层基础",
+                "label": "输入整理 建立场景、元素、字幕三层基础",
+                "status": "ok",
+                "level": 0
+              },
+              "children": [
+                {
+                  "id": "timeline-2-识别页面配置-保留-scenerole-titlesize-subtitleplacement",
+                  "label": "识别页面配置 保留 sceneRole、titleSize、subtitlePlacement",
+                  "status": "ok",
+                  "level": 1
+                },
+                {
+                  "id": "timeline-3-识别结构元素-抽出-timeline-flowchart-keypoints-等类型",
+                  "label": "识别结构元素 抽出 timeline、flowchart、keypoints 等类型",
+                  "status": "ok",
+                  "level": 1
+                }
+              ]
+            },
+            {
+              "item": {
+                "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+                "label": "规划判断 根据字幕与结构信号决定策略",
+                "status": "ok",
+                "level": 0
+              },
+              "children": [
+                {
+                  "id": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+                  "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+                  "status": "ok",
+                  "level": 1
+                },
+                {
+                  "id": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+                  "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+                  "status": "ok",
+                  "level": 1
+                }
+              ]
+            },
+            {
+              "item": {
+                "id": "timeline-7-页面分发-根据-layoutintent-走不同页面变体",
+                "label": "页面分发 根据 layoutIntent 走不同页面变体",
+                "status": "ok",
+                "level": 0
+              },
+              "children": [
+                {
+                  "id": "timeline-8-overview-页面-保留全局视图并做-in-page-focus",
+                  "label": "overview 页面 保留全局视图并做 in-page focus",
+                  "status": "ok",
+                  "level": 1
+                },
+                {
+                  "id": "timeline-9-detail-页面-把关键阶段单独拆出来讲",
+                  "label": "detail 页面 把关键阶段单独拆出来讲",
+                  "status": "ok",
+                  "level": 1
+                }
+              ]
+            }
+          ],
+          "maxLevel": 1,
+          "itemCount": 9
+        },
+        "planningSignals": {
+          "contentType": "timeline",
+          "structureComplexity": 0.9444444444444443,
+          "subtitleGuidanceStrength": 0.6,
+          "matchedLineCount": 3,
+          "hasClearSequence": true,
+          "hasSummaryLead": true,
+          "lineInfos": [
+            {
+              "index": 0,
+              "line": "先看这条时间线的三段主链路：输入整理、规划判断、页面分发。",
+              "normalized": "先看这条时间线的三段主链路：输入整理、规划判断、页面分发。",
+              "hasSummaryHint": true,
+              "hasSequenceHint": false,
+              "textLength": 29
+            },
+            {
+              "index": 1,
+              "line": "首先输入整理负责把场景结构和页面配置都读出来，给后面的 planner 打基础。",
+              "normalized": "首先输入整理负责把场景结构和页面配置都读出来，给后面的 planner 打基础。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 40
+            },
+            {
+              "index": 2,
+              "line": "然后规划判断会综合 complexity、字幕 guidance 和 detail worthiness，决定当前场景到底要不要拆页。",
+              "normalized": "然后规划判断会综合 complexity、字幕 guidance 和 detail worthiness，决定当前场景到底要不要拆页。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 67
+            },
+            {
+              "index": 3,
+              "line": "最后页面分发阶段根据 layoutIntent 选择 overview、detail 或 fallback 的具体变体。",
+              "normalized": "最后页面分发阶段根据 layoutIntent 选择 overview、detail 或 fallback 的具体变体。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 60
+            },
+            {
+              "index": 4,
+              "line": "接下来我们单独展开“规划判断”这一段，看它内部的 signals 和 strategy 是怎么工作的。",
+              "normalized": "接下来我们单独展开规划判断这一段，看它内部的 signals 和 strategy 是怎么工作的。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 49
+            }
+          ],
+          "singlePagePressure": "high",
+          "detailWorthiness": 0.9081481481481481,
+          "fallbackConfidence": 0.17851851851851863
+        },
+        "planningDecision": {
+          "overviewOnlyCandidate": false,
+          "focusCandidate": true,
+          "detailCandidate": true,
+          "shouldFocus": true,
+          "shouldDetail": true,
+          "strategy": "overview+focus+detail",
+          "detailCount": 2
+        },
+        "planningExplanation": [
+          "字幕开头存在总述导语",
+          "字幕存在明显顺序推进",
+          "timeline 结构复杂度较高",
+          "单页承载压力较大，值得拆 detail",
+          "字幕和结构项存在较强对应关系"
+        ],
+        "items": [
+          {
+            "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+            "label": "规划判断 根据字幕与结构信号决定策略",
+            "status": "ok",
+            "level": 0
+          },
+          {
+            "id": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+            "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+            "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+            "status": "ok",
+            "level": 1
+          }
+        ],
+        "focusItems": [
+          {
+            "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+            "label": "规划判断 根据字幕与结构信号决定策略",
+            "status": "ok",
+            "level": 0
+          },
+          {
+            "id": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+            "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+            "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+            "status": "ok",
+            "level": 1
+          }
+        ],
+        "primaryItem": {
+          "id": "timeline-4-规划判断-根据字幕与结构信号决定策略",
+          "label": "规划判断 根据字幕与结构信号决定策略",
+          "status": "ok",
+          "level": 0
+        },
+        "contextItems": [
+          {
+            "id": "timeline-5-计算-signals-评估-complexity-subtitle-guidance-detail-worthiness",
+            "label": "计算 signals 评估 complexity、subtitle guidance、detail worthiness",
+            "status": "ok",
+            "level": 1
+          },
+          {
+            "id": "timeline-6-推导-strategy-判断-overview-only-overview-focus-overview-detail",
+            "label": "推导 strategy 判断 overview-only / overview+focus / overview+detail",
+            "status": "ok",
+            "level": 1
+          }
+        ],
+        "description": "把某个阶段及其子层级拆出来单独讲解。",
+        "title": "时间线场景现在会先总览，再展开关键阶段 · 展开 规划判断 根据字幕与结构信号决定策略",
+        "visual": "左侧是解说文案区，右侧是一条从上到下推进的阶段时间线。前三个顶层阶段依次点亮，随后“规划判断”被单独拉出，展示其子层级。",
+        "subtitles": [
+          "最后页面分发阶段根据 layoutIntent 选择 overview、detail 或 fallback 的具体变体。"
+        ],
+        "fallbackKind": null,
+        "fallbackReason": null
+      }
+    },
+    {
+      "planId": "scene-2-overview",
+      "baseSceneId": 2,
+      "baseSceneTitle": "流程图场景会把总述字幕和 detail 字幕拆开",
+      "mode": "overview",
+      "contentType": "flowchart",
+      "derivedFrom": null,
+      "focusTarget": null,
+      "layoutIntent": "flow-overview-focus",
+      "fallbackKind": null,
+      "fallbackReason": null,
+      "subtitleSlice": {
+        "start": 0,
+        "end": 4,
+        "lines": [
+          "这张流程图先交代主链路：Markdown 输入，先被解析成结构化 scene，再进入规划 signals 层。",
+          "规划 signals 不是单一阈值，而是把结构复杂度、字幕 guidance 和单页压力放到一起看。",
+          "如果语义匹配不够稳定，系统也会回退到更保守的字幕切片与普通场景策略。"
+        ]
+      },
+      "steps": [
+        {
+          "enterAt": 1380,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "flow-1-markdown-输入",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "Markdown 输入",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 1500,
+          "duration": 980,
+          "actionType": "highlight",
+          "target": {
+            "focusId": "flow-1-markdown-输入",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "Markdown 输入",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        },
+        {
+          "enterAt": 2560,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "flow-2-解析结构",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "解析结构",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 1
+            }
+          }
+        },
+        {
+          "enterAt": 2680,
+          "duration": 980,
+          "actionType": "focus-item",
+          "target": {
+            "focusId": "flow-2-解析结构",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "解析结构",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 1
+            },
+            "resetGroup": false
+          }
+        },
+        {
+          "enterAt": 3740,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "flow-3-规划-signals",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "规划 signals",
+            "subtitleIndexRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        },
+        {
+          "enterAt": 3860,
+          "duration": 980,
+          "actionType": "focus-item",
+          "target": {
+            "focusId": "flow-3-规划-signals",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "规划 signals",
+            "subtitleIndexRange": {
+              "start": 2,
+              "end": 2
+            },
+            "resetGroup": false
+          }
+        }
+      ],
+      "assetSlots": [],
+      "pageOrder": 4,
+      "pageDuration": 12820,
+      "pageConfig": {
+        "sceneRole": "explanation",
+        "sceneVariant": "process-diagram",
+        "titleSize": "md",
+        "titleMaxWidth": "14ch",
+        "bodyColumns": 2,
+        "subtitlePlacement": "right-rail",
+        "headlineLayout": "stacked"
+      },
+      "sourceScene": {
+        "visual": "整体是一张从左到右流动的流程图。主链路保持完整，支路节点用发光标记突出。第二页切到“规划 signals”节点，强调它与字幕切片、布局意图、fallback 回退的关系。",
+        "pageConfig": {
+          "sceneRole": "explanation",
+          "sceneVariant": "process-diagram",
+          "titleSize": "md",
+          "titleMaxWidth": "16ch",
+          "bodyColumns": 2,
+          "subtitlePlacement": "right-rail",
+          "headlineLayout": "stacked"
+        },
+        "layoutHints": {
+          "primaryElementType": "flowchart",
+          "elementTypes": [
+            "flowchart"
+          ],
+          "subtitleCount": 5,
+          "elementCount": 1,
+          "density": "medium",
+          "titleLength": 24,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "flowchart",
+            "content": "Markdown 输入 --> 解析结构 --> 规划 signals --> layoutIntent 分发 --> HTML 页面\n                               --> 字幕切片\n                               --> detail 决策\n                               --> fallback 分类"
+          }
+        ]
+      },
+      "renderData": {
+        "structureSummary": {
+          "nodes": [
+            {
+              "id": "flow-1-markdown-输入",
+              "label": "Markdown 输入"
+            },
+            {
+              "id": "flow-2-解析结构",
+              "label": "解析结构"
+            },
+            {
+              "id": "flow-3-规划-signals",
+              "label": "规划 signals"
+            },
+            {
+              "id": "flow-4-layoutintent-分发",
+              "label": "layoutIntent 分发"
+            },
+            {
+              "id": "flow-5-html-页面",
+              "label": "HTML 页面"
+            },
+            {
+              "id": "flow-6-字幕切片",
+              "label": "字幕切片"
+            },
+            {
+              "id": "flow-7-detail-决策",
+              "label": "detail 决策"
+            },
+            {
+              "id": "flow-8-fallback-分类",
+              "label": "fallback 分类"
+            }
+          ],
+          "lineCount": 4,
+          "branchCount": 3,
+          "nodeCount": 8
+        },
+        "planningSignals": {
+          "contentType": "flowchart",
+          "structureComplexity": 0.9365079365079364,
+          "subtitleGuidanceStrength": 1,
+          "matchedLineCount": 5,
+          "hasClearSequence": true,
+          "hasSummaryLead": false,
+          "lineInfos": [
+            {
+              "index": 0,
+              "line": "这张流程图先交代主链路：Markdown 输入，先被解析成结构化 scene，再进入规划 signals 层。",
+              "normalized": "这张流程图先交代主链路：Markdown 输入，先被解析成结构化 scene，再进入规划 signals 层。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 55
+            },
+            {
+              "index": 1,
+              "line": "规划 signals 不是单一阈值，而是把结构复杂度、字幕 guidance 和单页压力放到一起看。",
+              "normalized": "规划 signals 不是单一阈值，而是把结构复杂度、字幕 guidance 和单页压力放到一起看。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 50
+            },
+            {
+              "index": 2,
+              "line": "当 signals 判断当前页值得展开时，planner 会继续推导 detail 决策，而不是机械均分字幕。",
+              "normalized": "当 signals 判断当前页值得展开时，planner 会继续推导 detail 决策，而不是机械均分字幕。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 55
+            },
+            {
+              "index": 3,
+              "line": "同时 layoutIntent 会决定 renderer 最终走 flow overview、flow detail 还是 fallback 路径。",
+              "normalized": "同时 layoutIntent 会决定 renderer 最终走 flow overview、flow detail 还是 fallback 路径。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 74
+            },
+            {
+              "index": 4,
+              "line": "如果语义匹配不够稳定，系统也会回退到更保守的字幕切片与普通场景策略。",
+              "normalized": "如果语义匹配不够稳定，系统也会回退到更保守的字幕切片与普通场景策略。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 34
+            }
+          ],
+          "singlePagePressure": "high",
+          "detailWorthiness": 0.9788359788359787,
+          "fallbackConfidence": 0.04783068783068789
+        },
+        "planningDecision": {
+          "overviewOnlyCandidate": false,
+          "focusCandidate": true,
+          "detailCandidate": true,
+          "shouldFocus": true,
+          "shouldDetail": true,
+          "strategy": "overview+focus+detail",
+          "detailCount": 2
+        },
+        "planningExplanation": [
+          "字幕存在明显顺序推进",
+          "flowchart 结构复杂度较高",
+          "单页承载压力较大，值得拆 detail",
+          "字幕和结构项存在较强对应关系"
+        ],
+        "items": [
+          {
+            "id": "flow-1-markdown-输入",
+            "label": "Markdown 输入"
+          },
+          {
+            "id": "flow-2-解析结构",
+            "label": "解析结构"
+          },
+          {
+            "id": "flow-3-规划-signals",
+            "label": "规划 signals"
+          },
+          {
+            "id": "flow-4-layoutintent-分发",
+            "label": "layoutIntent 分发"
+          },
+          {
+            "id": "flow-5-html-页面",
+            "label": "HTML 页面"
+          },
+          {
+            "id": "flow-6-字幕切片",
+            "label": "字幕切片"
+          },
+          {
+            "id": "flow-7-detail-决策",
+            "label": "detail 决策"
+          },
+          {
+            "id": "flow-8-fallback-分类",
+            "label": "fallback 分类"
+          }
+        ],
+        "focusItems": [
+          {
+            "id": "flow-1-markdown-输入",
+            "label": "Markdown 输入"
+          },
+          {
+            "id": "flow-2-解析结构",
+            "label": "解析结构"
+          },
+          {
+            "id": "flow-3-规划-signals",
+            "label": "规划 signals"
+          }
+        ],
+        "description": "流程节点 8 个，分支 3 处。",
+        "title": "流程图场景会把总述字幕和 detail 字幕拆开",
+        "visual": "整体是一张从左到右流动的流程图。主链路保持完整，支路节点用发光标记突出。第二页切到“规划 signals”节点，强调它与字幕切片、布局意图、fallback 回退的关系。",
+        "subtitles": [
+          "这张流程图先交代主链路：Markdown 输入，先被解析成结构化 scene，再进入规划 signals 层。",
+          "规划 signals 不是单一阈值，而是把结构复杂度、字幕 guidance 和单页压力放到一起看。",
+          "如果语义匹配不够稳定，系统也会回退到更保守的字幕切片与普通场景策略。"
+        ],
+        "fallbackKind": null,
+        "fallbackReason": null
+      }
+    },
+    {
+      "planId": "scene-2-detail-1",
+      "baseSceneId": 2,
+      "baseSceneTitle": "流程图场景会把总述字幕和 detail 字幕拆开",
+      "mode": "detail",
+      "contentType": "flowchart",
+      "derivedFrom": "scene-2-overview",
+      "focusTarget": {
+        "type": "flow-node",
+        "id": "flow-2-解析结构",
+        "label": "解析结构"
+      },
+      "layoutIntent": "flow-detail-node",
+      "fallbackKind": null,
+      "fallbackReason": null,
+      "subtitleSlice": {
+        "start": 2,
+        "end": 2,
+        "lines": [
+          "当 signals 判断当前页值得展开时，planner 会继续推导 detail 决策，而不是机械均分字幕。"
+        ]
+      },
+      "steps": [
+        {
+          "enterAt": 1380,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "flow-2-解析结构",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "解析结构",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 1500,
+          "duration": 980,
+          "actionType": "highlight",
+          "target": {
+            "focusId": "flow-2-解析结构",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "解析结构",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        }
+      ],
+      "assetSlots": [],
+      "pageOrder": 5,
+      "pageDuration": 8540,
+      "pageConfig": {
+        "sceneRole": "explanation",
+        "sceneVariant": "process-node-focus",
+        "titleSize": "lg",
+        "titleMaxWidth": "14ch",
+        "bodyColumns": 3,
+        "subtitlePlacement": "bottom-band",
+        "headlineLayout": "stacked"
+      },
+      "sourceScene": {
+        "visual": "整体是一张从左到右流动的流程图。主链路保持完整，支路节点用发光标记突出。第二页切到“规划 signals”节点，强调它与字幕切片、布局意图、fallback 回退的关系。",
+        "pageConfig": {
+          "sceneRole": "explanation",
+          "sceneVariant": "process-diagram",
+          "titleSize": "md",
+          "titleMaxWidth": "16ch",
+          "bodyColumns": 2,
+          "subtitlePlacement": "right-rail",
+          "headlineLayout": "stacked"
+        },
+        "layoutHints": {
+          "primaryElementType": "flowchart",
+          "elementTypes": [
+            "flowchart"
+          ],
+          "subtitleCount": 5,
+          "elementCount": 1,
+          "density": "medium",
+          "titleLength": 24,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "flowchart",
+            "content": "Markdown 输入 --> 解析结构 --> 规划 signals --> layoutIntent 分发 --> HTML 页面\n                               --> 字幕切片\n                               --> detail 决策\n                               --> fallback 分类"
+          }
+        ]
+      },
+      "renderData": {
+        "structureSummary": {
+          "nodes": [
+            {
+              "id": "flow-1-markdown-输入",
+              "label": "Markdown 输入"
+            },
+            {
+              "id": "flow-2-解析结构",
+              "label": "解析结构"
+            },
+            {
+              "id": "flow-3-规划-signals",
+              "label": "规划 signals"
+            },
+            {
+              "id": "flow-4-layoutintent-分发",
+              "label": "layoutIntent 分发"
+            },
+            {
+              "id": "flow-5-html-页面",
+              "label": "HTML 页面"
+            },
+            {
+              "id": "flow-6-字幕切片",
+              "label": "字幕切片"
+            },
+            {
+              "id": "flow-7-detail-决策",
+              "label": "detail 决策"
+            },
+            {
+              "id": "flow-8-fallback-分类",
+              "label": "fallback 分类"
+            }
+          ],
+          "lineCount": 4,
+          "branchCount": 3,
+          "nodeCount": 8
+        },
+        "planningSignals": {
+          "contentType": "flowchart",
+          "structureComplexity": 0.9365079365079364,
+          "subtitleGuidanceStrength": 1,
+          "matchedLineCount": 5,
+          "hasClearSequence": true,
+          "hasSummaryLead": false,
+          "lineInfos": [
+            {
+              "index": 0,
+              "line": "这张流程图先交代主链路：Markdown 输入，先被解析成结构化 scene，再进入规划 signals 层。",
+              "normalized": "这张流程图先交代主链路：Markdown 输入，先被解析成结构化 scene，再进入规划 signals 层。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 55
+            },
+            {
+              "index": 1,
+              "line": "规划 signals 不是单一阈值，而是把结构复杂度、字幕 guidance 和单页压力放到一起看。",
+              "normalized": "规划 signals 不是单一阈值，而是把结构复杂度、字幕 guidance 和单页压力放到一起看。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 50
+            },
+            {
+              "index": 2,
+              "line": "当 signals 判断当前页值得展开时，planner 会继续推导 detail 决策，而不是机械均分字幕。",
+              "normalized": "当 signals 判断当前页值得展开时，planner 会继续推导 detail 决策，而不是机械均分字幕。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 55
+            },
+            {
+              "index": 3,
+              "line": "同时 layoutIntent 会决定 renderer 最终走 flow overview、flow detail 还是 fallback 路径。",
+              "normalized": "同时 layoutIntent 会决定 renderer 最终走 flow overview、flow detail 还是 fallback 路径。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 74
+            },
+            {
+              "index": 4,
+              "line": "如果语义匹配不够稳定，系统也会回退到更保守的字幕切片与普通场景策略。",
+              "normalized": "如果语义匹配不够稳定，系统也会回退到更保守的字幕切片与普通场景策略。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 34
+            }
+          ],
+          "singlePagePressure": "high",
+          "detailWorthiness": 0.9788359788359787,
+          "fallbackConfidence": 0.04783068783068789
+        },
+        "planningDecision": {
+          "overviewOnlyCandidate": false,
+          "focusCandidate": true,
+          "detailCandidate": true,
+          "shouldFocus": true,
+          "shouldDetail": true,
+          "strategy": "overview+focus+detail",
+          "detailCount": 2
+        },
+        "planningExplanation": [
+          "字幕存在明显顺序推进",
+          "flowchart 结构复杂度较高",
+          "单页承载压力较大，值得拆 detail",
+          "字幕和结构项存在较强对应关系"
+        ],
+        "items": [
+          {
+            "id": "flow-1-markdown-输入",
+            "label": "Markdown 输入"
+          },
+          {
+            "id": "flow-2-解析结构",
+            "label": "解析结构"
+          },
+          {
+            "id": "flow-3-规划-signals",
+            "label": "规划 signals"
+          },
+          {
+            "id": "flow-4-layoutintent-分发",
+            "label": "layoutIntent 分发"
+          },
+          {
+            "id": "flow-5-html-页面",
+            "label": "HTML 页面"
+          },
+          {
+            "id": "flow-6-字幕切片",
+            "label": "字幕切片"
+          },
+          {
+            "id": "flow-7-detail-决策",
+            "label": "detail 决策"
+          },
+          {
+            "id": "flow-8-fallback-分类",
+            "label": "fallback 分类"
+          }
+        ],
+        "focusItems": [
+          {
+            "id": "flow-2-解析结构",
+            "label": "解析结构"
+          }
+        ],
+        "primaryItem": {
+          "id": "flow-2-解析结构",
+          "label": "解析结构"
+        },
+        "contextItems": [
+          {
+            "id": "flow-1-markdown-输入",
+            "label": "Markdown 输入"
+          },
+          {
+            "id": "flow-3-规划-signals",
+            "label": "规划 signals"
+          },
+          {
+            "id": "flow-4-layoutintent-分发",
+            "label": "layoutIntent 分发"
+          },
+          {
+            "id": "flow-5-html-页面",
+            "label": "HTML 页面"
+          }
+        ],
+        "description": "单页重点拆解某个关键节点与其上下文关系。",
+        "title": "流程图场景会把总述字幕和 detail 字幕拆开 · 细讲 解析结构",
+        "visual": "整体是一张从左到右流动的流程图。主链路保持完整，支路节点用发光标记突出。第二页切到“规划 signals”节点，强调它与字幕切片、布局意图、fallback 回退的关系。",
+        "subtitles": [
+          "当 signals 判断当前页值得展开时，planner 会继续推导 detail 决策，而不是机械均分字幕。"
+        ],
+        "fallbackKind": null,
+        "fallbackReason": null
+      }
+    },
+    {
+      "planId": "scene-2-detail-2",
+      "baseSceneId": 2,
+      "baseSceneTitle": "流程图场景会把总述字幕和 detail 字幕拆开",
+      "mode": "detail",
+      "contentType": "flowchart",
+      "derivedFrom": "scene-2-overview",
+      "focusTarget": {
+        "type": "flow-node",
+        "id": "flow-3-规划-signals",
+        "label": "规划 signals"
+      },
+      "layoutIntent": "flow-detail-node",
+      "fallbackKind": null,
+      "fallbackReason": null,
+      "subtitleSlice": {
+        "start": 3,
+        "end": 3,
+        "lines": [
+          "同时 layoutIntent 会决定 renderer 最终走 flow overview、flow detail 还是 fallback 路径。"
+        ]
+      },
+      "steps": [
+        {
+          "enterAt": 1380,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "flow-3-规划-signals",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "规划 signals",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 1500,
+          "duration": 980,
+          "actionType": "highlight",
+          "target": {
+            "focusId": "flow-3-规划-signals",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "规划 signals",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        }
+      ],
+      "assetSlots": [],
+      "pageOrder": 6,
+      "pageDuration": 8540,
+      "pageConfig": {
+        "sceneRole": "explanation",
+        "sceneVariant": "process-node-focus",
+        "titleSize": "lg",
+        "titleMaxWidth": "14ch",
+        "bodyColumns": 3,
+        "subtitlePlacement": "bottom-band",
+        "headlineLayout": "stacked"
+      },
+      "sourceScene": {
+        "visual": "整体是一张从左到右流动的流程图。主链路保持完整，支路节点用发光标记突出。第二页切到“规划 signals”节点，强调它与字幕切片、布局意图、fallback 回退的关系。",
+        "pageConfig": {
+          "sceneRole": "explanation",
+          "sceneVariant": "process-diagram",
+          "titleSize": "md",
+          "titleMaxWidth": "16ch",
+          "bodyColumns": 2,
+          "subtitlePlacement": "right-rail",
+          "headlineLayout": "stacked"
+        },
+        "layoutHints": {
+          "primaryElementType": "flowchart",
+          "elementTypes": [
+            "flowchart"
+          ],
+          "subtitleCount": 5,
+          "elementCount": 1,
+          "density": "medium",
+          "titleLength": 24,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "flowchart",
+            "content": "Markdown 输入 --> 解析结构 --> 规划 signals --> layoutIntent 分发 --> HTML 页面\n                               --> 字幕切片\n                               --> detail 决策\n                               --> fallback 分类"
+          }
+        ]
+      },
+      "renderData": {
+        "structureSummary": {
+          "nodes": [
+            {
+              "id": "flow-1-markdown-输入",
+              "label": "Markdown 输入"
+            },
+            {
+              "id": "flow-2-解析结构",
+              "label": "解析结构"
+            },
+            {
+              "id": "flow-3-规划-signals",
+              "label": "规划 signals"
+            },
+            {
+              "id": "flow-4-layoutintent-分发",
+              "label": "layoutIntent 分发"
+            },
+            {
+              "id": "flow-5-html-页面",
+              "label": "HTML 页面"
+            },
+            {
+              "id": "flow-6-字幕切片",
+              "label": "字幕切片"
+            },
+            {
+              "id": "flow-7-detail-决策",
+              "label": "detail 决策"
+            },
+            {
+              "id": "flow-8-fallback-分类",
+              "label": "fallback 分类"
+            }
+          ],
+          "lineCount": 4,
+          "branchCount": 3,
+          "nodeCount": 8
+        },
+        "planningSignals": {
+          "contentType": "flowchart",
+          "structureComplexity": 0.9365079365079364,
+          "subtitleGuidanceStrength": 1,
+          "matchedLineCount": 5,
+          "hasClearSequence": true,
+          "hasSummaryLead": false,
+          "lineInfos": [
+            {
+              "index": 0,
+              "line": "这张流程图先交代主链路：Markdown 输入，先被解析成结构化 scene，再进入规划 signals 层。",
+              "normalized": "这张流程图先交代主链路：Markdown 输入，先被解析成结构化 scene，再进入规划 signals 层。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 55
+            },
+            {
+              "index": 1,
+              "line": "规划 signals 不是单一阈值，而是把结构复杂度、字幕 guidance 和单页压力放到一起看。",
+              "normalized": "规划 signals 不是单一阈值，而是把结构复杂度、字幕 guidance 和单页压力放到一起看。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 50
+            },
+            {
+              "index": 2,
+              "line": "当 signals 判断当前页值得展开时，planner 会继续推导 detail 决策，而不是机械均分字幕。",
+              "normalized": "当 signals 判断当前页值得展开时，planner 会继续推导 detail 决策，而不是机械均分字幕。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 55
+            },
+            {
+              "index": 3,
+              "line": "同时 layoutIntent 会决定 renderer 最终走 flow overview、flow detail 还是 fallback 路径。",
+              "normalized": "同时 layoutIntent 会决定 renderer 最终走 flow overview、flow detail 还是 fallback 路径。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": true,
+              "textLength": 74
+            },
+            {
+              "index": 4,
+              "line": "如果语义匹配不够稳定，系统也会回退到更保守的字幕切片与普通场景策略。",
+              "normalized": "如果语义匹配不够稳定，系统也会回退到更保守的字幕切片与普通场景策略。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 34
+            }
+          ],
+          "singlePagePressure": "high",
+          "detailWorthiness": 0.9788359788359787,
+          "fallbackConfidence": 0.04783068783068789
+        },
+        "planningDecision": {
+          "overviewOnlyCandidate": false,
+          "focusCandidate": true,
+          "detailCandidate": true,
+          "shouldFocus": true,
+          "shouldDetail": true,
+          "strategy": "overview+focus+detail",
+          "detailCount": 2
+        },
+        "planningExplanation": [
+          "字幕存在明显顺序推进",
+          "flowchart 结构复杂度较高",
+          "单页承载压力较大，值得拆 detail",
+          "字幕和结构项存在较强对应关系"
+        ],
+        "items": [
+          {
+            "id": "flow-1-markdown-输入",
+            "label": "Markdown 输入"
+          },
+          {
+            "id": "flow-2-解析结构",
+            "label": "解析结构"
+          },
+          {
+            "id": "flow-3-规划-signals",
+            "label": "规划 signals"
+          },
+          {
+            "id": "flow-4-layoutintent-分发",
+            "label": "layoutIntent 分发"
+          },
+          {
+            "id": "flow-5-html-页面",
+            "label": "HTML 页面"
+          },
+          {
+            "id": "flow-6-字幕切片",
+            "label": "字幕切片"
+          },
+          {
+            "id": "flow-7-detail-决策",
+            "label": "detail 决策"
+          },
+          {
+            "id": "flow-8-fallback-分类",
+            "label": "fallback 分类"
+          }
+        ],
+        "focusItems": [
+          {
+            "id": "flow-3-规划-signals",
+            "label": "规划 signals"
+          }
+        ],
+        "primaryItem": {
+          "id": "flow-3-规划-signals",
+          "label": "规划 signals"
+        },
+        "contextItems": [
+          {
+            "id": "flow-1-markdown-输入",
+            "label": "Markdown 输入"
+          },
+          {
+            "id": "flow-2-解析结构",
+            "label": "解析结构"
+          },
+          {
+            "id": "flow-4-layoutintent-分发",
+            "label": "layoutIntent 分发"
+          },
+          {
+            "id": "flow-5-html-页面",
+            "label": "HTML 页面"
+          }
+        ],
+        "description": "单页重点拆解某个关键节点与其上下文关系。",
+        "title": "流程图场景会把总述字幕和 detail 字幕拆开 · 细讲 规划 signals",
+        "visual": "整体是一张从左到右流动的流程图。主链路保持完整，支路节点用发光标记突出。第二页切到“规划 signals”节点，强调它与字幕切片、布局意图、fallback 回退的关系。",
+        "subtitles": [
+          "同时 layoutIntent 会决定 renderer 最终走 flow overview、flow detail 还是 fallback 路径。"
+        ],
+        "fallbackKind": null,
+        "fallbackReason": null
+      }
+    },
+    {
+      "planId": "scene-3-overview",
+      "baseSceneId": 3,
+      "baseSceneTitle": "要点场景会挑出最值得细讲的重点项",
+      "mode": "overview",
+      "contentType": "keypoints",
+      "derivedFrom": null,
+      "focusTarget": null,
+      "layoutIntent": "keypoints-overview-focus",
+      "fallbackKind": null,
+      "fallbackReason": null,
+      "subtitleSlice": {
+        "start": 0,
+        "end": 3,
+        "lines": [
+          "这页先把四个核心 signals 放到一张总览页里，让观众知道 planner 在看什么。",
+          "其中 structure complexity 和 subtitle guidance strength 决定了当前场景是不是值得继续做 focus。",
+          "这样 detail 页拿到的字幕，会更贴近当前 focus target，而不是简单均分剩余句子。"
+        ]
+      },
+      "steps": [
+        {
+          "enterAt": 1380,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "keypoint-1-structure-complexity",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "structure complexity",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 1500,
+          "duration": 980,
+          "actionType": "highlight",
+          "target": {
+            "focusId": "keypoint-1-structure-complexity",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "structure complexity",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        },
+        {
+          "enterAt": 2560,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "keypoint-2-subtitle-guidance-strength",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "subtitle guidance strength",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 1
+            }
+          }
+        },
+        {
+          "enterAt": 2680,
+          "duration": 980,
+          "actionType": "focus-item",
+          "target": {
+            "focusId": "keypoint-2-subtitle-guidance-strength",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "subtitle guidance strength",
+            "subtitleIndexRange": {
+              "start": 1,
+              "end": 1
+            },
+            "resetGroup": false
+          }
+        },
+        {
+          "enterAt": 3740,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "keypoint-3-detail-worthiness",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "detail worthiness",
+            "subtitleIndexRange": {
+              "start": 2,
+              "end": 2
+            }
+          }
+        },
+        {
+          "enterAt": 3860,
+          "duration": 980,
+          "actionType": "focus-item",
+          "target": {
+            "focusId": "keypoint-3-detail-worthiness",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "detail worthiness",
+            "subtitleIndexRange": {
+              "start": 2,
+              "end": 2
+            },
+            "resetGroup": false
+          }
+        }
+      ],
+      "assetSlots": [],
+      "pageOrder": 7,
+      "pageDuration": 12820,
+      "pageConfig": {
+        "sceneRole": "content",
+        "sceneVariant": "stacked-points",
+        "titleSize": "lg",
+        "titleMaxWidth": "15ch",
+        "bodyColumns": 2,
+        "subtitlePlacement": "bottom-band",
+        "headlineLayout": "stacked"
+      },
+      "sourceScene": {
+        "visual": "左侧是标题和一句总结，右侧是四张要点卡片。总览页先全量铺开，随后把“detail worthiness”和“fallback confidence”两张卡单独拉出做重点讲解。",
+        "pageConfig": {
+          "sceneRole": "content",
+          "sceneVariant": "stacked-points",
+          "titleSize": "lg",
+          "titleMaxWidth": "14ch",
+          "bodyColumns": 1,
+          "subtitlePlacement": "bottom-band",
+          "headlineLayout": "stacked"
+        },
+        "layoutHints": {
+          "primaryElementType": "keypoints",
+          "elementTypes": [
+            "keypoints"
+          ],
+          "subtitleCount": 4,
+          "elementCount": 1,
+          "density": "medium",
+          "titleLength": 16,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "keypoints",
+            "items": [
+              {
+                "key": "structure complexity",
+                "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动"
+              },
+              {
+                "key": "subtitle guidance strength",
+                "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容"
+              },
+              {
+                "key": "detail worthiness",
+                "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面"
+              },
+              {
+                "key": "fallback confidence",
+                "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面"
+              }
+            ]
+          }
+        ]
+      },
+      "renderData": {
+        "structureSummary": {
+          "items": [
+            {
+              "id": "keypoint-1-structure-complexity",
+              "label": "structure complexity",
+              "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动",
+              "textLength": 56
+            },
+            {
+              "id": "keypoint-2-subtitle-guidance-strength",
+              "label": "subtitle guidance strength",
+              "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容",
+              "textLength": 56
+            },
+            {
+              "id": "keypoint-3-detail-worthiness",
+              "label": "detail worthiness",
+              "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面",
+              "textLength": 81
+            },
+            {
+              "id": "keypoint-4-fallback-confidence",
+              "label": "fallback confidence",
+              "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面",
+              "textLength": 71
+            }
+          ],
+          "itemCount": 4,
+          "maxDescLength": 63
+        },
+        "planningSignals": {
+          "contentType": "keypoints",
+          "structureComplexity": 0.9829545454545454,
+          "subtitleGuidanceStrength": 0.5,
+          "matchedLineCount": 2,
+          "hasClearSequence": true,
+          "hasSummaryLead": true,
+          "lineInfos": [
+            {
+              "index": 0,
+              "line": "这页先把四个核心 signals 放到一张总览页里，让观众知道 planner 在看什么。",
+              "normalized": "这页先把四个核心 signals 放到一张总览页里，让观众知道 planner 在看什么。",
+              "hasSummaryHint": true,
+              "hasSequenceHint": false,
+              "textLength": 45
+            },
+            {
+              "index": 1,
+              "line": "其中 structure complexity 和 subtitle guidance strength 决定了当前场景是不是值得继续做 focus。",
+              "normalized": "其中 structure complexity 和 subtitle guidance strength 决定了当前场景是不是值得继续做 focus。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 75
+            },
+            {
+              "index": 2,
+              "line": "如果 detail worthiness 足够高，像这一页里的 detail worthiness 和 fallback confidence，就会被单独拆开讲。",
+              "normalized": "如果 detail worthiness 足够高，像这一页里的 detail worthiness 和 fallback confidence，就会被单独拆开讲。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 81
+            },
+            {
+              "index": 3,
+              "line": "这样 detail 页拿到的字幕，会更贴近当前 focus target，而不是简单均分剩余句子。",
+              "normalized": "这样 detail 页拿到的字幕，会更贴近当前 focus target，而不是简单均分剩余句子。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 49
+            }
+          ],
+          "singlePagePressure": "high",
+          "detailWorthiness": 0.8876515151515152,
+          "fallbackConfidence": 0.1990151515151516
+        },
+        "planningDecision": {
+          "overviewOnlyCandidate": false,
+          "focusCandidate": true,
+          "detailCandidate": true,
+          "shouldFocus": true,
+          "shouldDetail": true,
+          "strategy": "overview+focus+detail",
+          "detailCount": 2
+        },
+        "planningExplanation": [
+          "字幕开头存在总述导语",
+          "字幕存在明显顺序推进",
+          "keypoints 结构复杂度较高",
+          "单页承载压力较大，值得拆 detail",
+          "字幕和结构项存在较强对应关系"
+        ],
+        "items": [
+          {
+            "id": "keypoint-1-structure-complexity",
+            "label": "structure complexity",
+            "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-2-subtitle-guidance-strength",
+            "label": "subtitle guidance strength",
+            "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-3-detail-worthiness",
+            "label": "detail worthiness",
+            "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面",
+            "textLength": 81
+          },
+          {
+            "id": "keypoint-4-fallback-confidence",
+            "label": "fallback confidence",
+            "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面",
+            "textLength": 71
+          }
+        ],
+        "focusItems": [
+          {
+            "id": "keypoint-1-structure-complexity",
+            "label": "structure complexity",
+            "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-2-subtitle-guidance-strength",
+            "label": "subtitle guidance strength",
+            "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-3-detail-worthiness",
+            "label": "detail worthiness",
+            "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面",
+            "textLength": 81
+          }
+        ],
+        "description": "核心要点 4 条。",
+        "title": "要点场景会挑出最值得细讲的重点项",
+        "visual": "左侧是标题和一句总结，右侧是四张要点卡片。总览页先全量铺开，随后把“detail worthiness”和“fallback confidence”两张卡单独拉出做重点讲解。",
+        "subtitles": [
+          "这页先把四个核心 signals 放到一张总览页里，让观众知道 planner 在看什么。",
+          "其中 structure complexity 和 subtitle guidance strength 决定了当前场景是不是值得继续做 focus。",
+          "这样 detail 页拿到的字幕，会更贴近当前 focus target，而不是简单均分剩余句子。"
+        ],
+        "fallbackKind": null,
+        "fallbackReason": null
+      }
+    },
+    {
+      "planId": "scene-3-detail-1",
+      "baseSceneId": 3,
+      "baseSceneTitle": "要点场景会挑出最值得细讲的重点项",
+      "mode": "detail",
+      "contentType": "keypoints",
+      "derivedFrom": "scene-3-overview",
+      "focusTarget": {
+        "type": "keypoint",
+        "id": "keypoint-3-detail-worthiness",
+        "label": "detail worthiness"
+      },
+      "layoutIntent": "keypoints-detail-item",
+      "fallbackKind": null,
+      "fallbackReason": null,
+      "subtitleSlice": {
+        "start": 2,
+        "end": 2,
+        "lines": [
+          "如果 detail worthiness 足够高，像这一页里的 detail worthiness 和 fallback confidence，就会被单独拆开讲。"
+        ]
+      },
+      "steps": [
+        {
+          "enterAt": 1380,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "keypoint-3-detail-worthiness",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "detail worthiness",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 1500,
+          "duration": 980,
+          "actionType": "highlight",
+          "target": {
+            "focusId": "keypoint-3-detail-worthiness",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "detail worthiness",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        }
+      ],
+      "assetSlots": [],
+      "pageOrder": 8,
+      "pageDuration": 8540,
+      "pageConfig": {
+        "sceneRole": "content",
+        "sceneVariant": "keypoint-spotlight",
+        "titleSize": "lg",
+        "titleMaxWidth": "15ch",
+        "bodyColumns": 2,
+        "subtitlePlacement": "bottom-band",
+        "headlineLayout": "stacked"
+      },
+      "sourceScene": {
+        "visual": "左侧是标题和一句总结，右侧是四张要点卡片。总览页先全量铺开，随后把“detail worthiness”和“fallback confidence”两张卡单独拉出做重点讲解。",
+        "pageConfig": {
+          "sceneRole": "content",
+          "sceneVariant": "stacked-points",
+          "titleSize": "lg",
+          "titleMaxWidth": "14ch",
+          "bodyColumns": 1,
+          "subtitlePlacement": "bottom-band",
+          "headlineLayout": "stacked"
+        },
+        "layoutHints": {
+          "primaryElementType": "keypoints",
+          "elementTypes": [
+            "keypoints"
+          ],
+          "subtitleCount": 4,
+          "elementCount": 1,
+          "density": "medium",
+          "titleLength": 16,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "keypoints",
+            "items": [
+              {
+                "key": "structure complexity",
+                "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动"
+              },
+              {
+                "key": "subtitle guidance strength",
+                "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容"
+              },
+              {
+                "key": "detail worthiness",
+                "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面"
+              },
+              {
+                "key": "fallback confidence",
+                "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面"
+              }
+            ]
+          }
+        ]
+      },
+      "renderData": {
+        "structureSummary": {
+          "items": [
+            {
+              "id": "keypoint-1-structure-complexity",
+              "label": "structure complexity",
+              "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动",
+              "textLength": 56
+            },
+            {
+              "id": "keypoint-2-subtitle-guidance-strength",
+              "label": "subtitle guidance strength",
+              "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容",
+              "textLength": 56
+            },
+            {
+              "id": "keypoint-3-detail-worthiness",
+              "label": "detail worthiness",
+              "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面",
+              "textLength": 81
+            },
+            {
+              "id": "keypoint-4-fallback-confidence",
+              "label": "fallback confidence",
+              "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面",
+              "textLength": 71
+            }
+          ],
+          "itemCount": 4,
+          "maxDescLength": 63
+        },
+        "planningSignals": {
+          "contentType": "keypoints",
+          "structureComplexity": 0.9829545454545454,
+          "subtitleGuidanceStrength": 0.5,
+          "matchedLineCount": 2,
+          "hasClearSequence": true,
+          "hasSummaryLead": true,
+          "lineInfos": [
+            {
+              "index": 0,
+              "line": "这页先把四个核心 signals 放到一张总览页里，让观众知道 planner 在看什么。",
+              "normalized": "这页先把四个核心 signals 放到一张总览页里，让观众知道 planner 在看什么。",
+              "hasSummaryHint": true,
+              "hasSequenceHint": false,
+              "textLength": 45
+            },
+            {
+              "index": 1,
+              "line": "其中 structure complexity 和 subtitle guidance strength 决定了当前场景是不是值得继续做 focus。",
+              "normalized": "其中 structure complexity 和 subtitle guidance strength 决定了当前场景是不是值得继续做 focus。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 75
+            },
+            {
+              "index": 2,
+              "line": "如果 detail worthiness 足够高，像这一页里的 detail worthiness 和 fallback confidence，就会被单独拆开讲。",
+              "normalized": "如果 detail worthiness 足够高，像这一页里的 detail worthiness 和 fallback confidence，就会被单独拆开讲。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 81
+            },
+            {
+              "index": 3,
+              "line": "这样 detail 页拿到的字幕，会更贴近当前 focus target，而不是简单均分剩余句子。",
+              "normalized": "这样 detail 页拿到的字幕，会更贴近当前 focus target，而不是简单均分剩余句子。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 49
+            }
+          ],
+          "singlePagePressure": "high",
+          "detailWorthiness": 0.8876515151515152,
+          "fallbackConfidence": 0.1990151515151516
+        },
+        "planningDecision": {
+          "overviewOnlyCandidate": false,
+          "focusCandidate": true,
+          "detailCandidate": true,
+          "shouldFocus": true,
+          "shouldDetail": true,
+          "strategy": "overview+focus+detail",
+          "detailCount": 2
+        },
+        "planningExplanation": [
+          "字幕开头存在总述导语",
+          "字幕存在明显顺序推进",
+          "keypoints 结构复杂度较高",
+          "单页承载压力较大，值得拆 detail",
+          "字幕和结构项存在较强对应关系"
+        ],
+        "items": [
+          {
+            "id": "keypoint-1-structure-complexity",
+            "label": "structure complexity",
+            "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-2-subtitle-guidance-strength",
+            "label": "subtitle guidance strength",
+            "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-3-detail-worthiness",
+            "label": "detail worthiness",
+            "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面",
+            "textLength": 81
+          },
+          {
+            "id": "keypoint-4-fallback-confidence",
+            "label": "fallback confidence",
+            "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面",
+            "textLength": 71
+          }
+        ],
+        "focusItems": [
+          {
+            "id": "keypoint-3-detail-worthiness",
+            "label": "detail worthiness",
+            "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面",
+            "textLength": 81
+          }
+        ],
+        "primaryItem": {
+          "id": "keypoint-3-detail-worthiness",
+          "label": "detail worthiness",
+          "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面",
+          "textLength": 81
+        },
+        "contextItems": [
+          {
+            "id": "keypoint-1-structure-complexity",
+            "label": "structure complexity",
+            "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-2-subtitle-guidance-strength",
+            "label": "subtitle guidance strength",
+            "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-4-fallback-confidence",
+            "label": "fallback confidence",
+            "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面",
+            "textLength": 71
+          }
+        ],
+        "description": "单独展开解释信息密度较高的关键要点。",
+        "title": "要点场景会挑出最值得细讲的重点项 · 拆解 detail worthiness",
+        "visual": "左侧是标题和一句总结，右侧是四张要点卡片。总览页先全量铺开，随后把“detail worthiness”和“fallback confidence”两张卡单独拉出做重点讲解。",
+        "subtitles": [
+          "如果 detail worthiness 足够高，像这一页里的 detail worthiness 和 fallback confidence，就会被单独拆开讲。"
+        ],
+        "fallbackKind": null,
+        "fallbackReason": null
+      }
+    },
+    {
+      "planId": "scene-3-detail-2",
+      "baseSceneId": 3,
+      "baseSceneTitle": "要点场景会挑出最值得细讲的重点项",
+      "mode": "detail",
+      "contentType": "keypoints",
+      "derivedFrom": "scene-3-overview",
+      "focusTarget": {
+        "type": "keypoint",
+        "id": "keypoint-4-fallback-confidence",
+        "label": "fallback confidence"
+      },
+      "layoutIntent": "keypoints-detail-item",
+      "fallbackKind": null,
+      "fallbackReason": null,
+      "subtitleSlice": {
+        "start": 2,
+        "end": 2,
+        "lines": [
+          "如果 detail worthiness 足够高，像这一页里的 detail worthiness 和 fallback confidence，就会被单独拆开讲。"
+        ]
+      },
+      "steps": [
+        {
+          "enterAt": 1380,
+          "duration": 680,
+          "actionType": "dim-others",
+          "target": {
+            "focusId": "keypoint-4-fallback-confidence",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "fallback confidence",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            }
+          }
+        },
+        {
+          "enterAt": 1500,
+          "duration": 980,
+          "actionType": "highlight",
+          "target": {
+            "focusId": "keypoint-4-fallback-confidence",
+            "group": "content-items"
+          },
+          "payload": {
+            "label": "fallback confidence",
+            "subtitleIndexRange": {
+              "start": 0,
+              "end": 0
+            },
+            "resetGroup": false
+          }
+        }
+      ],
+      "assetSlots": [],
+      "pageOrder": 9,
+      "pageDuration": 8540,
+      "pageConfig": {
+        "sceneRole": "content",
+        "sceneVariant": "keypoint-spotlight",
+        "titleSize": "lg",
+        "titleMaxWidth": "15ch",
+        "bodyColumns": 2,
+        "subtitlePlacement": "bottom-band",
+        "headlineLayout": "stacked"
+      },
+      "sourceScene": {
+        "visual": "左侧是标题和一句总结，右侧是四张要点卡片。总览页先全量铺开，随后把“detail worthiness”和“fallback confidence”两张卡单独拉出做重点讲解。",
+        "pageConfig": {
+          "sceneRole": "content",
+          "sceneVariant": "stacked-points",
+          "titleSize": "lg",
+          "titleMaxWidth": "14ch",
+          "bodyColumns": 1,
+          "subtitlePlacement": "bottom-band",
+          "headlineLayout": "stacked"
+        },
+        "layoutHints": {
+          "primaryElementType": "keypoints",
+          "elementTypes": [
+            "keypoints"
+          ],
+          "subtitleCount": 4,
+          "elementCount": 1,
+          "density": "medium",
+          "titleLength": 16,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "keypoints",
+            "items": [
+              {
+                "key": "structure complexity",
+                "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动"
+              },
+              {
+                "key": "subtitle guidance strength",
+                "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容"
+              },
+              {
+                "key": "detail worthiness",
+                "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面"
+              },
+              {
+                "key": "fallback confidence",
+                "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面"
+              }
+            ]
+          }
+        ]
+      },
+      "renderData": {
+        "structureSummary": {
+          "items": [
+            {
+              "id": "keypoint-1-structure-complexity",
+              "label": "structure complexity",
+              "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动",
+              "textLength": 56
+            },
+            {
+              "id": "keypoint-2-subtitle-guidance-strength",
+              "label": "subtitle guidance strength",
+              "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容",
+              "textLength": 56
+            },
+            {
+              "id": "keypoint-3-detail-worthiness",
+              "label": "detail worthiness",
+              "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面",
+              "textLength": 81
+            },
+            {
+              "id": "keypoint-4-fallback-confidence",
+              "label": "fallback confidence",
+              "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面",
+              "textLength": 71
+            }
+          ],
+          "itemCount": 4,
+          "maxDescLength": 63
+        },
+        "planningSignals": {
+          "contentType": "keypoints",
+          "structureComplexity": 0.9829545454545454,
+          "subtitleGuidanceStrength": 0.5,
+          "matchedLineCount": 2,
+          "hasClearSequence": true,
+          "hasSummaryLead": true,
+          "lineInfos": [
+            {
+              "index": 0,
+              "line": "这页先把四个核心 signals 放到一张总览页里，让观众知道 planner 在看什么。",
+              "normalized": "这页先把四个核心 signals 放到一张总览页里，让观众知道 planner 在看什么。",
+              "hasSummaryHint": true,
+              "hasSequenceHint": false,
+              "textLength": 45
+            },
+            {
+              "index": 1,
+              "line": "其中 structure complexity 和 subtitle guidance strength 决定了当前场景是不是值得继续做 focus。",
+              "normalized": "其中 structure complexity 和 subtitle guidance strength 决定了当前场景是不是值得继续做 focus。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 75
+            },
+            {
+              "index": 2,
+              "line": "如果 detail worthiness 足够高，像这一页里的 detail worthiness 和 fallback confidence，就会被单独拆开讲。",
+              "normalized": "如果 detail worthiness 足够高，像这一页里的 detail worthiness 和 fallback confidence，就会被单独拆开讲。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 81
+            },
+            {
+              "index": 3,
+              "line": "这样 detail 页拿到的字幕，会更贴近当前 focus target，而不是简单均分剩余句子。",
+              "normalized": "这样 detail 页拿到的字幕，会更贴近当前 focus target，而不是简单均分剩余句子。",
+              "hasSummaryHint": false,
+              "hasSequenceHint": false,
+              "textLength": 49
+            }
+          ],
+          "singlePagePressure": "high",
+          "detailWorthiness": 0.8876515151515152,
+          "fallbackConfidence": 0.1990151515151516
+        },
+        "planningDecision": {
+          "overviewOnlyCandidate": false,
+          "focusCandidate": true,
+          "detailCandidate": true,
+          "shouldFocus": true,
+          "shouldDetail": true,
+          "strategy": "overview+focus+detail",
+          "detailCount": 2
+        },
+        "planningExplanation": [
+          "字幕开头存在总述导语",
+          "字幕存在明显顺序推进",
+          "keypoints 结构复杂度较高",
+          "单页承载压力较大，值得拆 detail",
+          "字幕和结构项存在较强对应关系"
+        ],
+        "items": [
+          {
+            "id": "keypoint-1-structure-complexity",
+            "label": "structure complexity",
+            "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-2-subtitle-guidance-strength",
+            "label": "subtitle guidance strength",
+            "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-3-detail-worthiness",
+            "label": "detail worthiness",
+            "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面",
+            "textLength": 81
+          },
+          {
+            "id": "keypoint-4-fallback-confidence",
+            "label": "fallback confidence",
+            "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面",
+            "textLength": 71
+          }
+        ],
+        "focusItems": [
+          {
+            "id": "keypoint-4-fallback-confidence",
+            "label": "fallback confidence",
+            "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面",
+            "textLength": 71
+          }
+        ],
+        "primaryItem": {
+          "id": "keypoint-4-fallback-confidence",
+          "label": "fallback confidence",
+          "desc": "当结构信号不强或字幕对应关系弱时，优先回退到更稳的 summary / visual-first 页面",
+          "textLength": 71
+        },
+        "contextItems": [
+          {
+            "id": "keypoint-1-structure-complexity",
+            "label": "structure complexity",
+            "desc": "不再只看数量，还看层级、分支、文本密度，减少因为单一阈值导致的策略抖动",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-2-subtitle-guidance-strength",
+            "label": "subtitle guidance strength",
+            "desc": "通过字幕和结构项的弱匹配，判断解说是不是在逐条解释当前内容",
+            "textLength": 56
+          },
+          {
+            "id": "keypoint-3-detail-worthiness",
+            "label": "detail worthiness",
+            "desc": "结合 complexity、guidance、single-page pressure，决定是否值得单独拆 detail 页面",
+            "textLength": 81
+          }
+        ],
+        "description": "单独展开解释信息密度较高的关键要点。",
+        "title": "要点场景会挑出最值得细讲的重点项 · 拆解 fallback confidence",
+        "visual": "左侧是标题和一句总结，右侧是四张要点卡片。总览页先全量铺开，随后把“detail worthiness”和“fallback confidence”两张卡单独拉出做重点讲解。",
+        "subtitles": [
+          "如果 detail worthiness 足够高，像这一页里的 detail worthiness 和 fallback confidence，就会被单独拆开讲。"
+        ],
+        "fallbackKind": null,
+        "fallbackReason": null
+      }
+    },
+    {
+      "planId": "scene-4-fallback",
+      "baseSceneId": 4,
+      "baseSceneTitle": "普通表格场景不再只会保底，而会走 visual-first fallback",
+      "mode": "overview",
+      "contentType": "table",
+      "derivedFrom": null,
+      "focusTarget": null,
+      "layoutIntent": "fallback-visual-first",
+      "fallbackKind": "visual-first",
+      "fallbackReason": "non-plannable-table-scene",
+      "subtitleSlice": {
+        "start": 0,
+        "end": 2,
+        "lines": [
+          "这一页虽然没有进入多页 planner，但也不是简单保底。",
+          "因为表格场景本身更适合保留主视觉和结构卡片，所以这里会主动走 visual-first fallback。",
+          "重点不是把它硬拆成 detail，而是让回退结果看起来依然像一个被设计过的页面。"
+        ]
+      },
+      "steps": [],
+      "assetSlots": [],
+      "pageOrder": 10,
+      "pageDuration": 9400,
+      "pageConfig": {
+        "sceneRole": "comparison",
+        "sceneVariant": "comparison-board",
+        "titleSize": "md",
+        "titleMaxWidth": "16ch",
+        "bodyColumns": 2,
+        "subtitlePlacement": "bottom-band",
+        "headlineLayout": "stacked"
+      },
+      "sourceScene": {
+        "visual": "左侧保留一个大的视觉锚点区，右侧是 fallback 结构卡片。画面强调“这不是 planner 未命中，而是主动选择更适合的回退表达”。",
+        "pageConfig": {
+          "sceneRole": "comparison",
+          "sceneVariant": "comparison-board",
+          "titleSize": "md",
+          "titleMaxWidth": "16ch",
+          "bodyColumns": 2,
+          "subtitlePlacement": "bottom-band",
+          "headlineLayout": "stacked"
+        },
+        "layoutHints": {
+          "primaryElementType": "table",
+          "elementTypes": [
+            "table"
+          ],
+          "subtitleCount": 3,
+          "elementCount": 1,
+          "density": "medium",
+          "titleLength": 38,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "table",
+            "headers": [
+              "fallback 类型",
+              "更适合的场景",
+              "页面重点"
+            ],
+            "rows": [
+              [
+                "fallback-summary",
+                "纯叙述、结论、引用类页面",
+                "用单页总结承接核心结论"
+              ],
+              [
+                "fallback-visual-first",
+                "表格、数据、代码等不适合拆成 planner detail 的页面",
+                "保留主视觉锚点与结构卡片"
+              ],
+              [
+                "planner detail",
+                "flowchart / timeline / keypoints 中值得单独展开的重点项",
+                "让 detail 字幕和 focus target 更贴近"
+              ]
+            ]
+          }
+        ]
+      },
+      "renderData": {
+        "items": [],
+        "focusItems": [],
+        "summaryLines": [
+          "左侧保留一个大的视觉锚点区，右侧是 fallback 结构卡片。画面强调“这不是 planner 未命中，而是主动选择更适合的回退表达”。",
+          "这一页虽然没有进入多页 planner，但也不是简单保底。",
+          "因为表格场景本身更适合保留主视觉和结构卡片，所以这里会主动走 visual-first fallback。",
+          "重点不是把它硬拆成 detail，而是让回退结果看起来依然像一个被设计过的页面。"
+        ],
+        "structureTags": [
+          "table"
+        ],
+        "description": "当前场景未进入多页 planner，但仍保留视觉优先的表达方式。",
+        "title": "普通表格场景不再只会保底，而会走 visual-first fallback",
+        "visual": "左侧保留一个大的视觉锚点区，右侧是 fallback 结构卡片。画面强调“这不是 planner 未命中，而是主动选择更适合的回退表达”。",
+        "subtitles": [
+          "这一页虽然没有进入多页 planner，但也不是简单保底。",
+          "因为表格场景本身更适合保留主视觉和结构卡片，所以这里会主动走 visual-first fallback。",
+          "重点不是把它硬拆成 detail，而是让回退结果看起来依然像一个被设计过的页面。"
+        ],
+        "fallbackKind": "visual-first",
+        "fallbackReason": "non-plannable-table-scene"
+      }
+    },
+    {
+      "planId": "scene-5-fallback",
+      "baseSceneId": 5,
+      "baseSceneTitle": "引用场景会落到 summary fallback，而不是假装结构化",
+      "mode": "overview",
+      "contentType": "quote",
+      "derivedFrom": null,
+      "focusTarget": null,
+      "layoutIntent": "fallback-summary",
+      "fallbackKind": "summary",
+      "fallbackReason": "quote-scene-better-as-single-summary",
+      "subtitleSlice": {
+        "start": 0,
+        "end": 2,
+        "lines": [
+          "最后一页是一个引用场景，它并不需要被强行包装成流程图或多卡片结构。",
+          "这类页面更适合直接走 summary fallback，用一句强结论把整段讲解收住。",
+          "阶段 2 的目标不是把所有场景都做成 planner detail，而是让每一类场景都落到合适的页面策略。"
+        ]
+      },
+      "steps": [],
+      "assetSlots": [],
+      "pageOrder": 11,
+      "pageDuration": 9400,
+      "pageConfig": {
+        "sceneRole": "conclusion",
+        "sceneVariant": "quote-focus",
+        "titleSize": "md",
+        "titleMaxWidth": "18ch",
+        "bodyColumns": 1,
+        "subtitlePlacement": "inset",
+        "headlineLayout": "stacked"
+      },
+      "sourceScene": {
+        "visual": "深色背景中央只保留一句强调性的结论，底部放一小块字幕摘要。整体克制留白，像一个收束性的结论页。",
+        "pageConfig": {
+          "sceneRole": "conclusion",
+          "sceneVariant": "quote-focus",
+          "titleSize": "md",
+          "titleMaxWidth": "18ch",
+          "bodyColumns": 1,
+          "subtitlePlacement": "inset",
+          "headlineLayout": "stacked"
+        },
+        "layoutHints": {
+          "primaryElementType": "quote",
+          "elementTypes": [
+            "quote"
+          ],
+          "subtitleCount": 3,
+          "elementCount": 1,
+          "density": "low",
+          "titleLength": 33,
+          "manualOverrideKeys": []
+        },
+        "elements": [
+          {
+            "type": "quote",
+            "content": "layoutIntent 不是注释，而是 renderer 真正消费的页面入口。"
+          }
+        ]
+      },
+      "renderData": {
+        "items": [],
+        "focusItems": [],
+        "summaryLines": [
+          "深色背景中央只保留一句强调性的结论，底部放一小块字幕摘要。整体克制留白，像一个收束性的结论页。",
+          "最后一页是一个引用场景，它并不需要被强行包装成流程图或多卡片结构。",
+          "这类页面更适合直接走 summary fallback，用一句强结论把整段讲解收住。",
+          "阶段 2 的目标不是把所有场景都做成 planner detail，而是让每一类场景都落到合适的页面策略。"
+        ],
+        "structureTags": [
+          "quote"
+        ],
+        "description": "当前场景更适合用单页总结式回退来承接讲解。",
+        "title": "引用场景会落到 summary fallback，而不是假装结构化",
+        "visual": "深色背景中央只保留一句强调性的结论，底部放一小块字幕摘要。整体克制留白，像一个收束性的结论页。",
+        "subtitles": [
+          "最后一页是一个引用场景，它并不需要被强行包装成流程图或多卡片结构。",
+          "这类页面更适合直接走 summary fallback，用一句强结论把整段讲解收住。",
+          "阶段 2 的目标不是把所有场景都做成 planner detail，而是让每一类场景都落到合适的页面策略。"
+        ],
+        "fallbackKind": "summary",
+        "fallbackReason": "quote-scene-better-as-single-summary"
+      }
+    }
+  ]
+}

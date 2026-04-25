@@ -124,11 +124,14 @@ class Qwen3LocalAdapter(TTSAdapter):
         self._load_model()
 
         try:
+            # 如果没有提供 ref_text，使用 x_vector_only_mode（仅提取音色向量）
+            use_xvec_only = self.ref_text is None
             wavs, sr = self._model.generate_voice_clone(
                 text=text,
                 language=self.language.lower(),
                 ref_audio=self.ref_audio,
                 ref_text=self.ref_text,
+                x_vector_only_mode=use_xvec_only,
             )
 
             os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)

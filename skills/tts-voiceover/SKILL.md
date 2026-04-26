@@ -105,7 +105,7 @@ ls assets/ref-voice/speaker.wav
 > 请将一段 3~10 秒的清晰语音（wav/mp3）放到 `assets/ref-voice/` 目录下。
 > 建议使用你希望视频配音听起来像的声音，录音环境尽量安静。
 > 放好后在 `config/tts-providers.yaml` 中确认 `ref_audio` 路径正确。
-> 如果有参考音频的文字内容，填入 `ref_text` 字段可以提升克隆效果。
+> `ref_text` 为必填字段，填入参考音频的文字内容用于声音克隆对齐。
 
 参考音频配置在 `config/tts-providers.yaml`：
 
@@ -113,7 +113,7 @@ ls assets/ref-voice/speaker.wav
 providers:
   qwen3-local:
     ref_audio: assets/ref-voice/speaker.wav   # 必填
-    ref_text: "参考音频中说的文字内容"           # 可选，提供后效果更好
+    ref_text: "参考音频中说的文字内容"           # 必填，用于声音克隆对齐
 ```
 
 ## 执行流程

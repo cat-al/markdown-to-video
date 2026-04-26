@@ -25,7 +25,7 @@ class Qwen3LocalAdapter(TTSAdapter):
         format: str       — 输出格式 (default "wav")
         language: str     — 合成语言 (default "chinese")
         ref_audio: str    — 参考音频文件路径（必填，相对项目根目录）
-        ref_text: str     — 参考音频对应的文字（可选，提供后克隆效果更好）
+        ref_text: str     — 参考音频对应的文字（必填，用于声音克隆对齐）
     """
 
     def __init__(self, config: dict):
@@ -46,8 +46,15 @@ class Qwen3LocalAdapter(TTSAdapter):
         else:
             self.ref_audio = ref_audio_raw or ""
 
-        # 参考文本 — 可选
+        # 参考文本 — 必填
         self.ref_text = config.get("ref_text") or None
+        if not self.ref_text:
+            raise RuntimeError(
+                "未配置参考文本 ref_text。\n"
+                "Qwen3-TTS Base 模型需要参考文本来对齐声音克隆。\n"
+                "请在 config/tts-providers.yaml 中设置：\n"
+                '  ref_text: "参考音频中说的文字内容"'
+            )
 
         self._model = None
 
@@ -124,14 +131,11 @@ class Qwen3LocalAdapter(TTSAdapter):
         self._load_model()
 
         try:
-            # 如果没有提供 ref_text，使用 x_vector_only_mode（仅提取音色向量）
-            use_xvec_only = self.ref_text is None
             wavs, sr = self._model.generate_voice_clone(
                 text=text,
                 language=self.language.lower(),
                 ref_audio=self.ref_audio,
                 ref_text=self.ref_text,
-                x_vector_only_mode=use_xvec_only,
             )
 
             os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)

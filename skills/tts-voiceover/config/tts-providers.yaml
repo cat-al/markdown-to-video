@@ -7,11 +7,11 @@ providers:
     sample_rate: 24000
     format: wav
     language: chinese
-    # Base 模型通过声音克隆生成语音，必须提供参考音频
+    # Base 模型通过声音克隆生成语音，必须提供参考音频和参考文本
     # ref_audio: 参考音频文件路径（相对项目根目录），支持 wav/mp3
-    # ref_text:  参考音频对应的文字内容（可选，提供后克隆效果更好）
+    # ref_text:  参考音频对应的文字内容（必填，用于声音克隆对齐）
     ref_audio: assets/ref-voice/speaker.wav
-    ref_text: ~
+    ref_text: "参考音频中说的文字内容"
 
   minimax:
     type: api

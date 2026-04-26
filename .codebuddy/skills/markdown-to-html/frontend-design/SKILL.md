@@ -73,9 +73,10 @@ Remember: Claude is capable of extraordinary creative work. Don't hold back, sho
 
 | 色彩 | 语义 | 参考色值 |
 |------|------|----------|
-| 蓝/青 | 正常 / 起点 / 稳定 | `var(--color-accent)` `#79e8ff` |
-| 橙/金 | 警告 / 过渡 / 需要注意 | `var(--color-accent-warm)` `#ff9f72` |
-| 红/玫 | 错误 / 终点 / 失控 | `var(--color-danger)` `#ff8787` |
+| 陶土棕 | 正常 / 起点 / 主要元素 | `var(--color-accent)` `#A8703F` |
+| 暖金棕 | 强调 / 过渡 / 需要注意 | `var(--color-accent-warm)` `#C4923C` |
+| 赤陶红 | 错误 / 终点 / 失控 | `var(--color-danger)` `#a33020` |
+| 橄榄绿 | 辅助 / 聚焦 / 次要元素 | `var(--color-focus)` `#5C614D` |
 
 状态变化时，用颜色过渡（`transition: fill 400ms`）而不是突变，让观众感知到"正在发生变化"。
 

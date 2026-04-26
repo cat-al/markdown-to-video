@@ -10,32 +10,30 @@
       --slide-width: 1920px;
       --slide-height: 1080px;
       --transition-duration: 800ms;
-      --color-bg: #07111d;
-      --color-bg-strong: #050a12;
-      --color-text: #eff5ff;
-      --color-text-muted: rgba(239, 245, 255, 0.72);
-      --color-accent: #79e8ff;
-      --color-accent-warm: #ff9f72;
-      --color-danger: #ff8787;
-      --color-focus: #b8f4ff;
-      --font-display: 'Baskerville', 'Times New Roman', serif;
+      /* 纸浆米白 + 棕绿品牌色系 */
+      --color-bg: #FAF3E9;
+      --color-bg-strong: #F0E8DA;
+      --color-text: #2a2218;
+      --color-text-muted: rgba(42, 34, 24, 0.58);
+      --color-accent: #A8703F;          /* 陶土棕 — 主色 */
+      --color-accent-warm: #C4923C;     /* 暖金棕 — 强调 */
+      --color-danger: #a33020;          /* 赤陶红 — 警告/错误 */
+      --color-focus: #5C614D;           /* 橄榄深绿 — 聚焦/辅助 */
+      --font-display: 'Baskerville', 'Noto Serif SC', 'Songti SC', serif;
       --font-body: 'Avenir Next', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
 
     /* ── 重置 ── */
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── 16:9 固定视口 + 深色背景 ── */
+    /* ── 16:9 固定视口 + 纸浆纹理背景 ── */
     body {
       width: var(--slide-width);
       height: var(--slide-height);
       overflow: hidden;
       color: var(--color-text);
       font-family: var(--font-body);
-      background:
-        radial-gradient(circle at 18% 20%, rgba(121, 232, 255, 0.16), transparent 24%),
-        radial-gradient(circle at 82% 18%, rgba(255, 159, 114, 0.14), transparent 20%),
-        linear-gradient(150deg, #07111d 0%, #09192b 52%, #04070d 100%);
+      background: var(--color-bg) url('paper-texture-bg.png') center/cover no-repeat;
     }
 
     /* ── 幻灯片切换系统 ── */
@@ -67,9 +65,9 @@
       position: fixed;
       z-index: 30;
       backdrop-filter: blur(14px);
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(7, 16, 28, 0.44);
-      color: rgba(255,255,255,0.66);
+      border: 1px solid rgba(42, 34, 24, 0.10);
+      background: rgba(250, 243, 233, 0.72);
+      color: rgba(42, 34, 24, 0.55);
     }
 
     .presentation-tag,
@@ -101,7 +99,7 @@
       bottom: 18px;
       height: 4px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.08);
+      background: rgba(42, 34, 24, 0.08);
       overflow: hidden;
       z-index: 25;
     }

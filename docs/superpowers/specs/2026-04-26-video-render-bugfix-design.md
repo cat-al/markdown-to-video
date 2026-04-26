@@ -17,8 +17,8 @@
 | 文件 | 改动方式 | 核心思路 |
 |------|---------|---------|
 | `record.js` | **整体重写** | 采用 JS 假时钟方案，在页面加载前注入假时钟劫持所有时间源，逐帧推进虚拟时间 |
-| `compose.js` | **局部修复** | 增加 libass 检测 + 软字幕回退；修复 `force_style` 转义语法；清理死代码 |
-| `SKILL.md` | **局部更新** | 更新"阶段 1"描述为假时钟方案；前置依赖表注明 libass 可选 |
+| `compose.js` | **局部修复** | 增加 libass 前置检测（无则报错退出并引导安装）；修复 `force_style` 转义语法；清理死代码 |
+| `SKILL.md` | **局部更新** | 更新"阶段 1"描述为假时钟方案；前置依赖表注明 libass 为必需 |
 
 ## 3. record.js 重写设计（JS 假时钟方案）
 
@@ -340,7 +340,7 @@ async function runRecord({ htmlPath, outputDir }) {
 
 | # | 问题 | 修复 |
 |---|------|------|
-| 1 | `subtitles` filter 依赖 libass | 运行时检测，无 libass 回退软字幕 |
+| 1 | `subtitles` filter 依赖 libass | 运行时前置检测，无 libass 报错退出并引导安装 |
 | 2 | `force_style` 逗号未转义 | 逗号转义为 `\\,` |
 | 3 | SRT 路径冒号转义不对 | 统一用 FFmpeg 的 `\\:` 转义 |
 | 4 | 第 50-58 行 `subtitleFilter` 变量未使用 | 删除死代码 |
@@ -374,41 +374,37 @@ const vfArg = `subtitles=${escapedSrt}:force_style='FontName=PingFang SC\\,FontS
 
 关键改动：`force_style` 内部的逗号从 `,` 改为 `\\,`。
 
-### 4.4 软字幕回退路径（无 libass）
+### 4.4 libass 前置检测（无则报错退出）
+
+在 `runCompose` 函数开头、构建 FFmpeg 参数之前调用 `hasSubtitlesFilter()`。检测失败时直接抛出错误，阻止合成继续：
 
 ```javascript
-const ffmpegArgs = [
-  '-y',
-  '-i', silentMp4,
-  '-i', fullAudio,
-  '-i', srtPath,              // SRT 作为第三个输入
-  '-c:v', 'libx264',
-  '-preset', 'medium',
-  '-crf', '18',
-  '-c:a', 'aac',
-  '-b:a', '192k',
-  '-c:s', 'mov_text',         // 软字幕编码
-  '-map', '0:v',
-  '-map', '1:a',
-  '-map', '2:s',              // 映射字幕流
-  '-shortest',
-  finalMp4,
-];
-```
-
-软字幕嵌入在播放器中显示（可开关），不硬烧到画面上。会输出提示告知用户。
-
-### 4.5 分支逻辑
-
-```javascript
-const canHardSub = hasSubtitlesFilter();
-
-if (!canHardSub) {
-  console.warn('⚠️  FFmpeg 未编译 libass，字幕将以软字幕嵌入（播放器中可开关）');
-  console.warn('   如需硬烧录，请安装含 libass 的 FFmpeg：');
-  console.warn('   brew install ffmpeg --build-from-source --with-libass');
+function checkLibass() {
+  if (!hasSubtitlesFilter()) {
+    console.error('');
+    console.error('❌ FFmpeg 缺少 libass，无法硬烧录字幕。');
+    console.error('');
+    console.error('   当前 FFmpeg 未编译 subtitles filter（需要 libass 库）。');
+    console.error('   请按以下步骤安装含 libass 的 FFmpeg：');
+    console.error('');
+    console.error('   # 方式 1：Homebrew 从源码编译（推荐）');
+    console.error('   brew uninstall ffmpeg');
+    console.error('   brew install libass');
+    console.error('   brew install ffmpeg --build-from-source');
+    console.error('');
+    console.error('   # 方式 2：使用 ffmpeg-full cask');
+    console.error('   brew tap homebrew-ffmpeg/ffmpeg');
+    console.error('   brew install homebrew-ffmpeg/ffmpeg/ffmpeg --with-libass');
+    console.error('');
+    console.error('   安装后验证：');
+    console.error('   ffmpeg -filters 2>&1 | grep subtitle');
+    console.error('');
+    process.exit(1);
+  }
 }
 ```
+
+不提供软字幕回退 — 软字幕在视频发布场景（如社交媒体上传）中不可用，必须硬烧录。
 
 ## 5. SKILL.md 更新
 
@@ -429,8 +425,19 @@ if (!canHardSub) {
 ### 5.2 前置依赖表更新
 
 ```
-| FFmpeg | `brew install ffmpeg` | 视频编码、音频拼接 |
-| FFmpeg + libass | 可选：`brew install ffmpeg --build-from-source --with-libass` | 字幕硬烧录（无 libass 时自动回退软字幕） |
+| FFmpeg + libass | **必需** | 视频编码、音频拼接、字幕硬烧录 |
+```
+
+安装方式：
+```
+brew install libass
+brew install ffmpeg --build-from-source
+```
+
+验证命令：
+```bash
+ffmpeg -filters 2>&1 | grep subtitle
+# 应输出：T.. subtitles ...
 ```
 
 ### 5.3 Common Mistakes 更新
@@ -445,7 +452,7 @@ if (!canHardSub) {
 | 文件 | 动作 | 说明 |
 |------|------|------|
 | `scripts/record.js` | **重写** | 删除 `injectTimelineControl`，新增假时钟注入 + 新截帧循环 |
-| `scripts/compose.js` | **局部修复** | libass 检测 + 软字幕回退 + force_style 转义修复 + 删死代码 |
+| `scripts/compose.js` | **局部修复** | libass 前置检测（缺失则报错退出） + force_style 转义修复 + 删死代码 |
 | `SKILL.md` | **局部更新** | 阶段 1 描述 + 前置依赖 + Common Mistakes |
 | `scripts/video_render.js` | **不变** | 主入口接口不变 |
 | `scripts/audio.js` | **不变** | |
@@ -459,19 +466,18 @@ if (!canHardSub) {
 | 假时钟未覆盖某些 Web API（如 Web Animations API 的 `element.animate()`） | 低 | 当前 HTML 只用 CSS animation + setTimeout，暂不需要覆盖。未来若引入 `element.animate()` 再扩展 |
 | `document.getAnimations()` 在 Headless Chrome 中行为不一致 | 低 | Puppeteer headless: 'new' 模式下该 API 正常，已有先例验证 |
 | 假时钟 timer 回调中注册新 timer 导致死循环 | 低 | safety 上限 10000 次迭代保护 |
-| 软字幕回退时，视频发布到某些不支持 mov_text 的平台 | 中 | 日志中明确警告，引导用户安装含 libass 的 FFmpeg |
 
 ## 8. 验收标准
 
 1. **record 阶段能成功生成 silent.mp4** — 不再报 "未找到 TimelineEngine 实例" 错误
 2. **录制帧准确** — CSS 动画、setTimeout 驱动的步骤切换在录制中正确呈现，无跳帧、无卡帧
-3. **compose 阶段在无 libass 环境下正常完成** — 自动回退软字幕，不报错
+3. **compose 阶段在无 libass 环境下报错退出** — 给出清晰的安装指引，不静默降级
 4. **compose 阶段在有 libass 环境下正常硬烧录** — force_style 语法正确，字幕样式与预期一致
 5. **全流程端到端** — `node video_render.js --manifest ... --srt ...` 三阶段顺利跑完，输出 final.mp4
 
 ## 9. 实施顺序
 
 1. **重写 `record.js`** — 假时钟注入 + 新截帧循环
-2. **修复 `compose.js`** — libass 检测 + 转义修复 + 清理死代码
+2. **修复 `compose.js`** — libass 前置检测 + 转义修复 + 清理死代码
 3. **更新 `SKILL.md`** — 同步文档
 4. **端到端测试** — 用现有 HTML 产物跑全流程验证

@@ -23,7 +23,8 @@ tts-voiceover/
   config/
     tts-providers.yaml              # TTS 供应商配置
   scripts/
-    tts_cli.py                      # CLI 入口
+    tts_cli.py                      # CLI 入口（含 --batch 批量合成）
+    play_audio.py                   # 章节音频播放器
     tts_adapters/
       __init__.py
       base.py                       # TTSAdapter 抽象基类
@@ -133,7 +134,38 @@ providers:
 
 ## 执行流程
 
-### 步骤 1：解析 Markdown
+### 推荐方式：`--batch` 一条命令完成
+
+`--batch` 模式将解析 Markdown → 逐句合成（带进度条）→ 生成 `tts-manifest.json` 合并为一条命令：
+
+```bash
+python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py \
+  --batch script.md \
+  --output-dir output/audio \
+  --html-path output/presentation.html \
+  --provider qwen3-local
+```
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| `--batch` | 是 | Markdown 文案文件路径 |
+| `--output-dir` | 否 | 音频输出根目录，默认 `output/audio` |
+| `--html-path` | 否 | 对应的 HTML 文件路径，写入 manifest |
+| `--provider` | 否 | TTS 供应商，默认从配置文件读取 |
+| `--config` | 否 | 配置文件路径 |
+
+**行为说明：**
+- 进度实时输出到 stderr，每句合成完成即刻显示 `[当前/总数] 路径 ✓/✗ 音频:Xs 合成:Xs`
+- 某句失败不中断整个批量流程，生成空 WAV 占位，`duration_ms` 为 0
+- manifest 写入 `--output-dir` 父目录下的 `tts-manifest.json`（如 `output/audio` → `output/tts-manifest.json`）
+- stdout 输出结构化 JSON 摘要（provider、成功/失败数、总时长等）
+- 重新运行时覆盖所有文件（不做断点续传）
+
+### 备选方式：逐句调用
+
+仍可使用原有逐句模式，步骤如下：
+
+#### 步骤 1：解析 Markdown
 
 读取 Markdown 文案，提取所有场景及其字幕行：
 
@@ -143,19 +175,19 @@ providers:
 - 非 `## 场景N` 标题下的 `>` 行忽略
 - **跳过代码块**：被 `` ``` `` 围栏包裹的区域内的所有行一律忽略（包括其中的 `>` 行），避免将代码示例中的 `>` 误判为字幕行
 
-### 步骤 2：确认输出路径和 HTML 路径
+#### 步骤 2：确认输出路径和 HTML 路径
 
 - 默认音频输出到 `output/audio/`
 - 询问用户或从上下文推断对应的 HTML 文件路径（填入 manifest 的 `html_path` 字段）
 - 如果 `output/` 目录已有内容，提醒用户将被覆盖
 
-### 步骤 3：创建输出目录
+#### 步骤 3：创建输出目录
 
 ```bash
 mkdir -p output/audio/scene-01 output/audio/scene-02 ...
 ```
 
-### 步骤 4：逐句调用 TTS CLI
+#### 步骤 4：逐句调用 TTS CLI
 
 对每个场景的每行字幕，执行（路径相对于项目根目录）：
 
@@ -180,7 +212,7 @@ CLI 输出到 stdout 一行 JSON：`{"path": "...", "duration_ms": N}`
 
 **收集每句的 `duration_ms`。**
 
-### 步骤 5：生成 tts-manifest.json
+#### 步骤 5：生成 tts-manifest.json
 
 将所有结果汇总，写入 `output/tts-manifest.json`：
 
@@ -194,9 +226,26 @@ CLI 输出到 stdout 一行 JSON：`{"path": "...", "duration_ms": N}`
 }
 ```
 
-### 步骤 6：报告结果
+#### 步骤 6：报告结果
 
 输出摘要：总场景数、总字幕行数、总音频时长、每场景时长汇总。
+
+### 审听合成结果
+
+使用章节音频播放器快速审查合成效果：
+
+```bash
+# 播放某个场景的所有音频
+python .codebuddy/skills/tts-voiceover/scripts/play_audio.py output/audio/scene-01
+
+# 播放所有场景（逐目录）
+for d in output/audio/scene-*/; do
+  echo "=== $d ==="
+  python .codebuddy/skills/tts-voiceover/scripts/play_audio.py "$d"
+done
+```
+
+播放器按文件名自然排序顺序播放目录下所有 `.wav` 文件，Ctrl+C 随时停止。仅需 macOS `afplay` 命令，零额外依赖。
 
 ## Markdown 解析规则
 
@@ -241,8 +290,10 @@ CLI 输出到 stdout 一行 JSON：`{"path": "...", "duration_ms": N}`
 |------|-----|
 | 输入 | `markdown-scriptwriter` 输出的标准 Markdown |
 | 输出 | `output/audio/scene-NN/NNN.wav` + `output/tts-manifest.json` |
-| CLI 合成 | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --text TEXT --output PATH` |
+| CLI 批量合成（推荐） | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --batch script.md --output-dir output/audio --html-path output/presentation.html` |
+| CLI 单句合成 | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --text TEXT --output PATH` |
 | CLI 验证 | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --demo` |
+| 音频播放器 | `python .codebuddy/skills/tts-voiceover/scripts/play_audio.py output/audio/scene-01` |
 | 配置 | `tts-voiceover/config/tts-providers.yaml` |
 | 契约 | `tts-manifest.json` — 下游唯一消费格式 |
 | 下游 | `subtitle-timeline` skill |

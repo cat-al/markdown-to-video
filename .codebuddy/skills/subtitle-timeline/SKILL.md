@@ -7,6 +7,61 @@ description: "Use when generating SRT subtitles and rewriting HTML timeline dura
 
 消费 `tts-manifest.json`（来自 `tts-voiceover`）和 HTML 文件（来自 `markdown-to-html`），输出带时间戳的 SRT 字幕文件，并用真实配音时长**原地重写** HTML 中的 `stepConfig.duration` 和 `timelineConfig.scenes[].duration`。
 
+## ⚡ 首选：使用脚本执行
+
+本 skill 提供了 `sync_timeline.py` 脚本，**优先使用脚本**而非 AI 手算，避免计算错误。
+
+### 脚本位置
+
+```
+.codebuddy/skills/subtitle-timeline/scripts/sync_timeline.py
+```
+
+### 用法
+
+```bash
+# 标准用法：指定项目目录，自动查找 manifest/html/srt
+python .codebuddy/skills/subtitle-timeline/scripts/sync_timeline.py \
+    --project-dir output/001-xxx
+
+# 仅诊断，不修改文件（检查时长是否对齐）
+python .codebuddy/skills/subtitle-timeline/scripts/sync_timeline.py \
+    --project-dir output/001-xxx --dry-run
+
+# 使用 AI 预生成的自定义 step↔line 映射
+python .codebuddy/skills/subtitle-timeline/scripts/sync_timeline.py \
+    --project-dir output/001-xxx --mapping mapping.json
+
+# 手动指定所有路径
+python .codebuddy/skills/subtitle-timeline/scripts/sync_timeline.py \
+    --manifest output/001-xxx/tts-manifest.json \
+    --html output/001-xxx/presentation.html \
+    --srt-output output/001-xxx/subtitles.srt
+```
+
+### 脚本功能
+
+1. **诊断当前状态** — 对比 manifest / stepConfig / timelineConfig / 实际音频，显示差值
+2. **计算新的 step.duration** — 按字幕行→step 映射比例分配，确保 `sum(step.dur) + stepGap*N = audio_scene_duration`
+3. **计算新的 scene.duration** — `scene.duration = sum(step.dur) + stepGap * N_steps`
+4. **生成 SRT 字幕** — 逐句累加时间戳
+5. **原地重写 HTML** — 只改 duration 值，不动 actions 结构
+6. **修改后再次诊断** — 验证时长对齐
+
+### 自定义映射文件格式
+
+如果需要 AI 做语义映射（而非脚本的均匀分配），先生成映射 JSON 再传给脚本：
+
+```json
+{
+  "scene_1": [[0, 1], [2], [3, 4], [5, 6]],
+  "scene_2": [[0, 1, 2], [3, 4], [5, 6, 7], [8]],
+  ...
+}
+```
+
+每个 scene 是一个二维数组，外层索引是 step，内层是字幕行 index。
+
 ## 核心原则
 
 1. **真实时长驱动** — 所有 duration 值来自 TTS 实际输出，不估算
@@ -101,7 +156,12 @@ description: "Use when generating SRT subtitles and rewriting HTML timeline dura
 **计算公式：**
 
 ```
-step.duration = sum(lines[i].duration_ms) + line_gap_ms * (line_count - 1)
+# 原始权重（用于确定比例）
+raw_step_weight = sum(lines[i].duration_ms) + line_gap_ms * (line_count - 1)
+
+# 实际 step.duration 需要按比例缩放，使得:
+#   sum(step.duration) = audio_scene_duration - stepGap * N_steps
+# 脚本会自动处理这个缩放。手算时也必须做比例分配。
 
 其中 lines[i] 是映射到该 step 的字幕行
 ```
@@ -137,9 +197,11 @@ step 3 duration = 1800 + 300 + 2050 = 4150ms
 对每个场景：
 
 ```
-scene.duration = sum(all step.duration) + stepGap * (step_count - 1)
+scene.duration = sum(all step.duration) + stepGap * step_count
 
 其中 stepGap = 600ms（与 TimelineEngine 的 this.stepGap 一致）
+注意：是 stepGap * N，不是 stepGap * (N-1)！
+因为 TimelineEngine.scheduleAutoSteps 在最后一个 step 后也加了一个 stepGap。
 ```
 
 旧模式（无 step）：
@@ -177,11 +239,12 @@ scene.duration = sum(all line.duration_ms) + line_gap_ms * (line_count - 1)
 
 | 项目 | 值 |
 |------|-----|
+| **脚本** | `.codebuddy/skills/subtitle-timeline/scripts/sync_timeline.py` |
 | 输入 | `<项目目录>/tts-manifest.json` + `<项目目录>/presentation.html` |
 | 输出 | `<项目目录>/subtitles.srt` + 原地修改 HTML |
 | 上游 | `tts-voiceover` + `markdown-to-html` |
 | 下游 | `video-render` |
-| 关键计算 | `step.duration = Σ(line.duration_ms) + gap * (n-1)` |
+| 关键计算 | `step.duration = Σ(line.duration_ms) + gap * (n-1)`；`scene.duration = Σ(step.dur) + stepGap * N` |
 | 关键判断 | 字幕行→Step 的语义映射 |
 
 ## 两种模式处理策略
@@ -198,9 +261,11 @@ scene.duration = sum(all line.duration_ms) + line_gap_ms * (line_count - 1)
 |------|----------|
 | 把字幕行和 step 做 1:1 映射 | 字幕行通常多于 step，需要语义分组映射 |
 | 忘记 `line_gap_ms` 间隔 | 每两句字幕之间有 300ms 呼吸停顿，duration 计算必须包含 |
-| 忘记 `stepGap` | 场景总 duration = sum(step.duration) + 600 * (N-1) |
+| 忘记 `stepGap` | 场景总 duration = sum(step.duration) + 600 * N（注意是 N 不是 N-1） |
 | 只改了 stepConfig 没改 timelineConfig | 两处都要改，timelineConfig 的 scene.duration 也要更新 |
 | 修改 HTML 时破坏了 actions 结构 | 只改 duration 数值，不动 actions 数组 |
 | 字幕行遗漏或重复映射 | 自检：所有行恰好映射一次，每个 step 至少一行 |
 | 在旧模式 slide 上试图操作 stepConfig | 旧模式没有 step，只改 timelineConfig.scenes[].duration |
 | SRT 时间戳场景之间不加间隔 | 场景切换处加 `scene_gap_ms`（800ms）静默 |
+| 手算 step.duration 不做比例缩放 | sum(step.dur) 必须 = audio_scene_dur - stepGap*N，需要按比例缩放而非直接用原始值 |
+| 不验证视频/音频总时长对齐 | 修改后用 `--dry-run` 检查 record.js total == audio total |

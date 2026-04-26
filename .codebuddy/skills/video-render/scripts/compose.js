@@ -90,7 +90,9 @@ async function runCompose({ silentMp4, fullAudio, srtPath, outputDir }) {
     .replace(/:/g, '\\\\:');
 
   // 构建 -vf 参数（force_style 内逗号转义为 \,）
-  const vfArg = `subtitles=${escapedSrt}:force_style='FontName=PingFang SC\\,FontSize=42\\,PrimaryColour=&H00FFFFFF\\,OutlineColour=&H00000000\\,Outline=3\\,Shadow=1\\,MarginV=60'`;
+  // 方案C：深棕字 #2a2218 + 半透明纸浆米白底条 #FAF3E9 (70%不透明)
+  // ASS 颜色格式 &HAABBGGRR（注意 BGR 顺序）
+  const vfArg = `subtitles=${escapedSrt}:force_style='FontName=PingFang SC\\,FontSize=14\\,PrimaryColour=&H0018222A\\,OutlineColour=&H0018222A\\,BackColour=&HB3E9F3FA\\,BorderStyle=4\\,Outline=0\\,Shadow=0\\,MarginV=30'`;
 
   const ffmpegArgs = [
     '-y',

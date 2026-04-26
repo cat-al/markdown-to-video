@@ -107,7 +107,7 @@ class Qwen3LocalAdapter(TTSAdapter):
         if duration > REF_AUDIO_MAX_SECONDS:
             print(
                 f"⚠️  警告: 参考音频时长 {duration:.1f}s 超过推荐上限 {REF_AUDIO_MAX_SECONDS}s。\n"
-                f"   过长的参考音频容易导致句首出现"嗯"/"嘿"等异常填充音。\n"
+                f"   过长的参考音频容易导致句首出现'嗯'/'嘿'等异常填充音。\n"
                 f"   建议裁剪到约 {REF_AUDIO_RECOMMENDED_SECONDS}s，选取语气平稳的中间片段，\n"
                 f"   避免选用以感叹/强语气开头的片段。",
                 file=sys.stderr,

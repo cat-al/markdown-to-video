@@ -7,6 +7,23 @@ description: "Use when generating voice-over audio from a video script Markdown 
 
 解析 `markdown-scriptwriter` 输出的标准格式 Markdown 文案，提取每个场景的字幕文本，逐句调用 TTS 生成音频，输出音频文件和 `tts-manifest.json` 时长清单。
 
+## Python 运行环境
+
+本项目的 TTS 依赖（`qwen-tts`、`torch`、`soundfile` 等）安装在项目根目录的虚拟环境中：
+
+```
+.venv/bin/python    # 必须使用此解释器运行 TTS 脚本
+```
+
+**所有 TTS CLI 调用必须使用 `.venv/bin/python`**，不要使用系统 `python3`（系统环境未安装 `qwen-tts`）。
+
+示例：
+
+```bash
+cd /Users/bierchen/project-person/markdown-to-video
+.venv/bin/python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --text "..." --output ...
+```
+
 ## 核心原则
 
 1. **逐句合成** — 每行 `>` 字幕独立生成一个音频文件，确保句级时长精确

@@ -10,7 +10,7 @@ description: "Use when rendering the final MP4 video from upstream artifacts (HT
 ## 核心原则
 
 1. **三阶段管线** — record → audio → compose，每阶段独立可运行、可断点恢复
-2. **接管时钟** — 不用真实时间驱动，手动逐帧推进 TimelineEngine，动画与机器性能解耦
+2. **JS 假时钟** — 页面加载前注入假时钟劫持所有时间源，逐帧推进虚拟时间，动画与机器性能解耦
 3. **流式管道** — 截图 Buffer 直接 pipe 进 FFmpeg stdin，不落盘，内存恒定
 4. **内存硬限 2GB** — 可以慢，不能崩
 
@@ -58,12 +58,13 @@ video-render/
 
 ## 阶段 1：录制（record.js）
 
-### 核心策略：接管时钟逐帧推进
+### 核心策略：JS 假时钟逐帧推进
 
-1. 在浏览器中注入代码，暂停 TimelineEngine 的自动播放
-2. 手动推进时间：每次推进 `1000/fps` 毫秒（30fps = 33.3ms/帧）
-3. 推进后截一帧，再推进下一帧
-4. 动画效果与机器性能完全解耦
+1. 页面加载前注入假时钟，劫持 setTimeout/setInterval/rAF/Date.now/performance.now
+2. 页面加载后阻止 TimelineEngine 自动播放
+3. 截帧循环就绪后启动引擎，每帧调用 `__advanceClock(33.3)` 推进虚拟时间
+4. 等待 compositor 绘制完成后截图
+5. 与引擎实现完全解耦 — 无论引擎内部如何调度，只要用标准 Web API 就能正确录制
 
 ### 流式管道
 
@@ -117,8 +118,14 @@ node .codebuddy/skills/video-render/scripts/video_render.js \
 | 依赖 | 安装方式 | 用途 |
 |------|----------|------|
 | Node.js | 已有 | 运行脚本 |
-| FFmpeg | `brew install ffmpeg` | 视频编码、音频拼接、字幕烧录 |
+| FFmpeg + libass | **必需**。`brew install libass && brew install ffmpeg --build-from-source` | 视频编码、音频拼接、字幕硬烧录 |
 | Puppeteer | `npm install puppeteer` | 控制 Chrome 截帧 |
+
+验证 libass：
+```bash
+ffmpeg -filters 2>&1 | grep subtitle
+# 应输出：T.. subtitles ...
+```
 
 ## 错误处理
 

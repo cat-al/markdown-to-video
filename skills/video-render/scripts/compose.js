@@ -8,8 +8,47 @@
 
 const path = require('path');
 const fs = require('fs');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const { createProgressBar } = require('./utils/progress');
+
+/**
+ * 检测当前 FFmpeg 是否编译了 subtitles filter（需要 libass）
+ */
+function hasSubtitlesFilter() {
+  try {
+    const filters = execSync('ffmpeg -filters 2>&1', { encoding: 'utf-8' });
+    return /\bsubtitles\b/.test(filters);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 前置检测 libass，缺失则报错退出并引导安装
+ */
+function checkLibass() {
+  if (!hasSubtitlesFilter()) {
+    console.error('');
+    console.error('❌ FFmpeg 缺少 libass，无法硬烧录字幕。');
+    console.error('');
+    console.error('   当前 FFmpeg 未编译 subtitles filter（需要 libass 库）。');
+    console.error('   请按以下步骤安装含 libass 的 FFmpeg：');
+    console.error('');
+    console.error('   # 方式 1：Homebrew 从源码编译（推荐）');
+    console.error('   brew uninstall ffmpeg');
+    console.error('   brew install libass');
+    console.error('   brew install ffmpeg --build-from-source');
+    console.error('');
+    console.error('   # 方式 2：使用 ffmpeg-full cask');
+    console.error('   brew tap homebrew-ffmpeg/ffmpeg');
+    console.error('   brew install homebrew-ffmpeg/ffmpeg/ffmpeg --with-libass');
+    console.error('');
+    console.error('   安装后验证：');
+    console.error('   ffmpeg -filters 2>&1 | grep subtitle');
+    console.error('');
+    process.exit(1);
+  }
+}
 
 /**
  * 执行合成阶段
@@ -39,26 +78,19 @@ async function runCompose({ silentMp4, fullAudio, srtPath, outputDir }) {
     }
   }
 
+  // 前置检测 libass
+  checkLibass();
+
   // 获取视频总时长（用于进度计算）
   const totalDuration = await getVideoDuration(silentMp4);
 
-  // SRT 路径需要转义冒号和反斜杠（FFmpeg subtitles filter 的要求）
+  // SRT 路径转义：反斜杠 → \\\\，冒号 → \:
   const escapedSrt = path.resolve(srtPath)
     .replace(/\\/g, '\\\\\\\\')
-    .replace(/:/g, '\\:');
+    .replace(/:/g, '\\\\:');
 
-  const subtitleFilter = [
-    `subtitles=${escapedSrt}`,
-    `force_style='FontName=PingFang SC,FontSize=42`,
-    `PrimaryColour=&H00FFFFFF`,
-    `OutlineColour=&H00000000`,
-    `Outline=3`,
-    `Shadow=1`,
-    `MarginV=60'`,
-  ].join(',');
-
-  // 构建完整的 -vf 参数
-  const vfArg = `subtitles=${escapedSrt}:force_style='FontName=PingFang SC,FontSize=42,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=3,Shadow=1,MarginV=60'`;
+  // 构建 -vf 参数（force_style 内逗号转义为 \,）
+  const vfArg = `subtitles=${escapedSrt}:force_style='FontName=PingFang SC\\,FontSize=42\\,PrimaryColour=&H00FFFFFF\\,OutlineColour=&H00000000\\,Outline=3\\,Shadow=1\\,MarginV=60'`;
 
   const ffmpegArgs = [
     '-y',
@@ -136,7 +168,6 @@ async function runCompose({ silentMp4, fullAudio, srtPath, outputDir }) {
  */
 function getVideoDuration(videoPath) {
   return new Promise((resolve) => {
-    const { execSync } = require('child_process');
     try {
       const result = execSync(
         `ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${videoPath}"`,

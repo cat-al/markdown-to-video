@@ -29,22 +29,45 @@ video-render/
       resource-guard.js             # 内存/资源监控
 ```
 
+## 产物目录约定
+
+> 完整约定见 `docs/project-output-convention.md`。
+
+本 skill 接收**项目目录路径**作为参数（如 `output/001-cognitive-awakening/`）。
+
+### 输入路径
+
+| 产物 | 路径 |
+|------|------|
+| TTS 清单 | `<项目目录>/tts-manifest.json` |
+| HTML 幻灯片 | `<项目目录>/presentation.html`（从 manifest 的 `html_path` 相对路径定位） |
+| SRT 字幕 | `<项目目录>/subtitles.srt` |
+| 逐句音频 | `<项目目录>/audio/scene-NN/NNN.wav`（从 manifest 的 `audio_path` 相对路径定位） |
+
+### 输出路径
+
+| 产物 | 路径 |
+|------|------|
+| 无声视频 | `<项目目录>/video/silent.mp4` |
+| 完整音轨 | `<项目目录>/video/full-audio.wav` |
+| 最终视频 | `<项目目录>/video/final.mp4` |
+
 ## 输入
 
 | 文件 | 来源 | 说明 |
 |------|------|------|
-| `tts-manifest.json` | `tts-voiceover` | 含 `html_path`、每句音频路径和 `duration_ms` |
-| HTML 文件 | `markdown-to-html` + `subtitle-timeline` | 含 `stepConfig`、`timelineConfig`、`TimelineEngine`，时长已校准 |
-| `output/subtitles.srt` | `subtitle-timeline` | 带时间戳的 SRT 字幕 |
-| `output/audio/scene-NN/NNN.wav` | `tts-voiceover` | 逐句配音 WAV |
+| `<项目目录>/tts-manifest.json` | `tts-voiceover` | 含 `html_path`、每句音频路径（相对路径）和 `duration_ms` |
+| `<项目目录>/presentation.html` | `markdown-to-html` + `subtitle-timeline` | 含 `stepConfig`、`timelineConfig`、`TimelineEngine`，时长已校准 |
+| `<项目目录>/subtitles.srt` | `subtitle-timeline` | 带时间戳的 SRT 字幕 |
+| `<项目目录>/audio/scene-NN/NNN.wav` | `tts-voiceover` | 逐句配音 WAV |
 
 ## 输出
 
 | 文件 | 说明 |
 |------|------|
-| `output/video/silent.mp4` | 无声视频（中间产物） |
-| `output/video/full-audio.wav` | 完整音轨（中间产物） |
-| **`output/video/final.mp4`** | **最终可发布视频** |
+| `<项目目录>/video/silent.mp4` | 无声视频（中间产物） |
+| `<项目目录>/video/full-audio.wav` | 完整音轨（中间产物） |
+| **`<项目目录>/video/final.mp4`** | **最终可发布视频** |
 
 ## 三阶段管线
 
@@ -99,18 +122,18 @@ video-render/
 ```bash
 # 一键全流程
 node .codebuddy/skills/video-render/scripts/video_render.js \
-  --manifest output/tts-manifest.json \
-  --srt output/subtitles.srt
+  --manifest <项目目录>/tts-manifest.json \
+  --srt <项目目录>/subtitles.srt
 
 # 单独跑某个阶段
 node .codebuddy/skills/video-render/scripts/video_render.js \
-  --stage record --manifest output/tts-manifest.json
+  --stage record --manifest <项目目录>/tts-manifest.json
 
 node .codebuddy/skills/video-render/scripts/video_render.js \
-  --stage audio --manifest output/tts-manifest.json
+  --stage audio --manifest <项目目录>/tts-manifest.json
 
 node .codebuddy/skills/video-render/scripts/video_render.js \
-  --stage compose --manifest output/tts-manifest.json --srt output/subtitles.srt
+  --stage compose --manifest <项目目录>/tts-manifest.json --srt <项目目录>/subtitles.srt
 ```
 
 ## 前置依赖
@@ -145,9 +168,9 @@ ffmpeg -filters 2>&1 | grep subtitle
 
 | 项目 | 值 |
 |------|-----|
-| 输入 | `tts-manifest.json` + HTML + SRT + WAV 音频 |
-| 输出 | `output/video/final.mp4` |
-| 中间产物 | `output/video/silent.mp4`、`output/video/full-audio.wav` |
+| 输入 | `<项目目录>/tts-manifest.json` + HTML + SRT + WAV 音频 |
+| 输出 | `<项目目录>/video/final.mp4` |
+| 中间产物 | `<项目目录>/video/silent.mp4`、`<项目目录>/video/full-audio.wav` |
 | 上游 | `markdown-to-html` + `tts-voiceover` + `subtitle-timeline` |
 | 下游 | 无（最终产物） |
 | 主入口 | `node .codebuddy/skills/video-render/scripts/video_render.js` |

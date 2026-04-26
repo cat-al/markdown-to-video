@@ -15,26 +15,56 @@
 5. `subtitle-timeline`：消费 manifest + HTML，生成 SRT 字幕并用真实音频时长重写时间轴
 6. `video-render`：三阶段管线（Puppeteer 截帧 → 音频拼接 → FFmpeg 合成），输出可发布 MP4
 
+## 产物目录约定
+
+> 完整约定见 [`docs/project-output-convention.md`](docs/project-output-convention.md)。
+
+每个视频项目的产物隔离在独立目录中，目录名格式为 `<NNN>-<slug>`：
+
+```
+output/
+  001-cognitive-awakening/
+    script.md                  ← markdown-scriptwriter
+    presentation.html          ← markdown-to-html
+    paper-texture-bg.png       ← markdown-to-html
+    audio/                     ← tts-voiceover
+      scene-01/001.wav
+      scene-02/001.wav
+    tts-manifest.json          ← tts-voiceover
+    subtitles.srt              ← subtitle-timeline
+    video/                     ← video-render
+      silent.mp4
+      full-audio.wav
+      final.mp4
+  002-attention-mechanism/
+    ...
+```
+
+- 编号自动递增（扫描 `output/` 下已有目录）
+- slug 由用户在 brainstorming 阶段确认
+- manifest 内路径全部使用相对于项目目录的相对路径
+- 每个 skill 调用时附带项目目录路径
+
 ## 完整链路
 
 ```
 内容/想法
     ↓
-markdown-scriptwriter → Markdown 文案
-    ├──→ markdown-to-html → HTML（stepConfig duration 为估算值）
+markdown-scriptwriter → <项目目录>/script.md
+    ├──→ markdown-to-html → <项目目录>/presentation.html
     │         ↓
     │    html-layout-review → 视觉验收
     │
-    └──→ tts-voiceover → 音频文件 + tts-manifest.json
+    └──→ tts-voiceover → <项目目录>/audio/ + tts-manifest.json
                                     ↓
                           subtitle-timeline
-                              ├── subtitles.srt
-                              └── 原地修改 HTML（重写 stepConfig.duration + timelineConfig.scenes[].duration）
+                              ├── <项目目录>/subtitles.srt
+                              └── 原地修改 presentation.html
                                     ↓
                           video-render
-                              ├── 阶段1: record  → silent.mp4
-                              ├── 阶段2: audio   → full-audio.wav
-                              └── 阶段3: compose → final.mp4 ✅
+                              ├── 阶段1: record  → video/silent.mp4
+                              ├── 阶段2: audio   → video/full-audio.wav
+                              └── 阶段3: compose → video/final.mp4 ✅
 ```
 
 `tts-voiceover` 和 `markdown-to-html` 是**平行**关系，都以 Markdown 文案为输入。`subtitle-timeline` 在两者之后，消费两者的输出。

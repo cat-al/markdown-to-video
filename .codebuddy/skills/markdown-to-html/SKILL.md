@@ -18,11 +18,30 @@ description: "Use when converting standardized video script Markdown into a 16:9
 7. **JS 驱动的可配置时间轴**，支持后续 TTS 时间回填
 8. **遵循 frontend-design 美学规范**，禁止通用 AI 美学
 
+## 产物目录约定
+
+> 完整约定见 `docs/project-output-convention.md`。
+
+本 skill 接收**项目目录路径**作为参数（如 `output/001-cognitive-awakening/`）。
+
+### 输入路径
+
+| 产物 | 路径 |
+|------|------|
+| 视频文案 | `<项目目录>/script.md` |
+
+### 输出路径
+
+| 产物 | 路径 |
+|------|------|
+| HTML 幻灯片 | `<项目目录>/presentation.html` |
+| 背景纹理 | `<项目目录>/paper-texture-bg.png` |
+
 ## 流程
 
 ### 准备阶段
 
-1. 读取标准格式 Markdown（由 `markdown-scriptwriter` 生成）
+1. 读取 `<项目目录>/script.md`（由 `markdown-scriptwriter` 生成）
 2. 用 `scripts/parse-markdown.js` 解析为 JSON 场景数据
 3. 用 `scripts/build-presentation-plan.js` 生成 `presentationPlan`
 4. 读取 `templates/slide-base.html` 作为页面骨架

@@ -22,7 +22,7 @@ description: "Use when generating SRT subtitles and rewriting HTML timeline dura
 
 ## 输出
 
-### 1) SRT 字幕文件 — `output/subtitles.srt`
+### 1) SRT 字幕文件 — `<项目目录>/subtitles.srt`
 
 逐句累加时间戳，句间留 `line_gap_ms`（默认 300ms）呼吸间隔：
 
@@ -50,8 +50,8 @@ description: "Use when generating SRT subtitles and rewriting HTML timeline dura
 
 ### 步骤 1：读取 manifest 和 HTML
 
-1. 读取 `output/tts-manifest.json`（或用户指定的路径）
-2. 从 manifest 的 `html_path` 字段获取 HTML 文件路径
+1. 读取 `<项目目录>/tts-manifest.json`（或用户指定的路径）
+2. 从 manifest 的 `html_path` 字段获取 HTML 文件相对路径，拼接项目目录得到完整路径
 3. 读取 HTML 文件，提取 `window.stepConfig` 和 `window.timelineConfig`
 
 ### 步骤 2：生成 SRT 字幕
@@ -72,7 +72,7 @@ description: "Use when generating SRT subtitles and rewriting HTML timeline dura
     全局偏移 += scene_gap_ms (800ms)  // 场景间静默
 ```
 
-输出到 `output/subtitles.srt`。
+输出到 `<项目目录>/subtitles.srt`。
 
 ### 步骤 3：确定 HTML 模式并建立映射
 
@@ -177,10 +177,10 @@ scene.duration = sum(all line.duration_ms) + line_gap_ms * (line_count - 1)
 
 | 项目 | 值 |
 |------|-----|
-| 输入 | `output/tts-manifest.json` + HTML 文件 |
-| 输出 | `output/subtitles.srt` + 原地修改 HTML |
+| 输入 | `<项目目录>/tts-manifest.json` + `<项目目录>/presentation.html` |
+| 输出 | `<项目目录>/subtitles.srt` + 原地修改 HTML |
 | 上游 | `tts-voiceover` + `markdown-to-html` |
-| 下游 | 视频合成阶段（未实现） |
+| 下游 | `video-render` |
 | 关键计算 | `step.duration = Σ(line.duration_ms) + gap * (n-1)` |
 | 关键判断 | 字幕行→Step 的语义映射 |
 

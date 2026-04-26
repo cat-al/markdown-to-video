@@ -53,7 +53,7 @@ Markdown 文案文件（由 `markdown-scriptwriter` 生成），字幕行以 `>`
 ### 1) 音频文件（按场景分目录）
 
 ```
-output/audio/
+<项目目录>/audio/
   scene-01/
     001.wav
     002.wav
@@ -67,8 +67,8 @@ output/audio/
 
 ```json
 {
-  "source": "my-video-script.md",
-  "html_path": "output/presentation.html",
+  "source": "script.md",
+  "html_path": "presentation.html",
   "provider": "qwen3-local",
   "created_at": "2026-04-25T19:40:00",
   "scenes": [
@@ -80,7 +80,7 @@ output/audio/
         {
           "index": 0,
           "text": "第一句字幕文案",
-          "audio_path": "output/audio/scene-01/001.wav",
+          "audio_path": "audio/scene-01/001.wav",
           "duration_ms": 2340
         }
       ]
@@ -140,24 +140,25 @@ providers:
 
 ```bash
 python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py \
-  --batch script.md \
-  --output-dir output/audio \
-  --html-path output/presentation.html \
+  --batch <项目目录>/script.md \
+  --output-dir <项目目录>/audio \
+  --html-path <项目目录>/presentation.html \
   --provider qwen3-local
 ```
 
 | 参数 | 必填 | 说明 |
 |------|------|------|
-| `--batch` | 是 | Markdown 文案文件路径 |
-| `--output-dir` | 否 | 音频输出根目录，默认 `output/audio` |
-| `--html-path` | 否 | 对应的 HTML 文件路径，写入 manifest |
+| `--batch` | 是 | Markdown 文案文件路径（`<项目目录>/script.md`） |
+| `--output-dir` | 否 | 音频输出根目录，默认 `<项目目录>/audio` |
+| `--html-path` | 否 | 对应的 HTML 文件路径，写入 manifest（相对于项目目录） |
 | `--provider` | 否 | TTS 供应商，默认从配置文件读取 |
 | `--config` | 否 | 配置文件路径 |
 
 **行为说明：**
 - 进度实时输出到 stderr，每句合成完成即刻显示 `[当前/总数] 路径 ✓/✗ 音频:Xs 合成:Xs`
 - 某句失败不中断整个批量流程，生成空 WAV 占位，`duration_ms` 为 0
-- manifest 写入 `--output-dir` 父目录下的 `tts-manifest.json`（如 `output/audio` → `output/tts-manifest.json`）
+- manifest 写入 `--output-dir` 父目录下的 `tts-manifest.json`（如 `<项目目录>/audio` → `<项目目录>/tts-manifest.json`）
+- manifest 内所有路径（`source`、`html_path`、`audio_path`）使用**相对于项目目录**的相对路径
 - stdout 输出结构化 JSON 摘要（provider、成功/失败数、总时长等）
 - 重新运行时覆盖所有文件（不做断点续传）
 
@@ -175,26 +176,27 @@ python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py \
 - 非 `## 场景N` 标题下的 `>` 行忽略
 - **跳过代码块**：被 `` ``` `` 围栏包裹的区域内的所有行一律忽略（包括其中的 `>` 行），避免将代码示例中的 `>` 误判为字幕行
 
-#### 步骤 2：确认输出路径和 HTML 路径
+#### 步骤 2：确认项目目录
 
-- 默认音频输出到 `output/audio/`
-- 询问用户或从上下文推断对应的 HTML 文件路径（填入 manifest 的 `html_path` 字段）
-- 如果 `output/` 目录已有内容，提醒用户将被覆盖
+- 用户提供项目目录路径（如 `output/001-cognitive-awakening/`）
+- 音频输出到 `<项目目录>/audio/`
+- HTML 路径为 `<项目目录>/presentation.html`（写入 manifest 的 `html_path` 字段，使用相对路径 `presentation.html`）
+- 如果 `<项目目录>/audio/` 目录已有内容，提醒用户将被覆盖
 
 #### 步骤 3：创建输出目录
 
 ```bash
-mkdir -p output/audio/scene-01 output/audio/scene-02 ...
+mkdir -p <项目目录>/audio/scene-01 <项目目录>/audio/scene-02 ...
 ```
 
 #### 步骤 4：逐句调用 TTS CLI
 
-对每个场景的每行字幕，执行（路径相对于项目根目录）：
+对每个场景的每行字幕，执行：
 
 ```bash
 python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py \
   --text "字幕文案" \
-  --output output/audio/scene-01/001.wav \
+  --output <项目目录>/audio/scene-01/001.wav \
   --provider qwen3-local
 ```
 
@@ -205,7 +207,7 @@ python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py \
 echo '含特殊字符的文本' > /tmp/tts-line.txt
 python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py \
   --text-file /tmp/tts-line.txt \
-  --output output/audio/scene-01/001.wav
+  --output <项目目录>/audio/scene-01/001.wav
 ```
 
 CLI 输出到 stdout 一行 JSON：`{"path": "...", "duration_ms": N}`
@@ -214,7 +216,7 @@ CLI 输出到 stdout 一行 JSON：`{"path": "...", "duration_ms": N}`
 
 #### 步骤 5：生成 tts-manifest.json
 
-将所有结果汇总，写入 `output/tts-manifest.json`：
+将所有结果汇总，写入 `<项目目录>/tts-manifest.json`：
 
 ```json
 {
@@ -236,10 +238,10 @@ CLI 输出到 stdout 一行 JSON：`{"path": "...", "duration_ms": N}`
 
 ```bash
 # 播放某个场景的所有音频
-python .codebuddy/skills/tts-voiceover/scripts/play_audio.py output/audio/scene-01
+python .codebuddy/skills/tts-voiceover/scripts/play_audio.py <项目目录>/audio/scene-01
 
 # 播放所有场景（逐目录）
-for d in output/audio/scene-*/; do
+for d in <项目目录>/audio/scene-*/; do
   echo "=== $d ==="
   python .codebuddy/skills/tts-voiceover/scripts/play_audio.py "$d"
 done
@@ -288,12 +290,12 @@ done
 
 | 项目 | 值 |
 |------|-----|
-| 输入 | `markdown-scriptwriter` 输出的标准 Markdown |
-| 输出 | `output/audio/scene-NN/NNN.wav` + `output/tts-manifest.json` |
-| CLI 批量合成（推荐） | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --batch script.md --output-dir output/audio --html-path output/presentation.html` |
+| 输入 | `<项目目录>/script.md` |
+| 输出 | `<项目目录>/audio/scene-NN/NNN.wav` + `<项目目录>/tts-manifest.json` |
+| CLI 批量合成（推荐） | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --batch <项目目录>/script.md --output-dir <项目目录>/audio --html-path <项目目录>/presentation.html` |
 | CLI 单句合成 | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --text TEXT --output PATH` |
 | CLI 验证 | `python .codebuddy/skills/tts-voiceover/scripts/tts_cli.py --demo` |
-| 音频播放器 | `python .codebuddy/skills/tts-voiceover/scripts/play_audio.py output/audio/scene-01` |
+| 音频播放器 | `python .codebuddy/skills/tts-voiceover/scripts/play_audio.py <项目目录>/audio/scene-01` |
 | 配置 | `tts-voiceover/config/tts-providers.yaml` |
 | 契约 | `tts-manifest.json` — 下游唯一消费格式 |
 | 下游 | `subtitle-timeline` skill |

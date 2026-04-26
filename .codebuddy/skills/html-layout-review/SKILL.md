@@ -28,10 +28,17 @@ description: Use when reviewing generated HTML slides or presentation pages for 
 - 用户要的是**直接修复**而不是审查
 - 用户要的是审美点评、风格建议、或内容事实核对
 
+## 产物目录约定
+
+> 完整约定见 `docs/project-output-convention.md`。
+
+本 skill 接收**项目目录路径**作为参数（如 `output/001-cognitive-awakening/`），审查 `<项目目录>/presentation.html`。
+
 ## 最小输入形式
 
 优先接受以下任一种输入：
 
+- **项目目录路径**（自动定位 `<项目目录>/presentation.html`）
 - **本地 HTML 文件路径**
 - **可打开的预览 URL**
 - 如果上下文里刚刚生成了唯一的 HTML 输出，可以默认以该文件为审查对象

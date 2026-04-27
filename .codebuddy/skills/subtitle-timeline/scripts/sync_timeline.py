@@ -227,7 +227,8 @@ def generate_srt(manifest: Dict) -> str:
 
     scenes = manifest['scenes']
     for scene_idx, scene in enumerate(scenes):
-        for line_idx, line in enumerate(scene['lines']):
+        lines = scene['lines']
+        for line_idx, line in enumerate(lines):
             start = global_offset
             end = start + line['duration_ms']
 
@@ -236,7 +237,11 @@ def generate_srt(manifest: Dict) -> str:
             srt_lines.append(line['text'])
             srt_lines.append('')
 
-            global_offset = end + LINE_GAP_MS
+            # 句间间隔：场景最后一行后面不加 LINE_GAP（与 audio.js 保持一致）
+            if line_idx < len(lines) - 1:
+                global_offset = end + LINE_GAP_MS
+            else:
+                global_offset = end
             index += 1
 
         if scene_idx < len(scenes) - 1:

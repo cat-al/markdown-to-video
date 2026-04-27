@@ -325,8 +325,8 @@ __SLIDES__
       /* ── Step 配置 ── */
 
       getSlideSteps(slide) {
-        const sceneId = slide.dataset.scene;
-        return window.stepConfig[`slide-${sceneId}`] || [];
+        const slideIndex = this.slides.indexOf(slide) + 1;
+        return window.stepConfig[`slide-${slideIndex}`] || [];
       }
 
       hasSteps(slide) {

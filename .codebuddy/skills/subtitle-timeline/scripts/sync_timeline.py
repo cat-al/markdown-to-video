@@ -407,7 +407,11 @@ def run(
         # 确定映射
         if custom_mapping and scene_id in custom_mapping:
             step_line_map = custom_mapping[scene_id]
+        elif n_lines == n_steps:
+            # 新默认：1:1 映射（字幕段数 == step 数时天然对齐）
+            step_line_map = [[i] for i in range(n_lines)]
         else:
+            # fallback：均匀分配（兼容旧格式或段数不匹配的情况）
             step_line_map = distribute_lines_to_steps(n_lines, n_steps)
 
         # 验证映射完整性

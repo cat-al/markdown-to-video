@@ -66,7 +66,7 @@ python .codebuddy/skills/subtitle-timeline/scripts/sync_timeline.py \
 
 1. **真实时长驱动** — 所有 duration 值来自 TTS 实际输出，不估算
 2. **原地修改 HTML** — 不生成新文件，直接替换 HTML 中的配置值
-3. **字幕行 ↔ Step 映射由 AI 判断** — 根据语义对应关系手动建立，不是机械 1:1
+3. **默认 1:1 映射** — 新格式下每段 `>` 对应一个 step，段数 == step 数时自动 1:1 映射；不匹配时回退到均匀分配
 
 ## 输入
 
@@ -139,58 +139,32 @@ python .codebuddy/skills/subtitle-timeline/scripts/sync_timeline.py \
 | **旧模式** | 无 stepConfig 或 `stepConfig["slide-N"]` 不存在 | 计算场景总时长，重写 `timelineConfig.scenes[].duration` |
 | **混合** | 同一 HTML 中部分 slide 有 step、部分没有 | 逐 slide 判断，分别处理 |
 
-### 步骤 4：建立字幕行→Step 映射（Step 模式）
+### 步骤 4：建立字幕段→Step 映射（Step 模式）
 
-<HARD-GATE>
-字幕行和 step 不是 1:1 关系。必须根据语义判断哪几句字幕对应哪个 step。
-</HARD-GATE>
+### 字幕段与 Step 的映射
 
-**映射方法：**
+新格式下，每段 `>` 对应一个 step，默认 **1:1 映射**：
 
-1. 读取场景的字幕行列表（来自 manifest 的 `lines[]`）
-2. 读取对应 slide 的 `stepConfig["slide-N"]`（来自 HTML）
-3. 读取每个 step 的 `actions[]`，理解每步做了什么（哪些元素 enter/exit/move）
-4. 根据字幕内容和 step 动作的语义对应关系，判断哪几句字幕陪伴哪个 step
-5. 用该组字幕的总时长（含句间间隔）作为 `step.duration`
+- 字幕段数 == step 数 → 段 N → step N（无需额外映射）
+- 字幕段数 ≠ step 数 → 回退到均匀分配（`distribute_lines_to_steps()`）
+- 自定义映射文件仍然支持（`--mapping`）
 
-**计算公式：**
+1:1 映射下的计算公式简化为：
 
 ```
-# 原始权重（用于确定比例）
-raw_step_weight = sum(lines[i].duration_ms) + line_gap_ms * (line_count - 1)
-
-# 实际 step.duration 需要按比例缩放，使得:
-#   sum(step.duration) = audio_scene_duration - stepGap * N_steps
-# 脚本会自动处理这个缩放。手算时也必须做比例分配。
-
-其中 lines[i] 是映射到该 step 的字幕行
+step.duration = line.duration_ms
+scene.duration = sum(step.duration) + stepGap * N_steps
 ```
+
+**非 1:1 情况的 Fallback：**
+
+如果段数和 step 数不匹配（兼容旧格式），脚本自动回退到均匀分配。也可使用 AI 预生成的自定义映射文件。
 
 **映射校验规则（自检）：**
 
-- [ ] 所有字幕行必须恰好被映射一次（不遗漏、不重复）
-- [ ] 每个 step 至少映射一行字幕
+- [ ] 所有字幕段必须恰好被映射一次（不遗漏、不重复）
+- [ ] 每个 step 至少映射一段字幕
 - [ ] 映射结果的总时长应覆盖该场景的所有字幕
-
-**Fallback：** 如果语义映射不明确（字幕行数和 step 数差距过大），按字幕行均匀分配到各 step。
-
-**映射示例：**
-
-```
-scene_1 字幕行：
-  [0] "今天我们来聊聊 Attention 机制"     → step 0（标题入场）
-  [1] "它是 Transformer 的核心组件"       → step 0
-  [2] "简单来说，它让模型学会该关注哪里"    → step 1（概念图入场）
-  [3] "首先，输入会被转换成三个向量"        → step 2（Q/K/V 节点出现）
-  [4] "分别叫做 Query、Key 和 Value"      → step 2
-  [5] "Query 和 Key 做点积运算"           → step 3（箭头入场）
-  [6] "得到的结果就是注意力权重"            → step 3
-
-step 0 duration = 2340 + 300 + 1870 = 4510ms
-step 1 duration = 2100ms
-step 2 duration = 1950 + 300 + 2200 = 4450ms
-step 3 duration = 1800 + 300 + 2050 = 4150ms
-```
 
 ### 步骤 5：计算场景总 duration
 
@@ -245,7 +219,7 @@ scene.duration = sum(all line.duration_ms) + line_gap_ms * (line_count - 1)
 | 上游 | `tts-voiceover` + `markdown-to-html` |
 | 下游 | `video-render` |
 | 关键计算 | `step.duration = Σ(line.duration_ms) + gap * (n-1)`；`scene.duration = Σ(step.dur) + stepGap * N` |
-| 关键判断 | 字幕行→Step 的语义映射 |
+| 关键判断 | 字幕段→Step 默认 1:1 映射（段数 ≠ step 数时回退到均匀分配） |
 
 ## 两种模式处理策略
 
@@ -259,7 +233,7 @@ scene.duration = sum(all line.duration_ms) + line_gap_ms * (line_count - 1)
 
 | 错误 | 正确做法 |
 |------|----------|
-| 把字幕行和 step 做 1:1 映射 | 字幕行通常多于 step，需要语义分组映射 |
+| 新格式下仍手动做语义映射 | 新格式字幕段数 == step 数时，脚本自动 1:1 映射，无需手动 |
 | 忘记 `line_gap_ms` 间隔 | 每两句字幕之间有 300ms 呼吸停顿，duration 计算必须包含 |
 | 忘记 `stepGap` | 场景总 duration = sum(step.duration) + 600 * N（注意是 N 不是 N-1） |
 | 只改了 stepConfig 没改 timelineConfig | 两处都要改，timelineConfig 的 scene.duration 也要更新 |

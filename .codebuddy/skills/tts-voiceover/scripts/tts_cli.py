@@ -202,14 +202,17 @@ def run_demo(args):
 
 
 def parse_markdown(filepath: str) -> List[Dict[str, Any]]:
-    """解析 Markdown 文案，提取场景和字幕行。
+    """解析 Markdown 文案，提取场景和字幕段落。
+
+    连续 > 行（中间无空行）合并为一段，空行分隔段落。
+    每段对应一个 step / 一个 TTS 音频 / 一条 SRT 字幕。
 
     返回格式:
     [
         {
             "scene_number": 1,
             "title": "场景标题",
-            "lines": ["字幕文本1", "字幕文本2", ...]
+            "lines": ["段落1文本", "段落2文本", ...]
         },
         ...
     ]
@@ -222,34 +225,51 @@ def parse_markdown(filepath: str) -> List[Dict[str, Any]]:
     in_code_block = False
 
     with open(filepath, 'r', encoding='utf-8') as f:
-        for line in f:
-            line = line.rstrip('\n')
+        all_lines = [line.rstrip('\n') for line in f]
 
-            # 代码块围栏切换
-            if line.startswith('```'):
-                in_code_block = not in_code_block
-                continue
+    idx = 0
+    while idx < len(all_lines):
+        line = all_lines[idx]
 
-            # 代码块内所有行跳过
-            if in_code_block:
-                continue
+        # 代码块围栏切换
+        if line.startswith('```'):
+            in_code_block = not in_code_block
+            idx += 1
+            continue
 
-            # 检查场景标题
-            m = scene_title_re.match(line)
+        if in_code_block:
+            idx += 1
+            continue
+
+        # 场景标题
+        m = scene_title_re.match(line)
+        if m:
+            current_scene = {
+                "scene_number": int(m.group(1)),
+                "title": m.group(2).strip(),
+                "lines": [],
+            }
+            scenes.append(current_scene)
+            idx += 1
+            continue
+
+        # 字幕段落：连续 > 行合并为一段
+        if current_scene is not None:
+            m = subtitle_re.match(line)
             if m:
-                current_scene = {
-                    "scene_number": int(m.group(1)),
-                    "title": m.group(2).strip(),
-                    "lines": [],
-                }
-                scenes.append(current_scene)
+                paragraph_parts = [m.group(1).strip()]
+                idx += 1
+                while idx < len(all_lines):
+                    next_m = subtitle_re.match(all_lines[idx])
+                    if next_m:
+                        paragraph_parts.append(next_m.group(1).strip())
+                        idx += 1
+                    else:
+                        break
+                current_scene["lines"].append(' '.join(paragraph_parts))
                 continue
 
-            # 检查字幕行（只在场景内收集）
-            if current_scene is not None:
-                m = subtitle_re.match(line)
-                if m:
-                    current_scene["lines"].append(m.group(1).strip())
+        idx += 1
 
     return scenes
 

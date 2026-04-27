@@ -463,8 +463,19 @@ function parseScenes(body) {
 
       const subtitleMatch = line.match(/^>\s*(.+)/);
       if (subtitleMatch) {
-        scene.subtitles.push(subtitleMatch[1].trim());
+        // 收集连续 > 行，合并为一段
+        let paragraphParts = [subtitleMatch[1].trim()];
         idx++;
+        while (idx < lines.length) {
+          const nextMatch = lines[idx].match(/^>\s*(.+)/);
+          if (nextMatch) {
+            paragraphParts.push(nextMatch[1].trim());
+            idx++;
+          } else {
+            break;
+          }
+        }
+        scene.subtitles.push(paragraphParts.join(' '));
         continue;
       }
 

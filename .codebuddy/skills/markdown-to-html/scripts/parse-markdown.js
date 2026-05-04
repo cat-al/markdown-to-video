@@ -28,6 +28,7 @@
  *         { "type": "quote", "content": "..." }
  *       ],
  *       "subtitles": ["第一句字幕", "第二句字幕", ...],
+ *       "animationIntents": ["动画指令1", "动画指令2", ...],
  *       "pageConfigOverrides": {
  *         "sceneRole": "cover",
  *         "titleSize": "hero"
@@ -336,6 +337,7 @@ function parseScenes(body) {
       visual: '',
       elements: [],
       subtitles: [],
+      animationIntents: [],
       pageConfigOverrides: {},
       pageConfig: {},
       layoutHints: {}
@@ -476,6 +478,17 @@ function parseScenes(body) {
           }
         }
         scene.subtitles.push(paragraphParts.join(' '));
+
+        // 新增：向后查找紧随的 **动画**: 行
+        let lookAhead = idx;
+        while (lookAhead < lines.length && lines[lookAhead].trim() === '') lookAhead++;
+        const animMatch = lines[lookAhead]?.match(/^\*\*动画\*\*[：:]\s*(.+)/);
+        if (animMatch) {
+          scene.animationIntents.push(animMatch[1].trim());
+          idx = lookAhead + 1;
+        } else {
+          scene.animationIntents.push(''); // 缺失时留空（向后兼容）
+        }
         continue;
       }
 

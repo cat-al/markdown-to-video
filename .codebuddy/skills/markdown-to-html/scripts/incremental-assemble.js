@@ -1,438 +1,274 @@
 #!/usr/bin/env node
 
 /**
- * incremental-assemble.js
+ * incremental-assemble.js — 镜头蒙太奇增量组装
  *
- * 增量场景组装工具。将 AI 逐场景创作的 HTML 片段增量组装到 presentation.html。
+ * 逐画布组构建 presentation.html，支持断点恢复。
  *
- * 子命令:
- *   init     — 从 slide-base.html 生成骨架 HTML，创建 .build/ 目录
- *   append   — 将场景 HTML 片段追加到 presentation.html
- *   finalize — 注入所有 config 占位符，清理临时文件
- *   status   — 输出当前构建进度
+ * 命令：
+ *   init     - 初始化骨架 HTML 和 .build/ 目录
+ *   append   - 追加一个画布组的镜头 HTML
+ *   finalize - 完成组装，注入配置，清理临时文件
+ *   status   - 查看当前进度
  *
- * 用法:
- *   node incremental-assemble.js init     --project-dir <path> --context <json>
- *   node incremental-assemble.js append   --project-dir <path> --scene-id <N> --slides-html <file> [--step-config <json-file>]
- *   node incremental-assemble.js finalize --project-dir <path>
- *   node incremental-assemble.js status   --project-dir <path>
+ * 用法：
+ *   node incremental-assemble.js init --project-dir <dir>
+ *   node incremental-assemble.js append --project-dir <dir> --group-id N --shots-html <file>
+ *   node incremental-assemble.js finalize --project-dir <dir>
+ *   node incremental-assemble.js status --project-dir <dir>
  */
 
 const fs = require('fs');
 const path = require('path');
 
-const TEMPLATE_PATH = path.resolve(__dirname, '../templates/slide-base.html');
-const ASSETS_DIR = path.resolve(__dirname, '../assets');
-const INSERT_MARKER = '<!-- __INCREMENTAL_INSERT__ -->';
+const SKILL_DIR = path.resolve(__dirname, '..');
+const TEMPLATE_PATH = path.join(SKILL_DIR, 'templates', 'slide-base.html');
+const TEXTURE_PATH = path.join(SKILL_DIR, 'assets', 'paper-texture-bg.png');
 
-// ── 工具函数 ──
-
-function ensureDir(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+// ─── 参数解析 ───
+function parseArgs(args) {
+  const result = {};
+  for (let i = 0; i < args.length; i++) {
+    if (args[i].startsWith('--')) {
+      const key = args[i].slice(2);
+      const val = (i + 1 < args.length && !args[i + 1].startsWith('--')) ? args[++i] : true;
+      result[key] = val;
+    } else if (!result._command) {
+      result._command = args[i];
+    }
   }
+  return result;
 }
 
-function readJSON(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+// ─── init ───
+function init(projectDir) {
+  const buildDir = path.join(projectDir, '.build');
+  fs.mkdirSync(buildDir, { recursive: true });
+
+  // 读取解析结果（如果存在）
+  const scriptPath = path.join(projectDir, 'script.md');
+  let meta = {};
+  if (fs.existsSync(scriptPath)) {
+    const { parseMarkdown } = require('./parse-markdown.js');
+    const content = fs.readFileSync(scriptPath, 'utf-8');
+    const parsed = parseMarkdown(content);
+    meta = parsed.meta;
+
+    // 保存解析结果
+    fs.writeFileSync(path.join(buildDir, 'parsed.json'), JSON.stringify(parsed, null, 2));
+  }
+
+  // 写入进度文件
+  const progress = {
+    status: 'initialized',
+    totalGroups: meta.canvas_groups || 0,
+    totalShots: meta.total_shots || 0,
+    completedGroups: [],
+    createdAt: new Date().toISOString()
+  };
+  fs.writeFileSync(path.join(buildDir, 'progress.json'), JSON.stringify(progress, null, 2));
+
+  // 创建骨架 HTML（仅占位）
+  const skeletonHtml = fs.readFileSync(TEMPLATE_PATH, 'utf-8');
+  const html = skeletonHtml
+    .replace('__APP_TITLE__', meta.title || 'Presentation')
+    .replace('__PRESENTATION_TAG__', meta.topic || '')
+    .replace('__SLIDES__', '<!-- SLIDES_PLACEHOLDER -->')
+    .replace('__PRESENTATION_DATA__', '{}')
+    .replace('__TIMELINE_CONFIG__', JSON.stringify({
+      autoPlay: true,
+      shots: [],
+      shotGap: 300,
+      groupTransition: 600
+    }));
+
+  fs.writeFileSync(path.join(projectDir, 'presentation.html'), html);
+
+  console.log(`✓ 初始化完成`);
+  console.log(`  项目目录: ${projectDir}`);
+  console.log(`  画布组数: ${meta.canvas_groups || '未知'}`);
+  console.log(`  镜头总数: ${meta.total_shots || '未知'}`);
 }
 
-function writeJSON(filePath, data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+// ─── append ───
+function append(projectDir, groupId, shotsHtmlPath) {
+  const buildDir = path.join(projectDir, '.build');
+  const progressPath = path.join(buildDir, 'progress.json');
+
+  if (!fs.existsSync(progressPath)) {
+    console.error('错误：请先运行 init');
+    process.exit(1);
+  }
+
+  const progress = JSON.parse(fs.readFileSync(progressPath, 'utf-8'));
+  const shotsHtml = fs.readFileSync(shotsHtmlPath, 'utf-8');
+
+  // 保存画布组 HTML
+  fs.writeFileSync(path.join(buildDir, `group-${groupId}.html`), shotsHtml);
+
+  // 更新进度
+  if (!progress.completedGroups.includes(parseInt(groupId))) {
+    progress.completedGroups.push(parseInt(groupId));
+    progress.completedGroups.sort((a, b) => a - b);
+  }
+  progress.status = 'in-progress';
+  fs.writeFileSync(progressPath, JSON.stringify(progress, null, 2));
+
+  console.log(`✓ 画布组 ${groupId} 已追加`);
+  console.log(`  进度: ${progress.completedGroups.length}/${progress.totalGroups}`);
 }
 
-function getBuildDir(projectDir) {
-  return path.join(projectDir, '.build');
-}
+// ─── finalize ───
+function finalize(projectDir) {
+  const buildDir = path.join(projectDir, '.build');
+  const progressPath = path.join(buildDir, 'progress.json');
 
-function getBuildStatePath(projectDir) {
-  return path.join(getBuildDir(projectDir), 'build-state.json');
-}
+  if (!fs.existsSync(progressPath)) {
+    console.error('错误：请先运行 init');
+    process.exit(1);
+  }
 
-function getContextPath(projectDir) {
-  return path.join(getBuildDir(projectDir), 'context.json');
-}
+  const progress = JSON.parse(fs.readFileSync(progressPath, 'utf-8'));
+  const parsedPath = path.join(buildDir, 'parsed.json');
+  const parsed = fs.existsSync(parsedPath) ? JSON.parse(fs.readFileSync(parsedPath, 'utf-8')) : { meta: {}, shots: [] };
 
-function getHtmlPath(projectDir) {
-  return path.join(projectDir, 'presentation.html');
-}
+  // 收集所有画布组 HTML
+  const allSlides = [];
+  for (const gid of progress.completedGroups) {
+    const groupHtmlPath = path.join(buildDir, `group-${gid}.html`);
+    if (fs.existsSync(groupHtmlPath)) {
+      allSlides.push(fs.readFileSync(groupHtmlPath, 'utf-8'));
+    }
+  }
 
-// ── buildTimelineConfig（与 render-presentation.js 保持一致）──
+  const slidesHtml = allSlides.join('\n\n');
 
-function buildTimelineConfig(plan) {
-  return {
-    autoPlay: plan.globalTimelineDefaults?.autoPlay !== false,
-    transitionDuration: plan.globalTimelineDefaults?.transitionDuration || 800,
-    scenes: (plan.scenePlans || []).map(scenePlan => ({
-      scene: scenePlan.pageOrder,
-      duration: scenePlan.pageDuration,
-      actions: (scenePlan.steps || []).map(step => ({
-        enterAt: step.enterAt,
-        duration: step.duration,
-        actionType: step.actionType,
-        target: step.target,
-        payload: step.payload
-      }))
+  // 构建 timelineConfig
+  const timelineConfig = {
+    autoPlay: true,
+    shots: parsed.shots.map(shot => ({
+      id: shot.id,
+      canvasGroup: shot.canvasGroup,
+      duration: 3000  // 默认值，后续由 subtitle-timeline 回填
+    })),
+    shotGap: 300,
+    groupTransition: 600
+  };
+
+  // 构建 presentationData
+  const presentationData = {
+    title: parsed.meta.title || '',
+    totalShots: parsed.shots.length,
+    canvasGroups: parsed.canvasGroups ? parsed.canvasGroups.length : 0,
+    shots: parsed.shots.map(s => ({
+      id: s.id,
+      canvasGroup: s.canvasGroup,
+      narration: s.narration
     }))
   };
-}
 
-function escapeHtml(value) {
-  return String(value || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-// ── init ──
-
-function cmdInit(projectDir, contextPath) {
-  const buildDir = getBuildDir(projectDir);
-  const htmlPath = getHtmlPath(projectDir);
-
-  // 读取模板
+  // 读取模板并注入
   const template = fs.readFileSync(TEMPLATE_PATH, 'utf-8');
+  const html = template
+    .replace('__APP_TITLE__', parsed.meta.title || 'Presentation')
+    .replace('__PRESENTATION_TAG__', parsed.meta.topic || '')
+    .replace('__SLIDES__', slidesHtml)
+    .replace('__PRESENTATION_DATA__', JSON.stringify(presentationData))
+    .replace('__TIMELINE_CONFIG__', JSON.stringify(timelineConfig));
 
-  // 读取 planner 上下文
-  const context = readJSON(contextPath);
-  const plan = context.presentationPlan || context.plan || {};
-  const scenePlans = plan.scenePlans || [];
-
-  // 提取所有唯一的 baseSceneId
-  const sceneIds = [...new Set(scenePlans.map(sp => sp.baseSceneId))].sort((a, b) => a - b);
-
-  // 生成骨架 HTML：将 __SLIDES__ 替换为插入标记，其他占位符保留
-  const skeleton = template.replace('__SLIDES__', `\n${INSERT_MARKER}\n`);
-
-  // 写入骨架 HTML
-  ensureDir(projectDir);
-  fs.writeFileSync(htmlPath, skeleton, 'utf-8');
-
-  // 创建 .build/ 目录
-  ensureDir(buildDir);
-
-  // 复制 context 到 .build/
-  const buildContextPath = getContextPath(projectDir);
-  fs.copyFileSync(path.resolve(contextPath), buildContextPath);
-
-  // 初始化 build-state.json
-  const buildState = {
-    totalScenes: sceneIds.length,
-    sceneIds: sceneIds,
-    completedScenes: [],
-    stepConfig: {},
-    startedAt: new Date().toISOString()
-  };
-  writeJSON(getBuildStatePath(projectDir), buildState);
-
-  console.error(`✓ init 完成`);
-  console.error(`  骨架 HTML: ${htmlPath}`);
-  console.error(`  构建目录: ${buildDir}`);
-  console.error(`  场景总数: ${sceneIds.length}（${sceneIds.join(', ')}）`);
-}
-
-// ── append ──
-
-function cmdAppend(projectDir, sceneId, slidesHtmlPath, stepConfigPath) {
-  const htmlPath = getHtmlPath(projectDir);
-  const buildDir = getBuildDir(projectDir);
-  const buildStatePath = getBuildStatePath(projectDir);
-
-  // 验证构建状态存在
-  if (!fs.existsSync(buildStatePath)) {
-    console.error('✗ 未找到 build-state.json，请先运行 init');
-    process.exit(1);
-  }
-
-  const buildState = readJSON(buildStatePath);
-
-  // 检查是否重复追加
-  if (buildState.completedScenes.includes(sceneId)) {
-    console.error(`⚠ 场景 ${sceneId} 已经追加过，跳过`);
-    return;
-  }
-
-  // 读取 slide HTML 片段
-  const slidesHtml = fs.readFileSync(slidesHtmlPath, 'utf-8');
-
-  // 读取 presentation.html 并在标记处插入
-  let html = fs.readFileSync(htmlPath, 'utf-8');
-  const markerIndex = html.indexOf(INSERT_MARKER);
-  if (markerIndex === -1) {
-    console.error('✗ 未找到插入标记 <!-- __INCREMENTAL_INSERT__ -->，HTML 可能已被 finalize');
-    process.exit(1);
-  }
-
-  // 在标记之前插入内容
-  html = html.slice(0, markerIndex) + slidesHtml + '\n' + html.slice(markerIndex);
-  fs.writeFileSync(htmlPath, html, 'utf-8');
-
-  // 备份片段
-  const backupPath = path.join(buildDir, `scene-${sceneId}.html`);
-  fs.writeFileSync(backupPath, slidesHtml, 'utf-8');
-
-  // 合并 stepConfig
-  if (stepConfigPath && fs.existsSync(stepConfigPath)) {
-    const sceneStepConfig = readJSON(stepConfigPath);
-    Object.assign(buildState.stepConfig, sceneStepConfig);
-
-    // 备份 stepConfig
-    const stepBackupPath = path.join(buildDir, `scene-${sceneId}-step-config.json`);
-    fs.copyFileSync(stepConfigPath, stepBackupPath);
-  }
-
-  // 更新状态
-  buildState.completedScenes.push(sceneId);
-  buildState.completedScenes.sort((a, b) => a - b);
-  writeJSON(buildStatePath, buildState);
-
-  const remaining = buildState.sceneIds.filter(id => !buildState.completedScenes.includes(id));
-  console.error(`✓ 场景 ${sceneId} 追加完成`);
-  console.error(`  进度: ${buildState.completedScenes.length}/${buildState.totalScenes}`);
-  if (remaining.length > 0) {
-    console.error(`  剩余: ${remaining.join(', ')}`);
-  }
-}
-
-// ── finalize ──
-
-function cmdFinalize(projectDir) {
-  const htmlPath = getHtmlPath(projectDir);
-  const buildDir = getBuildDir(projectDir);
-  const buildStatePath = getBuildStatePath(projectDir);
-  const contextPath = getContextPath(projectDir);
-
-  if (!fs.existsSync(buildStatePath)) {
-    console.error('✗ 未找到 build-state.json，请先运行 init');
-    process.exit(1);
-  }
-
-  const buildState = readJSON(buildStatePath);
-  const context = readJSON(contextPath);
-  const parsedResult = context.parsedResult || context.parsed || {};
-  const plan = context.presentationPlan || context.plan || {};
-
-  // 检查是否所有场景已完成
-  const remaining = buildState.sceneIds.filter(id => !buildState.completedScenes.includes(id));
-  if (remaining.length > 0) {
-    console.error(`⚠ 还有 ${remaining.length} 个场景未完成: ${remaining.join(', ')}`);
-    console.error('  继续 finalize 将只包含已完成的场景');
-  }
-
-  let html = fs.readFileSync(htmlPath, 'utf-8');
-
-  // 移除插入标记
-  html = html.replace(INSERT_MARKER, '');
-
-  // 替换占位符
-  const timelineConfig = buildTimelineConfig(plan);
-  const presentationData = { parsed: parsedResult, plan };
-  const title = escapeHtml(parsedResult.meta?.title || 'Visual Narrative Output');
-  const tag = escapeHtml(parsedResult.meta?.theme || parsedResult.meta?.topic || 'visual narrative');
-  const stepConfig = buildState.stepConfig || {};
-
-  html = html
-    .replace(/__APP_TITLE__/g, title)
-    .replace('__PRESENTATION_TAG__', tag)
-    .replace('__TIMELINE_CONFIG__', JSON.stringify(timelineConfig, null, 2))
-    .replace('__PRESENTATION_DATA__', JSON.stringify(presentationData, null, 2))
-    .replace('__STEP_CONFIG__', JSON.stringify(stepConfig, null, 2));
-
-  fs.writeFileSync(htmlPath, html, 'utf-8');
+  fs.writeFileSync(path.join(projectDir, 'presentation.html'), html);
 
   // 复制背景纹理
-  const bgSrc = path.join(ASSETS_DIR, 'paper-texture-bg.png');
-  const bgDest = path.join(projectDir, 'paper-texture-bg.png');
-  if (fs.existsSync(bgSrc) && !fs.existsSync(bgDest)) {
-    fs.copyFileSync(bgSrc, bgDest);
-    console.error(`  背景纹理已复制: ${bgDest}`);
+  if (fs.existsSync(TEXTURE_PATH)) {
+    fs.copyFileSync(TEXTURE_PATH, path.join(projectDir, 'paper-texture-bg.png'));
   }
 
-  // 删除 .build/ 目录
-  fs.rmSync(buildDir, { recursive: true, force: true });
+  // 更新进度
+  progress.status = 'completed';
+  progress.completedAt = new Date().toISOString();
+  fs.writeFileSync(progressPath, JSON.stringify(progress, null, 2));
 
-  console.error(`✓ finalize 完成`);
-  console.error(`  产物: ${htmlPath}`);
-  console.error(`  已完成场景: ${buildState.completedScenes.length}/${buildState.totalScenes}`);
-  console.error(`  .build/ 已清理`);
+  // 清理（保留 progress.json 用于状态查询，删除临时 HTML）
+  for (const gid of progress.completedGroups) {
+    const groupHtmlPath = path.join(buildDir, `group-${gid}.html`);
+    if (fs.existsSync(groupHtmlPath)) fs.unlinkSync(groupHtmlPath);
+  }
+
+  console.log(`✓ 组装完成`);
+  console.log(`  输出: ${path.join(projectDir, 'presentation.html')}`);
+  console.log(`  镜头数: ${parsed.shots.length}`);
+  console.log(`  画布组: ${progress.completedGroups.length}`);
 }
 
-// ── status ──
+// ─── status ───
+function status(projectDir) {
+  const buildDir = path.join(projectDir, '.build');
+  const progressPath = path.join(buildDir, 'progress.json');
 
-function cmdStatus(projectDir) {
-  const buildStatePath = getBuildStatePath(projectDir);
-  const contextPath = getContextPath(projectDir);
-
-  if (!fs.existsSync(buildStatePath)) {
-    // 检查是否已经 finalize（无 .build/ 但有 presentation.html）
-    if (fs.existsSync(getHtmlPath(projectDir))) {
-      const result = { status: 'finalized', message: '构建已完成，.build/ 已清理' };
-      console.log(JSON.stringify(result, null, 2));
-      return;
-    }
-    const result = { status: 'not-started', message: '未找到构建状态，请先运行 init' };
-    console.log(JSON.stringify(result, null, 2));
+  if (!fs.existsSync(progressPath)) {
+    console.log(JSON.stringify({ status: 'not-initialized' }));
     return;
   }
 
-  const buildState = readJSON(buildStatePath);
-  const remaining = buildState.sceneIds.filter(id => !buildState.completedScenes.includes(id));
+  const progress = JSON.parse(fs.readFileSync(progressPath, 'utf-8'));
+  const remaining = [];
+  for (let i = 1; i <= progress.totalGroups; i++) {
+    if (!progress.completedGroups.includes(i)) remaining.push(i);
+  }
 
-  const result = {
-    status: 'in-progress',
-    total: buildState.totalScenes,
-    completed: buildState.completedScenes,
-    remaining: remaining,
-    progress: `${buildState.completedScenes.length}/${buildState.totalScenes}`,
-    startedAt: buildState.startedAt
+  const output = {
+    status: progress.status,
+    totalGroups: progress.totalGroups,
+    totalShots: progress.totalShots,
+    completed: progress.completedGroups,
+    remaining,
+    progress: `${progress.completedGroups.length}/${progress.totalGroups}`
   };
 
-  // 如果有 context，提取下一个待创作场景的摘要
-  if (remaining.length > 0 && fs.existsSync(contextPath)) {
-    const context = readJSON(contextPath);
-    const plan = context.presentationPlan || context.plan || {};
-    const nextSceneId = remaining[0];
-    const nextPlans = (plan.scenePlans || []).filter(sp => sp.baseSceneId === nextSceneId);
-    result.nextScene = {
-      sceneId: nextSceneId,
-      slideCount: nextPlans.length,
-      plans: nextPlans.map(sp => ({
-        planId: sp.planId,
-        contentType: sp.contentType,
-        mode: sp.mode,
-        layoutIntent: sp.layoutIntent,
-        baseSceneTitle: sp.baseSceneTitle
-      }))
-    };
-  }
-
-  console.log(JSON.stringify(result, null, 2));
+  console.log(JSON.stringify(output, null, 2));
 }
 
-// ── 参数解析 ──
-
-function parseArgs(argv) {
-  const args = argv.slice(2);
-  const options = {
-    command: null,
-    projectDir: null,
-    context: null,
-    sceneId: null,
-    slidesHtml: null,
-    stepConfig: null
-  };
-
-  if (args.length === 0) {
-    return options;
-  }
-
-  // 第一个非 -- 参数是子命令
-  let i = 0;
-  if (!args[0].startsWith('-')) {
-    options.command = args[0];
-    i = 1;
-  }
-
-  for (; i < args.length; i++) {
-    const arg = args[i];
-    switch (arg) {
-      case '--project-dir':
-        options.projectDir = path.resolve(args[++i]);
-        break;
-      case '--context':
-        options.context = path.resolve(args[++i]);
-        break;
-      case '--scene-id':
-        options.sceneId = parseInt(args[++i], 10);
-        break;
-      case '--slides-html':
-        options.slidesHtml = path.resolve(args[++i]);
-        break;
-      case '--step-config':
-        options.stepConfig = path.resolve(args[++i]);
-        break;
-      default:
-        if (!arg.startsWith('-') && !options.command) {
-          options.command = arg;
-        }
-        break;
-    }
-  }
-
-  return options;
-}
-
-function printUsage() {
-  console.error(`用法:
-  node incremental-assemble.js init     --project-dir <path> --context <json>
-  node incremental-assemble.js append   --project-dir <path> --scene-id <N> --slides-html <file> [--step-config <json>]
-  node incremental-assemble.js finalize --project-dir <path>
-  node incremental-assemble.js status   --project-dir <path>`);
-}
-
-// ── main ──
-
+// ─── main ───
 function main() {
-  const options = parseArgs(process.argv);
+  const args = parseArgs(process.argv.slice(2));
+  const command = args._command;
+  const projectDir = args['project-dir'];
 
-  if (!options.command) {
-    printUsage();
+  if (!command) {
+    console.error('用法: node incremental-assemble.js <init|append|finalize|status> --project-dir <dir>');
     process.exit(1);
   }
 
-  if (!options.projectDir && options.command !== 'help') {
-    console.error('✗ 缺少 --project-dir 参数');
-    printUsage();
+  if (!projectDir) {
+    console.error('错误：必须指定 --project-dir');
     process.exit(1);
   }
 
-  switch (options.command) {
+  switch (command) {
     case 'init':
-      if (!options.context) {
-        console.error('✗ init 需要 --context 参数');
-        process.exit(1);
-      }
-      cmdInit(options.projectDir, options.context);
+      init(projectDir);
       break;
-
     case 'append':
-      if (options.sceneId == null || isNaN(options.sceneId)) {
-        console.error('✗ append 需要 --scene-id 参数');
+      if (!args['group-id'] || !args['shots-html']) {
+        console.error('错误：append 需要 --group-id 和 --shots-html 参数');
         process.exit(1);
       }
-      if (!options.slidesHtml) {
-        console.error('✗ append 需要 --slides-html 参数');
-        process.exit(1);
-      }
-      cmdAppend(options.projectDir, options.sceneId, options.slidesHtml, options.stepConfig);
+      append(projectDir, args['group-id'], args['shots-html']);
       break;
-
     case 'finalize':
-      cmdFinalize(options.projectDir);
+      finalize(projectDir);
       break;
-
     case 'status':
-      cmdStatus(options.projectDir);
+      status(projectDir);
       break;
-
     default:
-      console.error(`✗ 未知子命令: ${options.command}`);
-      printUsage();
+      console.error(`未知命令: ${command}`);
       process.exit(1);
   }
 }
 
 if (require.main === module) {
   main();
-} else {
-  module.exports = {
-    cmdInit,
-    cmdAppend,
-    cmdFinalize,
-    cmdStatus,
-    buildTimelineConfig,
-    parseArgs
-  };
 }
+
+module.exports = { init, append, finalize, status };

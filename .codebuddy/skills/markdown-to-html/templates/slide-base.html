@@ -9,16 +9,18 @@
     :root {
       --slide-width: 1920px;
       --slide-height: 1080px;
-      --transition-duration: 800ms;
-      /* 纸浆米白 + 棕绿品牌色系（手机可读性优化版） */
+      --transition-duration: 600ms;
+      --shot-gap: 300ms;
+      --group-transition: 600ms;
+      /* 纸浆米白 + 棕绿品牌色系 */
       --color-bg: #FAF3E9;
       --color-bg-strong: #EDE5D5;
       --color-text: #1a1408;
       --color-text-muted: rgba(26, 20, 8, 0.58);
-      --color-accent: #7A4F2A;          /* 陶土棕 — 主色（加深） */
-      --color-accent-warm: #B8802E;     /* 暖金棕 — 强调（提饱和） */
-      --color-danger: #8B2515;          /* 赤陶红 — 警告/错误（加深） */
-      --color-focus: #4A6741;           /* 橄榄绿 — 聚焦/辅助（偏绿） */
+      --color-accent: #7A4F2A;          /* 陶土棕 — 主色 */
+      --color-accent-warm: #B8802E;     /* 暖金棕 — 强调 */
+      --color-danger: #8B2515;          /* 赤陶红 — 警告/错误 */
+      --color-focus: #4A6741;           /* 橄榄绿 — 聚焦/辅助 */
       --font-display: 'Baskerville', 'Noto Serif SC', 'Songti SC', serif;
       --font-body: 'Avenir Next', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
@@ -56,6 +58,15 @@
     .slide.active {
       opacity: 1;
       pointer-events: auto;
+    }
+
+    /* ── 画布组过渡 ── */
+    .slide.canvas-group-start {
+      /* 画布组起始镜头：清空画布，完整渲染 */
+    }
+
+    .slide.canvas-group-continue {
+      /* 画布组延续镜头：继承画布，增量变化 */
     }
 
     /* ── 固定 UI 元素 ── */
@@ -110,16 +121,29 @@
       background: linear-gradient(90deg, var(--color-accent), var(--color-accent-warm));
     }
 
-    /* ── 渐进揭示基础 ── */
-    [data-enter-at] {
+    /* ── 镜头增量渲染元素 ── */
+    .shot-enter {
       opacity: 0;
-      transform: translateY(24px) scale(0.985);
-      transition: opacity 680ms ease, transform 680ms ease;
+      visibility: hidden;
+      transition: opacity 500ms ease, transform 500ms ease;
     }
 
-    [data-enter-at].visible {
+    .shot-enter.visible {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      visibility: visible;
+    }
+
+    .shot-exit {
+      transition: opacity 400ms ease, transform 400ms ease;
+    }
+
+    .shot-exit.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .shot-morph {
+      transition: all 500ms ease;
     }
 
     /* ── 聚焦状态 ── */
@@ -133,11 +157,11 @@
       transition: opacity 380ms ease, transform 380ms ease;
     }
 
-    /* ── Step 系统基础 ── */
+    /* ── Step 系统基础（兼容画布组内增量） ── */
     .step-hidden {
       opacity: 0;
       pointer-events: none;
-      visibility: hidden;          /* SVG 元素需要 visibility 配合 */
+      visibility: hidden;
     }
 
     .step-entering {
@@ -146,11 +170,11 @@
     }
 
     .step-exiting {
-      visibility: visible;         /* 退场动画播放期间保持可见 */
+      visibility: visible;
       pointer-events: none;
     }
 
-    /* SVG 元素 transform 修正：让 scale/rotate 基于元素自身中心而非 SVG 视口原点 */
+    /* SVG 元素 transform 修正 */
     [data-el] {
       transform-box: fill-box;
       transform-origin: center center;
@@ -158,7 +182,7 @@
 
     /* ── 动画 Keyframes ── */
 
-    /* 入场动画（通用 + SVG 兼容） */
+    /* 入场动画 */
     @keyframes fadeIn {
       from { opacity: 0; visibility: visible; }
       to   { opacity: 1; visibility: visible; }
@@ -225,19 +249,18 @@
       to   { opacity: 0; transform: translateY(30px); visibility: hidden; }
     }
 
-    /* SVG 路径绘制（stroke-dashoffset 过渡） */
+    /* SVG 路径绘制 */
     @keyframes drawPath {
       from { stroke-dashoffset: var(--path-length, 1000); opacity: 1; visibility: visible; }
       to   { stroke-dashoffset: 0;                        opacity: 1; visibility: visible; }
     }
 
-    /* SVG 路径擦除（反向绘制） */
     @keyframes erasePath {
       from { stroke-dashoffset: 0;                        opacity: 1; }
       to   { stroke-dashoffset: var(--path-length, 1000); opacity: 0; visibility: hidden; }
     }
 
-    /* SVG 条形生长（用于柱状图/条形图） */
+    /* SVG 条形生长 */
     @keyframes growBar {
       from { transform: scaleY(0); opacity: 0; visibility: visible; }
       to   { transform: scaleY(1); opacity: 1; visibility: visible; }
@@ -248,13 +271,13 @@
       to   { transform: scaleX(1); opacity: 1; visibility: visible; }
     }
 
-    /* 呼吸发光（强调） */
+    /* 呼吸发光 */
     @keyframes pulseGlow {
       0%, 100% { filter: drop-shadow(0 0 0 transparent); }
       50%      { filter: drop-shadow(0 0 12px var(--color-accent)); }
     }
 
-    /* 数字滚动辅助 */
+    /* 数字滚动 */
     @keyframes countUp {
       from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -279,512 +302,212 @@
 __SLIDES__
   </main>
 
-  <div class="control-hint">空格 / → 下一步，← 上一步，P 暂停，R 继续</div>
+  <div class="control-hint">空格 / → 下一镜头，← 上一镜头，P 暂停，R 继续</div>
   <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
 
   <script>
     window.presentationData = __PRESENTATION_DATA__;
     window.timelineConfig = __TIMELINE_CONFIG__;
-    window.stepConfig = __STEP_CONFIG__;
 
-    class TimelineEngine {
-      constructor() {
+    /**
+     * ShotTimelineEngine — 镜头蒙太奇时间轴引擎
+     *
+     * 核心概念：
+     * - Shot（镜头）：最小调度单位，每个镜头一个 <section class="slide">
+     * - CanvasGroup（画布组）：逻辑分组，组内镜头共享画布做增量渲染
+     * - Transition：画布组间做全画面过渡（淡入淡出）
+     */
+    class ShotTimelineEngine {
+      constructor(config) {
+        this.shots = config.shots || [];
+        this.shotGap = config.shotGap || 300;
+        this.groupTransition = config.groupTransition || 600;
+        this.autoPlay = config.autoPlay || false;
+
         this.slides = Array.from(document.querySelectorAll('.slide'));
         this.currentIndex = 0;
-        this.sceneTimer = null;
-        this.elementTimers = [];
-        this.actionTimers = [];
-        this.stepTimers = [];
+        this.timer = null;
         this.progressBar = document.getElementById('progressBar');
         this.counter = document.getElementById('sceneCounter');
-        this.totalDuration = this.slides.reduce((sum, slide) => sum + this.getSlideDuration(slide), 0);
-        this.elapsedTotal = 0;
-        this.stepGap = 600; // step 之间的间隔（ms）
 
-        // Step 子系统
-        this.currentStep = -1;
+        this.totalDuration = this.shots.reduce((sum, shot) => sum + (shot.duration || 3000), 0)
+          + (this.shots.length - 1) * this.shotGap
+          + this.countGroupTransitions() * this.groupTransition;
+        this.elapsedTotal = 0;
 
         this.updateCounter();
       }
 
-      /* ── 场景配置 ── */
+      /* ── 工具方法 ── */
 
-      getSceneConfig(slide) {
-        const sceneId = Number(slide.dataset.scene);
-        return (window.timelineConfig.scenes || []).find(item => item.scene === sceneId) || null;
-      }
-
-      getSlideDuration(slide) {
-        return this.getSceneConfig(slide)?.duration ?? Number(slide.dataset.duration) ?? 10000;
-      }
-
-      getElementEnterAt(element, slide) {
-        return Number(element.dataset.enterAt) || 0;
-      }
-
-      /* ── Step 配置 ── */
-
-      getSlideSteps(slide) {
-        const slideIndex = this.slides.indexOf(slide) + 1;
-        return window.stepConfig[`slide-${slideIndex}`] || [];
-      }
-
-      hasSteps(slide) {
-        return this.getSlideSteps(slide).length > 0;
-      }
-
-      /* ── 定时器管理 ── */
-
-      clearTimers() {
-        if (this.sceneTimer) clearTimeout(this.sceneTimer);
-        this.elementTimers.forEach(timer => clearTimeout(timer));
-        this.actionTimers.forEach(timer => clearTimeout(timer));
-        this.stepTimers.forEach(timer => clearTimeout(timer));
-        this.elementTimers = [];
-        this.actionTimers = [];
-        this.stepTimers = [];
-      }
-
-      /* ── 状态重置 ── */
-
-      resetSlideState() {
-        this.slides.forEach(slide => {
-          slide.classList.remove('active');
-          slide.querySelectorAll('[data-enter-at]').forEach(element => element.classList.remove('visible'));
-          slide.querySelectorAll('.is-highlighted, .is-dimmed').forEach(element => {
-            element.classList.remove('is-highlighted', 'is-dimmed');
-          });
-        });
-      }
-
-      resetSlideStepState(slide) {
-        slide.querySelectorAll('[data-el]').forEach(el => {
-          el.classList.add('step-hidden');
-          el.classList.remove('step-entering', 'step-exiting', 'is-highlighted', 'is-dimmed');
-          el.style.animation = '';
-          el.style.transform = '';
-          el.style.transition = '';
-          el.style.opacity = '';
-          el.style.visibility = '';
-          el.style.filter = '';
-          // 还原 SVG path 的 stroke-dashoffset
-          if (el.hasAttribute('stroke-dashoffset') || el.style.strokeDashoffset) {
-            const pathLen = el.style.getPropertyValue('--path-length') || el.getAttribute('stroke-dasharray');
-            if (pathLen) {
-              el.style.strokeDashoffset = pathLen;
-            }
+      countGroupTransitions() {
+        let count = 0;
+        for (let i = 1; i < this.shots.length; i++) {
+          if (this.shots[i].canvasGroup !== this.shots[i - 1].canvasGroup) {
+            count++;
           }
-          // 还原通过 morph 修改的 SVG 属性
-          if (el._originalAttrs) {
-            for (const [attr, val] of Object.entries(el._originalAttrs)) {
-              el.setAttribute(attr, val);
-            }
-            delete el._originalAttrs;
-          }
-        });
+        }
+        return count;
+      }
+
+      getShotDuration(index) {
+        return this.shots[index]?.duration || 3000;
+      }
+
+      getShotTransition(index) {
+        if (index === 0) return 'none';
+        const current = this.shots[index];
+        const prev = this.shots[index - 1];
+        if (!current || !prev) return 'none';
+        return current.canvasGroup !== prev.canvasGroup ? 'fade' : 'evolve';
       }
 
       /* ── UI 更新 ── */
 
       updateCounter() {
-        const slide = this.slides[this.currentIndex];
-        const steps = this.getSlideSteps(slide);
-        if (steps.length > 0) {
-          const stepDisplay = Math.max(0, this.currentStep) + 1;
-          this.counter.textContent = `${this.currentIndex + 1}.${stepDisplay} / ${this.slides.length}`;
-        } else {
-          this.counter.textContent = `${Math.min(this.currentIndex + 1, this.slides.length)} / ${this.slides.length}`;
+        const shot = this.shots[this.currentIndex];
+        if (shot) {
+          this.counter.textContent = `${this.currentIndex + 1} / ${this.shots.length}`;
         }
       }
 
-      animateProgress(startTime, duration) {
-        const loop = () => {
-          const elapsed = Date.now() - startTime;
-          const totalProgress = Math.min((this.elapsedTotal + elapsed) / this.totalDuration, 1);
-          this.progressBar.style.width = `${totalProgress * 100}%`;
-          if (elapsed < duration) requestAnimationFrame(loop);
-        };
-        requestAnimationFrame(loop);
+      updateProgress() {
+        const progress = Math.min(this.elapsedTotal / this.totalDuration, 1);
+        this.progressBar.style.width = `${progress * 100}%`;
       }
 
-      /* ── Step 动作执行 ── */
+      /* ── 画布组管理 ── */
 
-      executeStep(slide, stepIndex) {
-        const steps = this.getSlideSteps(slide);
-        if (stepIndex < 0 || stepIndex >= steps.length) return false;
-
-        const step = steps[stepIndex];
-        for (const action of step.actions) {
-          const el = slide.querySelector(`[data-el="${action.target}"]`);
-          if (!el) continue;
-          const delay = action.delay || 0;
-          if (delay > 0) {
-            const timer = setTimeout(() => this.applyStepAction(el, action), delay);
-            this.stepTimers.push(timer);
-          } else {
-            this.applyStepAction(el, action);
+      // 获取同一画布组的所有 slide 索引
+      getCanvasGroupSlides(canvasGroup) {
+        const indices = [];
+        for (let i = 0; i < this.shots.length; i++) {
+          if (this.shots[i].canvasGroup === canvasGroup) {
+            indices.push(i);
           }
         }
-        return true;
+        return indices;
       }
 
-      applyStepAction(el, action) {
-        const duration = action.duration;
-        const isSVG = el instanceof SVGElement;
+      // 画布组切换：淡出所有旧组 slide → 淡入新组第一个 slide
+      transitionToNewGroup(newIndex) {
+        // 隐藏所有 slide
+        this.slides.forEach(slide => {
+          slide.classList.remove('active');
+        });
 
-        switch (action.type) {
-          case 'enter': {
-            el.classList.remove('step-hidden', 'step-exiting');
-            el.classList.add('step-entering');
-            el.style.visibility = 'visible';
-            const dur = duration || 600;
-            const anim = action.animation || 'fadeIn';
-
-            // drawPath 特殊处理：自动计算路径长度
-            if (anim === 'drawPath' && isSVG) {
-              this.initDrawPath(el);
-            }
-
-            el.style.animation = `${anim} ${dur}ms ease forwards`;
-            break;
-          }
-          case 'exit': {
-            el.classList.add('step-exiting');
-            el.classList.remove('step-entering');
-            const dur = duration || 400;
-            const anim = action.animation || 'fadeOut';
-
-            // erasePath 特殊处理
-            if (anim === 'erasePath' && isSVG) {
-              this.initDrawPath(el);
-            }
-
-            el.style.animation = `${anim} ${dur}ms ease forwards`;
-            el.addEventListener('animationend', () => {
-              el.classList.add('step-hidden');
-              el.classList.remove('step-exiting');
-              el.style.visibility = 'hidden';
-            }, { once: true });
-            break;
-          }
-          case 'move': {
-            const dur = duration || 600;
-            el.style.transition = `transform ${dur}ms ease`;
-            if (action.transform) {
-              el.style.transform = action.transform;
-            } else {
-              el.style.transform = `translate(${action.x || 0}px, ${action.y || 0}px)`;
-            }
-            break;
-          }
-          case 'morph': {
-            const dur = duration || 600;
-            // CSS style 属性
-            if (action.style) {
-              el.style.transition = `all ${dur}ms ease`;
-              Object.assign(el.style, action.style);
-            }
-            // SVG attribute 属性（fill, stroke, r, rx, ry, width, height, opacity 等）
-            if (action.attrs && isSVG) {
-              // 保存原始值用于 reset
-              if (!el._originalAttrs) el._originalAttrs = {};
-              for (const [attr, val] of Object.entries(action.attrs)) {
-                if (!(attr in el._originalAttrs)) {
-                  el._originalAttrs[attr] = el.getAttribute(attr);
-                }
-              }
-              // SVG 属性的动画过渡：用 CSS transition 处理可动画的属性
-              el.style.transition = `all ${dur}ms ease`;
-              for (const [attr, val] of Object.entries(action.attrs)) {
-                // 对于 CSS 也能控制的 SVG 呈现属性，优先走 style
-                const cssifiable = ['fill', 'stroke', 'stroke-width', 'opacity', 'r', 'rx', 'ry', 'cx', 'cy', 'x', 'y', 'width', 'height', 'font-size'];
-                if (cssifiable.includes(attr)) {
-                  el.style.setProperty(attr, val);
-                } else {
-                  el.setAttribute(attr, val);
-                }
-              }
-            }
-            break;
-          }
-          case 'highlight': {
-            el.classList.add('is-highlighted');
-            el.classList.remove('is-dimmed');
-            // SVG 元素用 drop-shadow filter 做高亮
-            if (isSVG && !action.noGlow) {
-              el.style.filter = `drop-shadow(0 0 8px var(--color-accent))`;
-              el.style.transition = 'filter 380ms ease, opacity 380ms ease';
-            }
-            if (action.group) {
-              const slide = el.closest('.slide');
-              if (slide) {
-                slide.querySelectorAll(`[data-focus-group="${action.group}"]`).forEach(peer => {
-                  if (peer !== el) {
-                    peer.classList.add('is-dimmed');
-                    peer.classList.remove('is-highlighted');
-                  }
-                });
-              }
-            }
-            break;
-          }
-          case 'dim': {
-            el.classList.add('is-dimmed');
-            el.classList.remove('is-highlighted');
-            if (isSVG) {
-              el.style.filter = '';
-              el.style.transition = 'filter 380ms ease, opacity 380ms ease';
-            }
-            break;
-          }
+        // 显示新 slide
+        const newSlide = this.slides[newIndex];
+        if (newSlide) {
+          // 延迟一帧让淡出生效后再淡入
+          setTimeout(() => {
+            newSlide.classList.add('active');
+            this.activateShotElements(newSlide);
+          }, 50);
         }
       }
 
-      // 自动初始化 SVG path 的 stroke-dash 属性（drawPath / erasePath 前置）
-      initDrawPath(el) {
-        // 对 <path> 元素自动计算总长度
-        if (el.tagName === 'path' && typeof el.getTotalLength === 'function') {
-          const len = Math.ceil(el.getTotalLength());
-          el.style.setProperty('--path-length', len);
-          el.setAttribute('stroke-dasharray', len);
-          el.setAttribute('stroke-dashoffset', len);
+      // 画布演化：同组内增量渲染
+      evolveCanvas(fromIndex, toIndex) {
+        const fromSlide = this.slides[fromIndex];
+        const toSlide = this.slides[toIndex];
+
+        if (fromSlide) {
+          fromSlide.classList.remove('active');
         }
-        // 对 <g> 等容器，处理其中所有 path 子元素
-        else if (el.querySelectorAll) {
-          el.querySelectorAll('path, line, polyline, polygon, circle, ellipse').forEach(path => {
-            if (typeof path.getTotalLength === 'function') {
-              const len = Math.ceil(path.getTotalLength());
-              path.style.setProperty('--path-length', len);
-              path.setAttribute('stroke-dasharray', len);
-              path.setAttribute('stroke-dashoffset', len);
-              path.style.animation = `drawPath ${parseInt(el.style.animation) || 600}ms ease forwards`;
-            }
-          });
+
+        if (toSlide) {
+          toSlide.classList.add('active');
+          this.activateShotElements(toSlide);
         }
       }
 
-      /* ── 原有 action 系统 ── */
+      // 激活镜头内的元素动画
+      activateShotElements(slide) {
+        // shot-enter 元素淡入
+        slide.querySelectorAll('.shot-enter').forEach(el => {
+          el.classList.add('visible');
+        });
 
-      queryActionTargets(slide, target) {
-        if (!target) return [];
-        if (target.selector) return Array.from(slide.querySelectorAll(target.selector));
-        if (target.focusId) {
-          return Array.from(slide.querySelectorAll(`[data-step-target="${target.focusId}"]`));
-        }
-        return [];
-      }
+        // shot-exit 元素淡出
+        slide.querySelectorAll('.shot-exit').forEach(el => {
+          el.classList.add('hidden');
+        });
 
-      resetFocusGroup(slide, groupName) {
-        if (!groupName) return;
-        slide.querySelectorAll(`[data-focus-group="${groupName}"]`).forEach(element => {
-          element.classList.remove('is-highlighted', 'is-dimmed');
+        // data-el + step-hidden 的元素入场（兼容 step 系统）
+        slide.querySelectorAll('[data-el].step-hidden').forEach(el => {
+          el.classList.remove('step-hidden');
+          el.classList.add('step-entering');
+          el.style.visibility = 'visible';
+          const anim = el.dataset.animation || 'fadeIn';
+          const dur = el.dataset.duration || '600';
+          el.style.animation = `${anim} ${dur}ms ease forwards`;
         });
       }
 
-      applyAction(action, slide) {
-        const targets = this.queryActionTargets(slide, action.target);
-        const groupName = action.target?.group;
+      /* ── 核心导航 ── */
 
-        if (action.actionType === 'focus-item' || action.actionType === 'highlight') {
-          if (action.payload?.resetGroup !== false) {
-            this.resetFocusGroup(slide, groupName);
-          }
-          const groupElements = groupName
-            ? Array.from(slide.querySelectorAll(`[data-focus-group="${groupName}"]`))
-            : [];
-          groupElements.forEach(element => element.classList.add('is-dimmed'));
-          targets.forEach(element => {
-            element.classList.add('is-highlighted');
-            element.classList.remove('is-dimmed');
-          });
-          return;
+      showShot(index) {
+        if (this.timer) {
+          clearTimeout(this.timer);
+          this.timer = null;
         }
 
-        if (action.actionType === 'dim-others') {
-          const groupElements = groupName
-            ? Array.from(slide.querySelectorAll(`[data-focus-group="${groupName}"]`))
-            : [];
-          groupElements.forEach(element => element.classList.add('is-dimmed'));
-          targets.forEach(element => element.classList.remove('is-dimmed'));
-          return;
-        }
-
-        if (action.actionType === 'reveal') {
-          targets.forEach(element => element.classList.add('visible'));
-        }
-      }
-
-      scheduleActions(slide) {
-        const config = this.getSceneConfig(slide);
-        (config?.actions || []).forEach(action => {
-          const timer = setTimeout(() => this.applyAction(action, slide), action.enterAt || 0);
-          this.actionTimers.push(timer);
-        });
-      }
-
-      /* ── 核心导航（Step 优先） ── */
-
-      showSlide(index) {
-        this.clearTimers();
-        this.resetSlideState();
-
-        if (index >= this.slides.length) {
-          this.currentIndex = this.slides.length - 1;
+        if (index >= this.shots.length) {
+          this.currentIndex = this.shots.length - 1;
           this.updateCounter();
           this.progressBar.style.width = '100%';
           return;
         }
 
         if (index < 0) index = 0;
+
+        const prevIndex = this.currentIndex;
         this.currentIndex = index;
-        const slide = this.slides[index];
-        slide.classList.add('active');
+        const transition = this.getShotTransition(index);
 
-        // 重置该 slide 的 step 状态
-        this.resetSlideStepState(slide);
-        this.currentStep = -1;
-
-        // data-enter-at 渐进揭示（兼容旧模式）
-        slide.querySelectorAll('[data-enter-at]').forEach(element => {
-          const enterAt = this.getElementEnterAt(element, slide);
-          const timer = setTimeout(() => element.classList.add('visible'), enterAt);
-          this.elementTimers.push(timer);
-        });
-
-        // 原有 action 调度
-        this.scheduleActions(slide);
-
-        const steps = this.getSlideSteps(slide);
-        if (steps.length > 0) {
-          // 有 step 配置：自动执行第一步
-          this.currentStep = 0;
-          this.executeStep(slide, 0);
-          this.updateCounter();
-
-          // 自动播放：按 step 序列推进
-          if (window.timelineConfig.autoPlay) {
-            this.scheduleAutoSteps(slide, 0);
-          }
+        if (transition === 'fade' || index === 0) {
+          // 画布组切换或第一个镜头：全画面过渡
+          this.transitionToNewGroup(index);
         } else {
-          // 无 step 配置：旧模式，按 duration 自动切下一章节
-          this.updateCounter();
-          if (window.timelineConfig.autoPlay) {
-            const duration = this.getSlideDuration(slide);
-            const startTime = Date.now();
-            this.animateProgress(startTime, duration);
-            this.sceneTimer = setTimeout(() => {
-              this.elapsedTotal += duration;
-              this.showSlide(index + 1);
-            }, duration);
-          }
-        }
-      }
-
-      scheduleAutoSteps(slide, fromStep) {
-        const steps = this.getSlideSteps(slide);
-        let cumulativeDelay = 0;
-
-        for (let i = fromStep; i < steps.length; i++) {
-          if (i > fromStep) {
-            // 从第二步开始计算延迟
-            cumulativeDelay += (steps[i - 1].duration || 800) + this.stepGap;
-            const stepIdx = i;
-            const delay = cumulativeDelay;
-            const timer = setTimeout(() => {
-              if (this.currentIndex !== Array.from(this.slides).indexOf(slide)) return;
-              this.currentStep = stepIdx;
-              this.executeStep(slide, stepIdx);
-              this.updateCounter();
-            }, delay);
-            this.stepTimers.push(timer);
-          }
+          // 同组演化：增量渲染
+          this.evolveCanvas(prevIndex, index);
         }
 
-        // 所有 step 播完后，等最后一步的 duration + transitionDuration 后切下一章
-        const lastStep = steps[steps.length - 1];
-        const totalStepTime = cumulativeDelay + (lastStep?.duration || 800) + this.stepGap;
-        const transitionDuration = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--transition-duration')) || 800;
-        const timer = setTimeout(() => {
-          if (this.currentIndex !== Array.from(this.slides).indexOf(slide)) return;
-          this.elapsedTotal += this.getSlideDuration(slide);
-          this.showSlide(this.currentIndex + 1);
-        }, totalStepTime + transitionDuration);
-        this.stepTimers.push(timer);
+        this.updateCounter();
+        this.updateProgress();
 
-        // 进度条动画
-        const startTime = Date.now();
-        this.animateProgress(startTime, totalStepTime + transitionDuration);
+        // 自动播放
+        if (this.autoPlay) {
+          const duration = this.getShotDuration(index);
+          const nextTransition = this.getShotTransition(index + 1);
+          const gap = nextTransition === 'fade' ? this.groupTransition : this.shotGap;
+
+          this.timer = setTimeout(() => {
+            this.elapsedTotal += duration + gap;
+            this.showShot(index + 1);
+          }, duration + gap);
+        }
       }
 
       next() {
-        const slide = this.slides[this.currentIndex];
-        const steps = this.getSlideSteps(slide);
-
-        if (steps.length > 0 && this.currentStep < steps.length - 1) {
-          // 还有下一步：推进 step
-          this.clearTimers();
-          this.currentStep++;
-          this.executeStep(slide, this.currentStep);
-          this.updateCounter();
-
-          // 自动播放：从当前步继续
-          if (window.timelineConfig.autoPlay) {
-            this.scheduleAutoSteps(slide, this.currentStep);
-          }
-        } else {
-          // step 用完或无 step：切下一章节
-          if (slide) {
-            this.elapsedTotal = Math.min(this.totalDuration, this.elapsedTotal + this.getSlideDuration(slide));
-          }
-          this.showSlide(this.currentIndex + 1);
-        }
+        const duration = this.getShotDuration(this.currentIndex);
+        const nextTransition = this.getShotTransition(this.currentIndex + 1);
+        const gap = nextTransition === 'fade' ? this.groupTransition : this.shotGap;
+        this.elapsedTotal += duration + gap;
+        this.showShot(this.currentIndex + 1);
       }
 
       prev() {
-        const slide = this.slides[this.currentIndex];
-        const steps = this.getSlideSteps(slide);
-
-        if (steps.length > 0 && this.currentStep > 0) {
-          // 还在当前章节内，回退到上一步：重置 + 重放
-          this.clearTimers();
-          this.currentStep--;
-          this.resetSlideStepState(slide);
-          for (let i = 0; i <= this.currentStep; i++) {
-            this.executeStep(slide, i);
-          }
-          this.updateCounter();
-        } else {
-          // 已在第一步或无 step：回退到上一个章节
-          const prevIndex = Math.max(this.currentIndex - 1, 0);
-          this.elapsedTotal = this.slides
-            .slice(0, prevIndex)
-            .reduce((sum, s) => sum + this.getSlideDuration(s), 0);
-
-          // 显示上一章节
-          this.clearTimers();
-          this.resetSlideState();
-          this.currentIndex = prevIndex;
-          const prevSlide = this.slides[prevIndex];
-          prevSlide.classList.add('active');
-
-          // 重置 step 状态
-          this.resetSlideStepState(prevSlide);
-
-          // data-enter-at 全部可见
-          prevSlide.querySelectorAll('[data-enter-at]').forEach(el => el.classList.add('visible'));
-
-          const prevSteps = this.getSlideSteps(prevSlide);
-          if (prevSteps.length > 0) {
-            // 重放上一章的所有 step（显示最终状态）
-            this.currentStep = prevSteps.length - 1;
-            for (let i = 0; i <= this.currentStep; i++) {
-              this.executeStep(prevSlide, i);
-            }
-          } else {
-            this.currentStep = -1;
-          }
-          this.updateCounter();
+        const prevIndex = Math.max(this.currentIndex - 1, 0);
+        // 回算 elapsed
+        if (prevIndex < this.currentIndex) {
+          const prevDuration = this.getShotDuration(prevIndex);
+          const prevTransition = this.getShotTransition(this.currentIndex);
+          const gap = prevTransition === 'fade' ? this.groupTransition : this.shotGap;
+          this.elapsedTotal = Math.max(0, this.elapsedTotal - prevDuration - gap);
         }
+        this.showShot(prevIndex);
       }
 
       /* ── 播放控制 ── */
@@ -792,39 +515,30 @@ __SLIDES__
       start() {
         this.elapsedTotal = 0;
         this.progressBar.style.width = '0%';
-        this.showSlide(0);
+        this.showShot(0);
       }
 
       pause() {
-        window.timelineConfig.autoPlay = false;
-        this.clearTimers();
+        this.autoPlay = false;
+        if (this.timer) {
+          clearTimeout(this.timer);
+          this.timer = null;
+        }
       }
 
       resume() {
-        window.timelineConfig.autoPlay = true;
-        const slide = this.slides[this.currentIndex];
-        const steps = this.getSlideSteps(slide);
-
-        if (steps.length > 0 && this.currentStep < steps.length - 1) {
-          // 有剩余 step：从当前步继续自动推进
-          this.scheduleAutoSteps(slide, this.currentStep + 1);
-        } else if (steps.length === 0) {
-          // 无 step 模式：重新显示当前 slide
-          this.showSlide(this.currentIndex);
-        } else {
-          // step 已播完：切下一章
-          const lastStep = steps[steps.length - 1];
-          const transitionDuration = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--transition-duration')) || 800;
-          this.sceneTimer = setTimeout(() => {
-            this.elapsedTotal += this.getSlideDuration(slide);
-            this.showSlide(this.currentIndex + 1);
-          }, (lastStep?.duration || 800) + transitionDuration);
-        }
+        this.autoPlay = true;
+        const duration = this.getShotDuration(this.currentIndex);
+        // 简单处理：立即切下一个镜头（假设当前已观看完）
+        this.timer = setTimeout(() => {
+          this.elapsedTotal += duration + this.shotGap;
+          this.showShot(this.currentIndex + 1);
+        }, this.shotGap);
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      window.timeline = new TimelineEngine();
+      window.timeline = new ShotTimelineEngine(window.timelineConfig);
       window.timeline.start();
     });
 

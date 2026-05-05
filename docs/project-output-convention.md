@@ -6,14 +6,15 @@
 
 ```
 output/<NNN>-<slug>/
-  script.md                    ← markdown-scriptwriter
-  presentation.html            ← markdown-to-html
+  script.md                    ← markdown-scriptwriter（镜头蒙太奇格式）
+  presentation.html            ← markdown-to-html（镜头级渲染）
   paper-texture-bg.png         ← markdown-to-html
   audio/                       ← tts-voiceover
-    scene-01/001.wav
-    scene-02/001.wav
+    shot-001.wav               ← 扁平化命名
+    shot-002.wav
+    shot-003.wav
     ...
-  tts-manifest.json            ← tts-voiceover
+  tts-manifest.json            ← tts-voiceover（shots 扁平格式）
   subtitles.srt                ← subtitle-timeline
   video/                       ← video-render
     silent.mp4
@@ -30,11 +31,11 @@ output/<NNN>-<slug>/
 ## 固定文件名
 
 | 产物 | 相对路径 | 产出 skill |
-|------|---------|-----------|
+|------|---------|-----------| 
 | 视频文案 | `script.md` | markdown-scriptwriter |
 | HTML 幻灯片 | `presentation.html` | markdown-to-html |
 | 背景纹理 | `paper-texture-bg.png` | markdown-to-html |
-| 逐句音频 | `audio/scene-NN/NNN.wav` | tts-voiceover |
+| 逐句音频 | `audio/shot-NNN.wav` | tts-voiceover |
 | TTS 清单 | `tts-manifest.json` | tts-voiceover |
 | SRT 字幕 | `subtitles.srt` | subtitle-timeline |
 | 无声视频 | `video/silent.mp4` | video-render |
@@ -47,16 +48,18 @@ output/<NNN>-<slug>/
 2. **manifest 内路径全部使用相对于项目目录的相对路径**
 3. **skill 内部定位文件**：`项目目录 + 固定文件名`
 
-### manifest 路径示例
+### manifest 路径示例（shots 格式）
 
 ```json
 {
   "source": "script.md",
   "html_path": "presentation.html",
-  "scenes": [{
-    "lines": [{
-      "audio_path": "audio/scene-01/001.wav"
-    }]
+  "shots": [{
+    "id": 1,
+    "canvas_group": 1,
+    "text": "话术内容",
+    "audio_path": "audio/shot-001.wav",
+    "duration_ms": 2100
   }]
 }
 ```

@@ -42,7 +42,7 @@ video-render/
 | TTS 清单 | `<项目目录>/tts-manifest.json` |
 | HTML 幻灯片 | `<项目目录>/presentation.html`（从 manifest 的 `html_path` 相对路径定位） |
 | SRT 字幕 | `<项目目录>/subtitles.srt` |
-| 逐句音频 | `<项目目录>/audio/scene-NN/NNN.wav`（从 manifest 的 `audio_path` 相对路径定位） |
+| 逐句音频 | `<项目目录>/audio/shot-NNN.wav`（从 manifest 的 `audio_path` 相对路径定位） |
 
 ### 输出路径
 
@@ -56,10 +56,10 @@ video-render/
 
 | 文件 | 来源 | 说明 |
 |------|------|------|
-| `<项目目录>/tts-manifest.json` | `tts-voiceover` | 含 `html_path`、每句音频路径（相对路径）和 `duration_ms` |
-| `<项目目录>/presentation.html` | `markdown-to-html` + `subtitle-timeline` | 含 `stepConfig`、`timelineConfig`、`TimelineEngine`，时长已校准 |
+| `<项目目录>/tts-manifest.json` | `tts-voiceover` | 含 `html_path`、每个镜头的音频路径（相对路径）和 `duration_ms`（shots 扁平格式） |
+| `<项目目录>/presentation.html` | `markdown-to-html` + `subtitle-timeline` | 含 `timelineConfig`（shots 格式）、`ShotTimelineEngine`，时长已校准 |
 | `<项目目录>/subtitles.srt` | `subtitle-timeline` | 带时间戳的 SRT 字幕 |
-| `<项目目录>/audio/scene-NN/NNN.wav` | `tts-voiceover` | 逐句配音 WAV |
+| `<项目目录>/audio/shot-NNN.wav` | `tts-voiceover` | 逐句配音 WAV（扁平化命名） |
 
 ## 输出
 
@@ -105,9 +105,9 @@ video-render/
 
 ## 阶段 2：音频拼接（audio.js）
 
-按 `tts-manifest.json` 顺序拼接逐句 WAV：
-- `line_gap_ms = 300`（句间呼吸）
-- `scene_gap_ms = 800`（场景切换静默）
+按 `tts-manifest.json` 中 `shots` 数组顺序拼接逐句 WAV：
+- `shot_gap_ms = 300`（镜头间呼吸）
+- `group_transition_ms = 600`（画布组切换静默）
 
 拼接后校验总时长与 HTML timelineConfig 的偏差（允许 ±500ms）。
 
@@ -179,9 +179,10 @@ ffmpeg -filters 2>&1 | grep subtitle
 
 | 错误 | 正确做法 |
 |------|----------|
-| 用真实时间驱动 HTML 播放 | 必须接管 TimelineEngine 时钟，逐帧推进 |
+| 用真实时间驱动 HTML 播放 | 必须接管 ShotTimelineEngine 时钟，逐帧推进 |
 | 截图落盘为 PNG 再读取 | 截图 Buffer 直接 pipe 进 FFmpeg stdin |
 | 忘记内存限制 | Chrome 1.5GB + Node 0.5GB，每 100 帧检查 |
-| 音频拼接忘记 line_gap_ms | 句间 300ms、场景间 800ms 静音间隔 |
+| 音频拼接忘记间隔 | 镜头间 300ms、画布组切换间 600ms 静音间隔 |
 | 字幕用 SRT 软字幕 | 用 FFmpeg subtitles filter 硬烧录 |
 | 不检查音视频时长偏差 | 拼接后校验，偏差 > 500ms 输出警告 |
+| 画布组切换时截到过渡中间态 | 每次切换后等待 transition 完成再截帧 |

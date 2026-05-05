@@ -65,8 +65,10 @@ description: Use when reviewing generated HTML slides or presentation pages for 
    - 明确要检查的 HTML 文件或预览地址
 2. **固定画布基准**
    - 以 `1920x1080` 的最终画面为唯一判断基准
-3. **逐页检查**
-   - 按场景 / slide 检查标题、主体区、侧栏、底部区、固定浮层、装饰层
+3. **逐镜头检查**
+   - 按画布组 / 镜头检查每个 `<section class="slide">` 的内容
+   - 画布组首镜头（canvas-group-start）：检查完整画面构图
+   - 画布组续镜头（canvas-group-continue）：检查增量元素是否与前一镜头存在重叠/溢出
 4. **按问题类型归类**
    - 错位、越界、裁切、截断、重叠、安全边距不足、信息过挤
 5. **输出结构化问题清单**
@@ -99,9 +101,9 @@ description: Use when reviewing generated HTML slides or presentation pages for 
 
 ### 问题态示例
 
-- **场景 2 / major / 重叠**：主标题换成两行后压到了右侧图表
-- **场景 4 / critical / 越界**：底部数字卡片超出画布下边界，最终录屏会被裁掉
-- **场景 6 / minor / 安全边距不足**：左侧说明文字距离边缘过近
+- **画布组 2 / 镜头 5 / major / 重叠**：新增文字元素压到了前一镜头的图标
+- **画布组 3 / 镜头 8 / critical / 越界**：底部图标超出画布下边界，最终录屏会被裁掉
+- **画布组 1 / 镜头 2 / minor / 安全边距不足**：左侧增量文字距离边缘过近
 
 ## 分级标准
 
